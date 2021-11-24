@@ -549,12 +549,12 @@ jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
                 if (path != NULL)
                 {
                     NSString *overridenPath = [NSString stringWithFormat:@"%s", path];
-                    if ([[NSFileManager defaultManager] fileExistsAtPath:overridenPath isDirectory:NO] == YES)
+                    if ([[NSFileManager defaultManager] fileExistsAtPath:overridenPath] == YES)
                     {
                         iconPath = overridenPath;
                     }
                 }
-                if ([[NSFileManager defaultManager] fileExistsAtPath:iconPath isDirectory:NO] == NO)
+                if ([[NSFileManager defaultManager] fileExistsAtPath:iconPath] == NO)
                 {
                     // try again using Java generic icon (this icon might go away eventually ?)
                     iconPath = [NSString stringWithFormat:@"%s", "/System/Library/Frameworks/JavaVM.framework/Resources/GenericApp.icns"];
@@ -562,7 +562,7 @@ jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 
                 NSImage *image = nil;
                 {
-                    if ([[NSFileManager defaultManager] fileExistsAtPath:iconPath isDirectory:NO] == YES)
+                    if ([[NSFileManager defaultManager] fileExistsAtPath:iconPath] == YES)
                     {
                         image = [[NSImage alloc] initWithContentsOfFile:iconPath];
                     }
