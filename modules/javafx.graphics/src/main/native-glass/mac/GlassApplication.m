@@ -533,11 +533,8 @@ jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
             {
                 isNormalTaskbarApp = YES;
                 // move process from background only to full on app with visible Dock icon
-                ProcessSerialNumber psn;
-                if (GetCurrentProcess(&psn) == noErr)
-                {
-                    TransformProcessType(&psn, kProcessTransformToForegroundApplication);
-                }
+                ProcessSerialNumber psn = {0, kCurrentProcess};
+                TransformProcessType(&psn, kProcessTransformToForegroundApplication);
 
                 NSString *CFBundleIconFile = [mainBundle objectForInfoDictionaryKey:@"CFBundleIconFile"];
                 NSString *iconPath = nil;
@@ -602,11 +599,8 @@ jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
                 {
                     // 10.7 or later: move process from background only process to a limited app with active windows,
                     // but no Dock icon
-                    ProcessSerialNumber psn;
-                    if (GetCurrentProcess(&psn) == noErr)
-                    {
-                        TransformProcessType(&psn, 4); // kProcessTransformToUIElementApplication
-                    }
+                    ProcessSerialNumber psn = {0, kCurrentProcess};
+                    TransformProcessType(&psn, 4); // kProcessTransformToUIElementApplication
                 }
                 else
                 {
