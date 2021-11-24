@@ -159,9 +159,6 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
 
         self->nativeFullScreenModeWindow = nil;
 
-        // optimization
-        [self->nsView allocateGState];
-
                 // register for drag and drop
                 [self->nsView registerForDraggedTypes:[NSArray arrayWithObjects:        NSPasteboardTypeString,
                                                                                 NSPasteboardTypeTIFF,
@@ -516,7 +513,7 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
                                                  modifierFlags:[theEvent modifierFlags]
                                                      timestamp:[theEvent timestamp]
                                                   windowNumber:[theEvent windowNumber]
-                                                       context:[theEvent context]
+                                                       context:nil
                                                    eventNumber:0
                                                 trackingNumber:self->lastTrackingNumber
                                                       userData:self];
