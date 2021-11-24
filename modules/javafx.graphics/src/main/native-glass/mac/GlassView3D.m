@@ -379,12 +379,9 @@
 {
     MOUSELOG("mouseDown");
     // First check if system Input Method Engine needs to handle this event
-    NSInputManager *inputManager = [NSInputManager currentInputManager];
-    if ([inputManager wantsToHandleMouseEvents]) {
-        if ([inputManager handleMouseEvent:theEvent]) {
-            return;
-        }
-    }
+    NSTextInputContext *inputContext = [NSTextInputContext currentInputContext];
+    if ([inputContext handleEvent: theEvent])
+        return;
     [self->_delegate sendJavaMouseEvent:theEvent];
 }
 
