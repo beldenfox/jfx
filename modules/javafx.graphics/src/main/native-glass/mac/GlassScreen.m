@@ -42,11 +42,7 @@ NSSize maxScreenDimensions;
 
 CGFloat GetScreenScaleFactor(NSScreen *screen)
 {
-    if ([screen respondsToSelector:@selector(backingScaleFactor)]) {
-        return [screen backingScaleFactor];
-    } else {
-        return [screen userSpaceScaleFactor];
-    }
+    return [screen backingScaleFactor];
 }
 
 jobject createJavaScreen(JNIEnv *env, NSScreen* screen)
