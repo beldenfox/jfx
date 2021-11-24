@@ -97,55 +97,55 @@ JNIEXPORT void JNICALL Java_com_sun_glass_events_mac_NpapiEvent__1dispatchCocoaN
             {
                 case com_sun_glass_events_mac_NpapiEvent_NPCocoaEventMouseEntered:
                     LOG("   NSMouseEntered");
-                    type = NSMouseEntered;
+                    type = NSEventTypeMouseEntered;
                     break;
                 case com_sun_glass_events_mac_NpapiEvent_NPCocoaEventMouseExited:
                     LOG("   NSMouseExited");
-                    type = NSMouseExited;
+                    type = NSEventTypeMouseExited;
                     break;
                 case com_sun_glass_events_mac_NpapiEvent_NPCocoaEventMouseDown:
                     LOG("   NSLeftMouseDown");
                     if (jButtonNumber == 0) {
-                        type = NSLeftMouseDown;
+                        type = NSEventTypeLeftMouseDown;
                     } else if (jButtonNumber == 1) {
-                        type = NSRightMouseDown;
+                        type = NSEventTypeRightMouseDown;
                     } else {
-                        type = NSOtherMouseDown;
+                        type = NSEventTypeOtherMouseDown;
                     }
                     break;
                 case com_sun_glass_events_mac_NpapiEvent_NPCocoaEventMouseUp:
                     LOG("   NSLeftMouseUp");
                     if (jButtonNumber == 0) {
-                        type = NSLeftMouseUp;
+                        type = NSEventTypeLeftMouseUp;
                     } else if (jButtonNumber == 1) {
-                        type = NSRightMouseUp;
+                        type = NSEventTypeRightMouseUp;
                     } else {
-                        type = NSOtherMouseUp;
+                        type = NSEventTypeOtherMouseUp;
                     }
                     break;
                 case com_sun_glass_events_mac_NpapiEvent_NPCocoaEventMouseDragged:
                     LOG("   NSLeftMouseDragged");
                     if (jButtonNumber == 0) {
-                        type = NSLeftMouseDragged;
+                        type = NSEventTypeLeftMouseDragged;
                     } else if (jButtonNumber == 1) {
-                        type = NSRightMouseDragged;
+                        type = NSEventTypeRightMouseDragged;
                     } else {
-                        type = NSOtherMouseDragged;
+                        type = NSEventTypeOtherMouseDragged;
                     }
                     break;
                 case com_sun_glass_events_mac_NpapiEvent_NPCocoaEventMouseMoved:
                     LOG("   NSMouseMoved");
-                    type = NSMouseMoved;
+                    type = NSEventTypeMouseMoved;
                     break;
                 case com_sun_glass_events_mac_NpapiEvent_NPCocoaEventScrollWheel:
                     LOG("   NSScrollWheel");
-                    type = NSScrollWheel;
+                    type = NSEventTypeScrollWheel;
                     break;
             }
 
             NSEvent *event = nil;
             jdouble windowY = [window->child frame].size.height - jPluginY;
-            if ((type == NSMouseEntered) || (type == NSMouseExited))
+            if ((type == NSEventTypeMouseEntered) || (type == NSEventTypeMouseExited))
             {
                 event = [NSEvent enterExitEventWithType:type
                                                location:NSMakePoint((CGFloat)jPluginX, (CGFloat)windowY)
@@ -158,7 +158,7 @@ JNIEXPORT void JNICALL Java_com_sun_glass_events_mac_NpapiEvent__1dispatchCocoaN
                                                userData:nil];
                 [event setValue:window->child forKey:@"window"];
                 LOG("   NPAPI mouse event: %s", [[event description] UTF8String]);
-            } else if (type != NSScrollWheel) {
+            } else if (type != NSEventTypeScrollWheel) {
                 NSPoint eventPoint = NSMakePoint((CGFloat)jPluginX, (CGFloat)windowY);
                 event = [NSEvent mouseEventWithType:type
                                            location:eventPoint
@@ -213,13 +213,13 @@ JNIEXPORT void JNICALL Java_com_sun_glass_events_mac_NpapiEvent__1dispatchCocoaN
             switch (jType)
             {
                 case com_sun_glass_events_mac_NpapiEvent_NPCocoaEventKeyDown:
-                    type = NSKeyDown;
+                    type = NSEventTypeKeyDown;
                     break;
                 case com_sun_glass_events_mac_NpapiEvent_NPCocoaEventKeyUp:
-                    type = NSKeyUp;
+                    type = NSEventTypeKeyUp;
                     break;
                 case com_sun_glass_events_mac_NpapiEvent_NPCocoaEventFlagsChanged:
-                    type = NSFlagsChanged;
+                    type = NSEventTypeFlagsChanged;
                     break;
             }
 
@@ -304,7 +304,7 @@ JNIEXPORT void JNICALL Java_com_sun_glass_events_mac_NpapiEvent__1dispatchCocoaN
             for (NSUInteger i = 0; i < [chars length]; i++) {
                 NSString *singleChar = [NSString stringWithCharacters:&unichars[i] length:1];
                 GlassNSEvent *event =
-                (GlassNSEvent *)[GlassNSEvent keyEventWithType:NSKeyDown
+                (GlassNSEvent *)[GlassNSEvent keyEventWithType:NSEventTypeKeyDown
                                                       location:NSMakePoint(0.0, 0.0)
                                                  modifierFlags:0
                                                      timestamp:[NSDate timeIntervalSinceReferenceDate]

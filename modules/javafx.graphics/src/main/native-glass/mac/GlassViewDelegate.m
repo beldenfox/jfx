@@ -336,15 +336,15 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
     int button = com_sun_glass_events_MouseEvent_BUTTON_NONE;
     switch ([theEvent type])
     {
-        case NSLeftMouseDown:
+        case NSEventTypeLeftMouseDown:
             type = com_sun_glass_events_MouseEvent_DOWN;
             button = com_sun_glass_events_MouseEvent_BUTTON_LEFT;
             break;
-        case NSRightMouseDown:
+        case NSEventTypeRightMouseDown:
             type = com_sun_glass_events_MouseEvent_DOWN;
             button = com_sun_glass_events_MouseEvent_BUTTON_RIGHT;
             break;
-        case NSOtherMouseDown:
+        case NSEventTypeOtherMouseDown:
             type = com_sun_glass_events_MouseEvent_DOWN;
             switch ([theEvent buttonNumber]) {
                 case 2:
@@ -359,15 +359,15 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
             }
             break;
 
-        case NSLeftMouseUp:
+        case NSEventTypeLeftMouseUp:
             type = com_sun_glass_events_MouseEvent_UP;
             button = com_sun_glass_events_MouseEvent_BUTTON_LEFT;
             break;
-        case NSRightMouseUp:
+        case NSEventTypeRightMouseUp:
             type = com_sun_glass_events_MouseEvent_UP;
             button = com_sun_glass_events_MouseEvent_BUTTON_RIGHT;
             break;
-        case NSOtherMouseUp:
+        case NSEventTypeOtherMouseUp:
             type = com_sun_glass_events_MouseEvent_UP;
             switch ([theEvent buttonNumber]) {
                 case 2:
@@ -382,15 +382,15 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
             }
             break;
 
-        case NSLeftMouseDragged:
+        case NSEventTypeLeftMouseDragged:
             type = com_sun_glass_events_MouseEvent_DRAG;
             button = com_sun_glass_events_MouseEvent_BUTTON_LEFT;
             break;
-        case NSRightMouseDragged:
+        case NSEventTypeRightMouseDragged:
             type = com_sun_glass_events_MouseEvent_DRAG;
             button = com_sun_glass_events_MouseEvent_BUTTON_RIGHT;
             break;
-        case NSOtherMouseDragged:
+        case NSEventTypeOtherMouseDragged:
             type = com_sun_glass_events_MouseEvent_DRAG;
             switch ([theEvent buttonNumber]) {
                 case 2:
@@ -405,24 +405,28 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
             }
             break;
 
-        case NSMouseMoved:
+        case NSEventTypeMouseMoved:
             type = com_sun_glass_events_MouseEvent_MOVE;
             break;
 
-        case NSMouseEntered:
+        case NSEventTypeMouseEntered:
             type = com_sun_glass_events_MouseEvent_ENTER;
             [GlassTouches startTracking:self];
             self->lastTrackingNumber = [theEvent trackingNumber];
             break;
 
-        case NSMouseExited:
+        case NSEventTypeMouseExited:
             type = com_sun_glass_events_MouseEvent_EXIT;
             [GlassTouches stopTracking:self];
             self->lastTrackingNumber = [theEvent trackingNumber];
             break;
 
-        case NSScrollWheel:
+        case NSEventTypeScrollWheel:
             type = com_sun_glass_events_MouseEvent_WHEEL;
+            break;
+
+        default:
+            // Error
             break;
     }
 
@@ -507,7 +511,7 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
                 type != com_sun_glass_events_MouseEvent_EXIT)
         {
             // OS X didn't send mouseEnter. Synthesize it here.
-            NSEvent *eeEvent = [NSEvent enterExitEventWithType:NSMouseEntered
+            NSEvent *eeEvent = [NSEvent enterExitEventWithType:NSEventTypeMouseEntered
                                                       location:[theEvent locationInWindow]
                                                  modifierFlags:[theEvent modifierFlags]
                                                      timestamp:[theEvent timestamp]
@@ -647,7 +651,7 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
     if (self->mouseIsOver) {
         // Nothing of the parameters really matters for the EXIT event, except userData
         NSEvent* theEvent = [NSEvent
-            enterExitEventWithType:NSMouseExited
+            enterExitEventWithType:NSEventTypeMouseExited
                           location:[NSEvent mouseLocation]
                      modifierFlags:0
                          timestamp:[NSDate timeIntervalSinceReferenceDate]
@@ -755,7 +759,7 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
 
 - (void)sendJavaModifierKeyEvent:(NSEvent *)theEvent
 {
-    NSUInteger currentFlags = [theEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
+    NSUInteger currentFlags = [theEvent modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask;
     NSUInteger changedFlags = currentFlags ^ s_modifierFlags;
 
     jint jModifiers = GetJavaModifiers(theEvent);
@@ -763,13 +767,13 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
     GET_MAIN_JENV;
     jcharArray jKeyChars = (*env)->NewCharArray(env, 0);
 
-    SEND_MODIFIER_KEY_EVENT(NSShiftKeyMask,       com_sun_glass_events_KeyEvent_VK_SHIFT);
-    SEND_MODIFIER_KEY_EVENT(NSControlKeyMask,     com_sun_glass_events_KeyEvent_VK_CONTROL);
-    SEND_MODIFIER_KEY_EVENT(NSAlternateKeyMask,   com_sun_glass_events_KeyEvent_VK_ALT);
-    SEND_MODIFIER_KEY_EVENT(NSCommandKeyMask,     com_sun_glass_events_KeyEvent_VK_COMMAND);
+    SEND_MODIFIER_KEY_EVENT(NSEventModifierFlagShift,       com_sun_glass_events_KeyEvent_VK_SHIFT);
+    SEND_MODIFIER_KEY_EVENT(NSEventModifierFlagControl,     com_sun_glass_events_KeyEvent_VK_CONTROL);
+    SEND_MODIFIER_KEY_EVENT(NSEventModifierFlagOption,      com_sun_glass_events_KeyEvent_VK_ALT);
+    SEND_MODIFIER_KEY_EVENT(NSEventModifierFlagCommand,     com_sun_glass_events_KeyEvent_VK_COMMAND);
 
     // For CapsLock both PRESS and RELEASE should be synthesized each time
-    if (changedFlags & NSAlphaShiftKeyMask) {
+    if (changedFlags & NSEventModifierFlagCapsLock) {
         SEND_MODIFIER_KEY_EVENT_WITH_TYPE(com_sun_glass_events_KeyEvent_PRESS, com_sun_glass_events_KeyEvent_VK_CAPS_LOCK);
         SEND_MODIFIER_KEY_EVENT_WITH_TYPE(com_sun_glass_events_KeyEvent_RELEASE, com_sun_glass_events_KeyEvent_VK_CAPS_LOCK);
     }
@@ -1113,9 +1117,9 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
     GLASS_CHECK_EXCEPTION(env);
 
     // RT-36038: OS X won't send mouseUp after DnD is complete, so we synthesize them
-    if (self->mouseDownMask & 1 << 0) [self synthesizeMouseUp:NSLeftMouseUp];
-    if (self->mouseDownMask & 1 << 1) [self synthesizeMouseUp:NSRightMouseUp];
-    if (self->mouseDownMask & 1 << 2) [self synthesizeMouseUp:NSOtherMouseUp];
+    if (self->mouseDownMask & 1 << 0) [self synthesizeMouseUp:NSEventTypeLeftMouseUp];
+    if (self->mouseDownMask & 1 << 1) [self synthesizeMouseUp:NSEventTypeRightMouseUp];
+    if (self->mouseDownMask & 1 << 2) [self synthesizeMouseUp:NSEventTypeOtherMouseUp];
 }
 
 - (BOOL)suppressMouseEnterExitOnMouseDown
@@ -1221,9 +1225,9 @@ static jstring convertNSStringToJString(id aString, int length)
         && !((GlassWindow*) window)->isResizable) {
         NSUInteger mask = [window styleMask];
         if (resizable) {
-            mask |= NSResizableWindowMask;
+            mask |= NSWindowStyleMaskResizable;
         } else {
-            mask &= ~(NSUInteger)NSResizableWindowMask;
+            mask &= ~(NSUInteger)NSWindowStyleMaskResizable;
         }
         [window setStyleMask: mask];
     }

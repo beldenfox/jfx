@@ -474,10 +474,10 @@
     // create extra KeyEvents.
     //
     NSString *chars = [theEvent charactersIgnoringModifiers];
-    if ([theEvent type] == NSKeyDown && [chars length] > 0)
+    if ([theEvent type] == NSEventTypeKeyDown && [chars length] > 0)
     {
         unichar uch = [chars characterAtIndex:0];
-        if ([theEvent modifierFlags] & NSCommandKeyMask &&
+        if ([theEvent modifierFlags] & NSEventModifierFlagCommand &&
             (uch == com_sun_glass_events_KeyEvent_VK_PERIOD ||
              uch == com_sun_glass_events_KeyEvent_VK_EQUALS))
         {

@@ -182,24 +182,24 @@ jint GetJavaKeyModifiers(NSEvent *event)
 {
     jint jModifiers = 0;
 
-    NSUInteger modifierFlags = ([event modifierFlags] & NSDeviceIndependentModifierFlagsMask);
-    if (((modifierFlags & NSShiftKeyMask) != 0) == YES)
+    NSUInteger modifierFlags = ([event modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask);
+    if (((modifierFlags & NSEventModifierFlagShift) != 0) == YES)
     {
         jModifiers |= com_sun_glass_events_KeyEvent_MODIFIER_SHIFT;
     }
-    if (((modifierFlags & NSFunctionKeyMask) != 0) == YES)
+    if (((modifierFlags & NSEventModifierFlagFunction) != 0) == YES)
     {
         jModifiers |= com_sun_glass_events_KeyEvent_MODIFIER_FUNCTION;
     }
-    if (((modifierFlags & NSControlKeyMask) != 0) == YES)
+    if (((modifierFlags & NSEventModifierFlagControl) != 0) == YES)
     {
         jModifiers |= com_sun_glass_events_KeyEvent_MODIFIER_CONTROL;
     }
-    if (((modifierFlags & NSAlternateKeyMask) != 0) == YES)
+    if (((modifierFlags & NSEventModifierFlagOption) != 0) == YES)
     {
         jModifiers |= com_sun_glass_events_KeyEvent_MODIFIER_OPTION;
     }
-    if (((modifierFlags & NSCommandKeyMask) != 0) == YES)
+    if (((modifierFlags & NSEventModifierFlagCommand) != 0) == YES)
     {
         jModifiers |= com_sun_glass_events_KeyEvent_MODIFIER_COMMAND;
     }

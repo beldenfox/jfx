@@ -29,12 +29,11 @@
 
 - (id)initWithContentRect:(NSRect)contentRect withHostView:(NSView *)hostView withView:(NSView *)view withScreen:(NSScreen *)screen withPoint:(NSPoint)p
 {
-    self = [super initWithContentRect:contentRect styleMask:(NSBorderlessWindowMask|NSResizableWindowMask) backing:NSBackingStoreBuffered defer:NO screen:screen];
+    self = [super initWithContentRect:contentRect styleMask:(NSWindowStyleMaskBorderless|NSWindowStyleMaskResizable) backing:NSBackingStoreBuffered defer:NO screen:screen];
     if (self != nil)
     {
         self->point = p;
 
-        [self useOptimizedDrawing:NO];
         [self setContentView:hostView];
         [self setInitialFirstResponder:view];
         [self makeFirstResponder:view];

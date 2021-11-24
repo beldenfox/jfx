@@ -216,23 +216,23 @@ static jfieldID  jDelegateMenuField = 0;
     NSUInteger modifier = 0;
     if ((jmodifiers & com_sun_glass_events_KeyEvent_MODIFIER_COMMAND) != 0)
     {
-        modifier = modifier | NSCommandKeyMask;
+        modifier = modifier | NSEventModifierFlagCommand;
     }
     if ((jmodifiers & com_sun_glass_events_KeyEvent_MODIFIER_SHIFT) != 0)
     {
-        modifier = modifier | NSShiftKeyMask;
+        modifier = modifier | NSEventModifierFlagShift;
     }
     if ((jmodifiers & com_sun_glass_events_KeyEvent_MODIFIER_CONTROL) != 0)
     {
-        modifier = modifier | NSControlKeyMask;
+        modifier = modifier | NSEventModifierFlagControl;
     }
     if ((jmodifiers & com_sun_glass_events_KeyEvent_MODIFIER_OPTION) != 0)
     {
-        modifier = modifier | NSAlternateKeyMask;
+        modifier = modifier | NSEventModifierFlagOption;
     }
     if ((jmodifiers & com_sun_glass_events_KeyEvent_MODIFIER_FUNCTION) != 0)
     {
-        modifier = modifier | NSFunctionKeyMask;
+        modifier = modifier | NSEventModifierFlagFunction;
         if (jshortcut >= com_sun_glass_events_KeyEvent_VK_F1 &&
             jshortcut <= com_sun_glass_events_KeyEvent_VK_F12) {
             int delta = jshortcut - com_sun_glass_events_KeyEvent_VK_F1;

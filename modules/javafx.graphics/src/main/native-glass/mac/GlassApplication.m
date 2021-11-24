@@ -916,7 +916,7 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacApplication__1finishTerminat
         // wake up the runloop one last time so that it can process the stop:
         // request, even if the app is inactive currently
         NSTimeInterval dummyEventTimestamp = [NSProcessInfo processInfo].systemUptime;
-        NSEvent* event = [NSEvent otherEventWithType: NSApplicationDefined
+        NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
                                             location: NSMakePoint(0,0)
                                        modifierFlags: 0
                                            timestamp: dummyEventTimestamp
