@@ -659,7 +659,7 @@ jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
         else // event loop is not started
         {
             if ([NSThread isMainThread] == YES) {
-                [glassApp applicationWillFinishLaunching: NULL];
+                [glassApp applicationWillFinishLaunching: [NSNotification notificationWithName: NSApplicationWillFinishLaunchingNotification object: glassApp]];
             } else {
                 [glassApp performSelectorOnMainThread:@selector(applicationWillFinishLaunching:) withObject:NULL waitUntilDone:NO];
             }
