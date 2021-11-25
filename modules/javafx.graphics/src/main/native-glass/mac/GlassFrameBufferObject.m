@@ -51,7 +51,10 @@
 
 - (BOOL)_supportsFbo
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return (gluCheckExtension((const GLubyte *)"GL_EXT_framebuffer_object", glGetString(GL_EXTENSIONS)) == GL_TRUE);
+#pragma clang diagnostic pop
 }
 
 - (BOOL)_checkFbo

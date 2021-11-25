@@ -1346,7 +1346,10 @@ JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setVisible
                 ProcessSerialNumber psn = {0, kCurrentProcess};
                 ProcessInfoRec info;
                 memset(&info, 0x00, sizeof(ProcessInfoRec));
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 GetProcessInformation(&psn, &info);
+#pragma clang diagnostic pop
                 isBackgroundOnlyApp = ((modeOnlyBackground&info.processMode) == modeOnlyBackground);
             }
             if (isBackgroundOnlyApp == YES)

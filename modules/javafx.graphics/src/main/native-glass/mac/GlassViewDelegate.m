@@ -1080,8 +1080,10 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
             // last resource: "empty" image
             image = [[NSImage alloc] initWithSize:NSMakeSize(1.0f, 1.0f)];
         }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [self->nsView dragImage:image at:dragPoint offset:NSZeroSize event:self->lastEvent pasteboard:pasteboard source:self->nsView slideBack:YES];
-
+#pragma clang diagnostic pop
         // main thread blocked here until drag completes
 
         [GlassDragSource setDelegate:nil];
