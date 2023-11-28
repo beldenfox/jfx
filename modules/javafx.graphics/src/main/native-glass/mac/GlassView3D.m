@@ -717,6 +717,18 @@
     self->imEnabled = enabled;
 }
 
+- (void)finishInputMethodComposition
+{
+    IMLOG("finishInputMethodComposition called");
+    if (nsAttrBuffer != nil && nsAttrBuffer.length != 0) {
+        NSString* string = nsAttrBuffer.string;
+        [_delegate notifyInputMethod:string attr:4 length:string.length cursor:string.length selectedRange: NSMakeRange(NSNotFound, 0)];
+    }
+    [nsAttrBuffer initWithString:@""];
+    [self.inputContext discardMarkedText];
+    self->shouldProcessKeyEvent = YES;
+}
+
 /*
  NSTextInputClient protocol implementation follows here.
  */
