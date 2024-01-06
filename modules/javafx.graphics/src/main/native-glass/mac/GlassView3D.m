@@ -720,12 +720,14 @@
 - (void)finishInputMethodComposition
 {
     IMLOG("finishInputMethodComposition called");
+    // Commit text that was in progress
     if (nsAttrBuffer != nil && nsAttrBuffer.length != 0) {
         NSString* string = nsAttrBuffer.string;
         [_delegate notifyInputMethod:string attr:4 length:string.length cursor:string.length selectedRange: NSMakeRange(NSNotFound, 0)];
     }
-    [nsAttrBuffer initWithString:@""];
+    // End composition phase
     [self.inputContext discardMarkedText];
+    nsAttrBuffer = [nsAttrBuffer initWithString:@""];
     self->shouldProcessKeyEvent = YES;
 }
 
