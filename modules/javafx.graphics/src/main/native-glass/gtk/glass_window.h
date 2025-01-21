@@ -32,6 +32,8 @@
 #include <set>
 #include <vector>
 
+#include "DeletedMemDebug.h"
+
 #include "glass_view.h"
 
 enum WindowManager {
@@ -92,19 +94,22 @@ struct WindowGeometry {
 
 class WindowContextTop;
 
-class WindowContext {
+class WindowContext : public DeletedMemDebug<0xCC> {
 public:
     virtual bool isEnabled() = 0;
     virtual bool hasIME() = 0;
     virtual bool filterIME(GdkEvent *) = 0;
     virtual void enableOrResetIME() = 0;
+    virtual void updateCaretPos() = 0;
     virtual void disableIME() = 0;
+    virtual void setOnPreEdit(bool) = 0;
+    virtual void commitIME(gchar *) = 0;
+
     virtual void paint(void* data, jint width, jint height) = 0;
     virtual WindowFrameExtents get_frame_extents() = 0;
 
     virtual void enter_fullscreen() = 0;
     virtual void exit_fullscreen() = 0;
-    virtual void show_or_hide_children(bool) = 0;
     virtual void set_visible(bool) = 0;
     virtual bool is_visible() = 0;
     virtual void set_bounds(int, int, bool, bool, int, int, int, int, float, float) = 0;
@@ -130,6 +135,7 @@ public:
     virtual void set_level(int) = 0;
     virtual void set_background(float, float, float) = 0;
 
+    virtual void process_realize() = 0;
     virtual void process_property_notify(GdkEventProperty*) = 0;
     virtual void process_configure(GdkEventConfigure*) = 0;
     virtual void process_focus(GdkEventFocus*) = 0;
@@ -166,11 +172,13 @@ public:
 
 class WindowContextBase: public WindowContext {
 
-    struct _XIM {
-        XIM im;
-        XIC ic;
+    struct ImContext {
+        GtkIMContext *ctx;
         bool enabled;
-    } xim;
+        bool on_preedit;
+        bool send_keypress;
+        bool on_key_event;
+    } im_ctx;
 
     size_t events_processing_cnt;
     bool can_be_deleted;
@@ -179,7 +187,7 @@ protected:
     jobject jwindow;
     jobject jview;
     GtkWidget* gtk_widget;
-    GdkWindow* gdk_window;
+    GdkWindow* gdk_window = NULL;
     GdkWMFunction gdk_windowManagerFunctions;
 
     bool is_iconified;
@@ -210,6 +218,9 @@ public:
     bool hasIME();
     bool filterIME(GdkEvent *);
     void enableOrResetIME();
+    void setOnPreEdit(bool);
+    void commitIME(gchar *);
+    void updateCaretPos();
     void disableIME();
     void paint(void*, jint, jint);
     GdkWindow *get_gdk_window();
@@ -218,7 +229,6 @@ public:
 
     void add_child(WindowContextTop*);
     void remove_child(WindowContextTop*);
-    void show_or_hide_children(bool);
     void set_visible(bool);
     bool is_visible();
     bool set_view(jobject);
@@ -251,8 +261,6 @@ public:
     ~WindowContextBase();
 protected:
     virtual void applyShapeMask(void*, uint width, uint height) = 0;
-private:
-    bool im_filter_keypress(GdkEventKey*);
 };
 
 class WindowContextTop: public WindowContextBase {
@@ -268,7 +276,6 @@ class WindowContextTop: public WindowContextBase {
         int minw, minh, maxw, maxh; //minimum and maximum window width/height;
     } resizable;
 
-    bool map_received;
     bool on_top;
     bool is_fullscreen;
 
@@ -278,6 +285,8 @@ class WindowContextTop: public WindowContextBase {
     WindowManager wmanager;
 public:
     WindowContextTop(jobject, WindowContext*, long, WindowFrameType, WindowType, GdkWMFunction);
+
+    void process_realize();
     void process_property_notify(GdkEventProperty*);
     void process_state(GdkEventWindowState*);
     void process_configure(GdkEventConfigure*);
@@ -314,6 +323,7 @@ public:
 
     GtkWindow *get_gtk_window();
     void detach_from_java();
+
 protected:
     void applyShapeMask(void*, uint width, uint height);
 private:
@@ -340,14 +350,18 @@ private:
 public:
     explicit EventsCounterHelper(WindowContext* context) {
         ctx = context;
-        ctx->increment_events_counter();
+        if (ctx != nullptr) {
+            ctx->increment_events_counter();
+        }
     }
     ~EventsCounterHelper() {
-        ctx->decrement_events_counter();
-        if (ctx->is_dead() && ctx->get_events_count() == 0) {
-            delete ctx;
+        if (ctx != nullptr) {
+            ctx->decrement_events_counter();
+            if (ctx->is_dead() && ctx->get_events_count() == 0) {
+                delete ctx;
+            }
+            ctx = NULL;
         }
-        ctx = NULL;
     }
 };
 

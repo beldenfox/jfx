@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -54,6 +54,7 @@ import com.sun.javafx.scene.control.behavior.TreeTableRowBehavior;
 /**
  * Default skin implementation for the {@link TreeTableRow} control.
  *
+ * @param <T> the type of the item contained within the row
  * @see TreeTableRow
  * @since 9
  */
@@ -120,7 +121,7 @@ public class TreeTableRowSkin<T> extends TableRowSkinBase<TreeItem<T>, TreeTable
             });
         } else {
             registerChangeListener(treeTableView.treeColumnProperty(), (x) -> {
-                // Fix for RT-27782: Need to set isDirty to true, rather than the
+                // Fix for JDK-8124861: Need to set isDirty to true, rather than the
                 // cheaper updateCells, as otherwise the text indentation will not
                 // be recalculated in TreeTableCellSkin.calculateIndentation()
                 isDirty = true;
@@ -360,7 +361,7 @@ public class TreeTableRowSkin<T> extends TableRowSkinBase<TreeItem<T>, TreeTable
         ObjectProperty<Node> graphicProperty = graphicProperty();
         Node newGraphic = graphicProperty == null ? null : graphicProperty.get();
         if (newGraphic != null) {
-            // RT-30466: remove the old graphic
+            // JDK-8118024: remove the old graphic
             if (newGraphic != graphic) {
                 getChildren().remove(graphic);
             }
@@ -386,8 +387,8 @@ public class TreeTableRowSkin<T> extends TableRowSkinBase<TreeItem<T>, TreeTable
                 disclosureNode.toBack();
             }
 
-            // RT-26625: [TreeView, TreeTableView] can lose arrows while scrolling
-            // RT-28668: Ensemble tree arrow disappears
+            // JDK-8125162: [TreeView, TreeTableView] can lose arrows while scrolling
+            // JDK-8124825: Ensemble tree arrow disappears
             if (disclosureNode.getScene() != null) {
                 disclosureNode.applyCss();
             }

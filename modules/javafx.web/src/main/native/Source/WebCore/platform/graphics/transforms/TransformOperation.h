@@ -36,9 +36,7 @@ namespace WebCore {
 
 struct BlendingContext;
 
-class TransformOperation : public RefCounted<TransformOperation> {
-public:
-    enum class Type : uint8_t {
+enum class TransformOperationType : uint8_t {
         ScaleX,
         ScaleY,
         Scale,
@@ -62,7 +60,11 @@ public:
         Perspective,
         Identity,
         None
-    };
+};
+
+class TransformOperation : public RefCounted<TransformOperation> {
+public:
+    using Type = TransformOperationType;
 
     TransformOperation(Type type)
         : m_type(type)
@@ -71,14 +73,18 @@ public:
     virtual ~TransformOperation() = default;
 
     virtual Ref<TransformOperation> clone() const = 0;
+    virtual Ref<TransformOperation> selfOrCopyWithResolvedCalculatedValues(const FloatSize&) { return *this; }
 
     virtual bool operator==(const TransformOperation&) const = 0;
-    bool operator!=(const TransformOperation& o) const { return !(*this == o); }
 
     virtual bool isIdentity() const = 0;
 
     // Return true if the borderBoxSize was used in the computation, false otherwise.
     virtual bool apply(TransformationMatrix&, const FloatSize& borderBoxSize) const = 0;
+    virtual bool applyUnrounded(TransformationMatrix& transform, const FloatSize& borderBoxSize) const
+    {
+        return apply(transform, borderBoxSize);
+    }
 
     virtual Ref<TransformOperation> blend(const TransformOperation* from, const BlendingContext&, bool blendToIdentity = false) = 0;
 
@@ -107,24 +113,38 @@ public:
 
     virtual bool isRepresentableIn2D() const { return true; }
 
-    bool isRotateTransformOperationType() const
+    static bool isRotateTransformOperationType(Type type)
     {
-        return type() == Type::RotateX || type() == Type::RotateY || type() == Type::RotateZ || type() == Type::Rotate || type() == Type::Rotate3D;
+        return type == Type::RotateX
+            || type == Type::RotateY
+            || type == Type::RotateZ
+            || type == Type::Rotate
+            || type == Type::Rotate3D;
     }
 
-    bool isScaleTransformOperationType() const
+    static bool isScaleTransformOperationType(Type type)
     {
-        return type() == Type::ScaleX || type() == Type::ScaleY || type() == Type::ScaleZ || type() == Type::Scale || type() == Type::Scale3D;
+        return type == Type::ScaleX
+            || type == Type::ScaleY
+            || type == Type::ScaleZ
+            || type == Type::Scale
+            || type == Type::Scale3D;
     }
 
-    bool isSkewTransformOperationType() const
+    static bool isSkewTransformOperationType(Type type)
     {
-        return type() == Type::SkewX || type() == Type::SkewY || type() == Type::Skew;
+        return type == Type::SkewX
+            || type == Type::SkewY
+            || type == Type::Skew;
     }
 
-    bool isTranslateTransformOperationType() const
+    static bool isTranslateTransformOperationType(Type type)
     {
-        return type() == Type::TranslateX || type() == Type::TranslateY || type() == Type::TranslateZ || type() == Type::Translate || type() == Type::Translate3D;
+        return type == Type::TranslateX
+            || type == Type::TranslateY
+            || type == Type::TranslateZ
+            || type == Type::Translate
+            || type == Type::Translate3D;
     }
 
     virtual void dump(WTF::TextStream&) const = 0;
@@ -138,40 +158,7 @@ WTF::TextStream& operator<<(WTF::TextStream&, const TransformOperation&);
 
 } // namespace WebCore
 
-namespace WTF {
-
-template<> struct EnumTraits<WebCore::TransformOperation::Type> {
-    using values = EnumValues<
-        WebCore::TransformOperation::Type,
-        WebCore::TransformOperation::Type::ScaleX,
-        WebCore::TransformOperation::Type::ScaleY,
-        WebCore::TransformOperation::Type::Scale,
-        WebCore::TransformOperation::Type::TranslateX,
-        WebCore::TransformOperation::Type::TranslateY,
-        WebCore::TransformOperation::Type::Translate,
-        WebCore::TransformOperation::Type::RotateX,
-        WebCore::TransformOperation::Type::RotateY,
-        WebCore::TransformOperation::Type::Rotate,
-        WebCore::TransformOperation::Type::SkewX,
-        WebCore::TransformOperation::Type::SkewY,
-        WebCore::TransformOperation::Type::Skew,
-        WebCore::TransformOperation::Type::Matrix,
-        WebCore::TransformOperation::Type::ScaleZ,
-        WebCore::TransformOperation::Type::Scale3D,
-        WebCore::TransformOperation::Type::TranslateZ,
-        WebCore::TransformOperation::Type::Translate3D,
-        WebCore::TransformOperation::Type::RotateZ,
-        WebCore::TransformOperation::Type::Rotate3D,
-        WebCore::TransformOperation::Type::Matrix3D,
-        WebCore::TransformOperation::Type::Perspective,
-        WebCore::TransformOperation::Type::Identity,
-        WebCore::TransformOperation::Type::None
-    >;
-};
-
-} // namespace WTF
-
 #define SPECIALIZE_TYPE_TRAITS_TRANSFORMOPERATION(ToValueTypeName, predicate) \
 SPECIALIZE_TYPE_TRAITS_BEGIN(ToValueTypeName) \
-    static bool isType(const WebCore::TransformOperation& operation) { return operation.predicate; } \
+    static bool isType(const WebCore::TransformOperation& operation) { return predicate(operation.type()); } \
 SPECIALIZE_TYPE_TRAITS_END()

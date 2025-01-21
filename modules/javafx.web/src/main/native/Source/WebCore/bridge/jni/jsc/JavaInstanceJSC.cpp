@@ -176,7 +176,7 @@ JSValue JavaInstance::numberValue(JSGlobalObject*) const
         return numberValueForCharacter(obj);
     if (aClass->isBooleanClass())
         return jsNumber((int)
-                        // Replaced the following line to work around possible GCC bug, see RT-22725
+                        // Replaced the following line to work around possible GCC bug, see JDK-8126601
                     // callJNIMethod<jboolean>(obj, "booleanValue", "()Z"));
                         callJNIMethod(obj, JavaTypeBoolean, "booleanValue", "()Z", 0).z);
     return numberValueForNumber(obj);
@@ -192,7 +192,7 @@ JSValue JavaInstance::booleanValue() const
         return jsUndefined();
     }
 
-    // Changed the call to work around possible GCC bug, see RT-22725
+    // Changed the call to work around possible GCC bug, see JDK-8126601
     jboolean booleanValue = callJNIMethod(m_instance->instance(), JavaTypeBoolean, "booleanValue", "()Z", 0).z;
     return jsBoolean(booleanValue);
 }
@@ -273,7 +273,9 @@ JSValue JavaInstance::invokeMethod(JSGlobalObject* globalObject, CallFrame* call
 #endif
 
     if (!method) {
+#if !PLATFORM(JAVA)
         LOG(LiveConnect, "JavaInstance::invokeMethod unable to find an appropriate method");
+#endif
         return jsUndefined();
     }
 
@@ -292,12 +294,15 @@ JSValue JavaInstance::invokeMethod(JSGlobalObject* globalObject, CallFrame* call
         LOG_ERROR("Could not get javaInstance for %p in JavaInstance::invokeMethod", (jobject)jlinstance);
         return jsUndefined();
     }
-
+#if !PLATFORM(JAVA)
     LOG(LiveConnect, "JavaInstance::invokeMethod call %s %s on %p", String(jMethod->name().impl()).utf8().data(), jMethod->signature(), m_instance->instance());
+#endif
 
     const int count = callFrame->argumentCount();
     if (jMethod->numParameters() != count) {
+#if !PLATFORM(JAVA)
         LOG(LiveConnect, "JavaInstance::invokeMethod unable to find an appropriate method with specified signature");
+#endif
         return jsUndefined();
     }
 
@@ -309,7 +314,9 @@ JSValue JavaInstance::invokeMethod(JSGlobalObject* globalObject, CallFrame* call
         jvalue jarg = convertValueToJValue(globalObject, m_rootObject.get(),
             callFrame->argument(i), jtype, javaClassName.data());
         jArgs[i] = jvalueToJObject(jarg, jtype);
+#if !PLATFORM(JAVA)
         LOG(LiveConnect, "JavaInstance::invokeMethod arg[%d] = %s", i, callFrame->argument(i).toString(globalObject)->value(globalObject).ascii().data());
+#endif
     }
 
     jvalue result;

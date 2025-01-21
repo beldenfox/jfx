@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -415,7 +415,7 @@ public abstract class Window {
         final Screen old = this.screen;
         this.screen = screen;
 
-        if (this.eventHandler != null) {
+        if (shouldHandleEvent()) {
             if ((old == null && this.screen != null) ||
                 (old != null && !old.equals(this.screen))) {
                 this.eventHandler.handleScreenChangedEvent(this, System.nanoTime(), old, this.screen);
@@ -1302,11 +1302,20 @@ public abstract class Window {
         this.delegatePtr = ptr;
     }
 
+    private boolean shouldHandleEvent() {
+        // Don't send any more events if the application has shutdown
+        if (Application.GetApplication() == null) {
+            return false;
+        }
+
+        return this.eventHandler != null;
+    }
+
     // *****************************************************
     // window event handlers
     // *****************************************************
     protected void handleWindowEvent(long time, int type) {
-        if (this.eventHandler != null) {
+        if (shouldHandleEvent()) {
             this.eventHandler.handleWindowEvent(this, time, type);
         }
     }
@@ -1437,7 +1446,7 @@ public abstract class Window {
 
     protected void notifyLevelChanged(int level) {
         this.level = level;
-        if (this.eventHandler != null) {
+        if (shouldHandleEvent()) {
             this.eventHandler.handleLevelEvent(level);
         }
     }

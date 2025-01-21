@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -79,6 +79,7 @@ import javafx.beans.DefaultProperty;
  *
  * <img src="doc-files/ChoiceBox.png" alt="Image of the ChoiceBox control">
  *
+ * @param <T> the type of the item contained within the ChoiceBox
  * @since JavaFX 2.0
  */
 @DefaultProperty("items")
@@ -252,7 +253,7 @@ public class ChoiceBox<T> extends Control {
                 final SingleSelectionModel<T> sm = getSelectionModel();
                 if (sm != null) {
                     if (newItems != null && newItems.isEmpty()) {
-                        // RT-29433 - clear selection.
+                        // JDK-8124891 - clear selection.
                         sm.clearSelection();
                     } else if (sm.getSelectedIndex() == -1 && sm.getSelectedItem() != null) {
                         int newIndex = getItems().indexOf(sm.getSelectedItem());
@@ -315,8 +316,8 @@ public class ChoiceBox<T> extends Control {
      * @return the string converter property
      * @since JavaFX 2.1
      */
-    public ObjectProperty<StringConverter<T>> converterProperty() { return converter; }
-    private ObjectProperty<StringConverter<T>> converter =
+    public final ObjectProperty<StringConverter<T>> converterProperty() { return converter; }
+    private final ObjectProperty<StringConverter<T>> converter =
             new SimpleObjectProperty<>(this, "converter", null);
     public final void setConverter(StringConverter<T> value) { converterProperty().set(value); }
     public final StringConverter<T> getConverter() {return converterProperty().get(); }
@@ -329,8 +330,8 @@ public class ChoiceBox<T> extends Control {
      * @return the value property
      * @since JavaFX 2.1
      */
-    public ObjectProperty<T> valueProperty() { return value; }
-    private ObjectProperty<T> value = new SimpleObjectProperty<>(this, "value") {
+    public final ObjectProperty<T> valueProperty() { return value; }
+    private final ObjectProperty<T> value = new SimpleObjectProperty<>(this, "value") {
         @Override protected void invalidated() {
             super.invalidated();
             fireEvent(new ActionEvent());
