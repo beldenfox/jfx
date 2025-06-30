@@ -123,6 +123,13 @@ public final class MenuItem {
         }
     }
 
+    // Perform the menu item's action. The caller must validate the menu item
+    // and ensure that it is enabled before calling performAction.
+    public void performAction() {
+        Application.checkEventThread();
+        delegate.performAction();
+    }
+
     /**
      * returns KeyEvent.VK_UNDEFINED if the shortcut is not assigned
      */

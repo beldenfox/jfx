@@ -39,4 +39,8 @@ public interface MenuItemDelegate {
     public boolean setPixels(Pixels pixels);
     public boolean setEnabled(boolean enabled);
     public boolean setChecked(boolean checked);
+    // Does not validate the menu item.
+    default public boolean performAction() {
+        return false;
+    }
 }

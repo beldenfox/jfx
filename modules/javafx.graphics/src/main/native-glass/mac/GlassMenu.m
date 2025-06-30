@@ -663,6 +663,32 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacMenuDelegate__1setCallback
 
 /*
  * Class:     com_sun_glass_ui_mac_MacMenuDelegate
+ * Method:    _performAction
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacMenuDelegate__1performAction
+  (JNIEnv *env, jobject jMenuDelegate, jlong jMenuPtr)
+{
+    LOG("Java_com_sun_glass_ui_mac_MacMenuDelegate__1performAction");
+
+    GLASS_ASSERT_MAIN_JAVA_THREAD(env);
+    GLASS_POOL_ENTER;
+    {
+        GlassMenu *menu = (GlassMenu *)jlong_to_ptr(jMenuPtr);
+        if (menu != nil && menu->item != nil) {
+            NSMenuItem* nsItem = menu->item;
+            NSMenu* nsMenu = item.menu;
+            if (nsMenu != nil) {
+                [nsMenu performActionForItemAtIndex: [nsMenu indexOfItem: nsItem]];
+            }
+        }
+    }
+    GLASS_POOL_EXIT;
+    GLASS_CHECK_EXCEPTION(env);
+}
+
+/*
+ * Class:     com_sun_glass_ui_mac_MacMenuDelegate
  * Method:    _setPixels
  * Signature: (JLcom/sun/glass/ui/Pixels;)V
  */

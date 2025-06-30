@@ -39,6 +39,7 @@ import com.sun.glass.ui.MenuBar;
 import com.sun.glass.ui.MenuItem;
 import com.sun.glass.ui.Pixels;
 import com.sun.javafx.tk.Toolkit;
+import com.sun.javafx.scene.input.KeyCodeMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,6 +57,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination.ModifierValue;
+import com.sun.javafx.scene.input.KeyCodeMap;
 
 class GlassSystemMenu implements TKSystemMenu {
 
@@ -64,6 +67,7 @@ class GlassSystemMenu implements TKSystemMenu {
     private final Map<Menu, ListChangeListener<MenuItemBase>> menuListeners = new HashMap<>();
     private final Map<ListChangeListener<MenuItemBase>, ObservableList<MenuItemBase>> listenerItems = new HashMap<>();
     private BooleanProperty active;
+    private final Map<MenuItem, KeyCombination> acceleratorsMap = new HashMap<>();
 
     private InvalidationListener visibilityListener = valueModel -> {
         if (systemMenus != null) {
@@ -71,11 +75,49 @@ class GlassSystemMenu implements TKSystemMenu {
         }
     };
 
+    private static ModifierValue checkModifierFlag(int modifiers, int flag) {
+        if ((modifiers & flag) != 0) return ModifierValue.DOWN;
+        return ModifierValue.UP;
+    }
+
+    private void registerAcceleratorsForDefaultMenu(Menu menu) {
+        for (Object o : menu.getItems()) {
+            if (o instanceof Menu subMenu) {
+                registerAcceleratorsForDefaultMenu(subMenu);
+            }
+            else if (o instanceof MenuItem menuItem) {
+                var shortcutKey = menuItem.getShortcutKey();
+                if (shortcutKey != KeyEvent.VK_UNDEFINED) {
+                    var modifiers = menuItem.getShortcutModifiers();
+                    if ((modifiers & KeyEvent.MODIFIER_FUNCTION) == 0) {
+                        if (shortcutKey >= 'a' && shortcutKey <= 'z') {
+                            shortcutKey = 'A' + (shortcutKey - 'a');
+                        }
+                        if (shortcutKey >= 'A' && shortcutKey <= 'Z') {
+                            var shift = checkModifierFlag(modifiers, KeyEvent.MODIFIER_ALT);
+                            var control = checkModifierFlag(modifiers, KeyEvent.MODIFIER_CONTROL);
+                            var alt = checkModifierFlag(modifiers, KeyEvent.MODIFIER_ALT);
+                            var meta = checkModifierFlag(modifiers, KeyEvent.MODIFIER_COMMAND);
+                            var shortcut = ModifierValue.ANY;
+                            var accelerator = new KeyCodeCombination(KeyCodeMap.valueOf(shortcutKey), shift, control, alt, meta, shortcut);
+                            recordAccelerator(menuItem, accelerator);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     protected void createMenuBar() {
         if (glassSystemMenuBar == null) {
             Application app = Application.GetApplication();
             glassSystemMenuBar = app.createMenuBar();
             app.installDefaultMenus(glassSystemMenuBar);
+            var menus = glassSystemMenuBar.getMenus();
+
+            for (Menu menu : menus) {
+                registerAcceleratorsForDefaultMenu(menu);
+            }
 
             if (systemMenus != null) {
                 setMenus(systemMenus);
@@ -132,8 +174,9 @@ class GlassSystemMenu implements TKSystemMenu {
 
         for (int i = menu.getItems().size() - 1; i >= 0; i--) {
             Object o = menu.getItems().get(i);
-            if (o instanceof MenuItem) {
-                ((MenuItem)o).setCallback(null);
+            if (o instanceof MenuItem menuItem) {
+                menuItem.setCallback(null);
+                forgetAccelerator(menuItem);
                 menu.remove(i);
             } else if (o instanceof Menu) {
                 clearMenu((Menu) o);
@@ -203,7 +246,12 @@ class GlassSystemMenu implements TKSystemMenu {
                     List<Object> menuItemList = glassMenu.getItems();
                     if (i >= 0 && menuItemList.size() > i) {
                         Object item = menuItemList.get(i);
-                        if (item instanceof Menu menu) clearMenu(menu);
+                        if (item instanceof Menu menu) {
+                            clearMenu(menu);
+                        }
+                        if (item instanceof MenuItem menuItem) {
+                            forgetAccelerator(menuItem);
+                        }
                         glassMenu.remove(i);
                     }
                 }
@@ -339,10 +387,12 @@ class GlassSystemMenu implements TKSystemMenu {
     }
 
     private void setShortcut(MenuItem glassSubMenuItem, MenuItemBase menuItem) {
+        forgetAccelerator(glassSubMenuItem);
         final KeyCombination accelerator = menuItem.getAccelerator();
         if (accelerator == null) {
             glassSubMenuItem.setShortcut(0, 0);
         } else if (accelerator instanceof KeyCodeCombination) {
+            recordAccelerator(glassSubMenuItem, accelerator);
             KeyCodeCombination kcc  = (KeyCodeCombination)accelerator;
             KeyCode            code = kcc.getCode();
             assert PlatformUtil.isMac() || PlatformUtil.isLinux();
@@ -362,6 +412,7 @@ class GlassSystemMenu implements TKSystemMenu {
                 glassSubMenuItem.setShortcut(0, 0);
             }
         } else if (accelerator instanceof KeyCharacterCombination) {
+            recordAccelerator(glassSubMenuItem, accelerator);
             KeyCharacterCombination kcc = (KeyCharacterCombination)accelerator;
             String kchar = kcc.getCharacter();
             glassSubMenuItem.setShortcut(kchar.charAt(0), glassModifiers(kcc));
@@ -407,4 +458,32 @@ class GlassSystemMenu implements TKSystemMenu {
         return (ret);
     }
 
+    private void forgetAccelerator(MenuItem menuItem) {
+        acceleratorsMap.remove(menuItem);
+    }
+
+    private void recordAccelerator(MenuItem menuItem, KeyCombination accelerator) {
+        acceleratorsMap.put(menuItem, accelerator);
+    }
+
+    @Override
+    public void handleKeyEvent(javafx.scene.input.KeyEvent event) {
+        MenuItem menuItem = null;
+        for (Map.Entry<MenuItem, KeyCombination> entry : acceleratorsMap.entrySet()) {
+            if (entry.getValue().match(event)) {
+                event.consume();
+                menuItem = entry.getKey();
+                break;
+            }
+        }
+        if (menuItem != null) {
+            var callback = menuItem.getCallback();
+            if (callback != null) {
+                callback.validate();
+                if (menuItem.isEnabled()) {
+                    menuItem.performAction();
+                }
+            }
+        }
+    }
 }

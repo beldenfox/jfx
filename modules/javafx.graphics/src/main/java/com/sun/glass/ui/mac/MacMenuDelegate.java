@@ -141,5 +141,10 @@ class MacMenuDelegate implements MenuDelegate, MenuItemDelegate {
         return true;
     }
 
+    private native void _performAction(long menuPtr);
+    @Override public boolean performAction() {
+        _performAction(ptr);
+        return true;
+    }
 }
 
