@@ -151,6 +151,16 @@ final class EmbeddedStage extends GlassStage implements EmbeddedStageInterface {
     }
 
     @Override
+    public boolean setBackgroundEffect(int effect) {
+        return false;
+    }
+
+    @Override
+    public int getBackgroundEffect() {
+        return 0;
+    }
+
+    @Override
     public void setIconified(boolean iconified) {
         if (QuantumToolkit.verbose) {
             System.err.println("EmbeddedScene.setIconified " + iconified);

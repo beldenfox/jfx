@@ -574,6 +574,21 @@ public class WindowStage extends GlassStage {
         }
     }
 
+    @Override public boolean setBackgroundEffect(int effect) {
+        if (platformWindow.setBackgroundEffect(effect)) {
+            GlassScene gs = getScene();
+            if (gs != null) {
+                gs.entireSceneNeedsRepaint();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override public int getBackgroundEffect() {
+        return platformWindow.getBackgroundEffect();
+    }
+
     public boolean needsUpdateWindow() {
         return transparent && (Application.GetApplication().shouldUpdateWindow());
     }

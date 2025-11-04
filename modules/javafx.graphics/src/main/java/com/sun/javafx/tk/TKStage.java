@@ -106,6 +106,16 @@ public interface TKStage {
 
     public void setOpacity(float opacity);
 
+    final static public class BackgroundEffect {
+        public static final int DEFAULT = 0;
+        public static final int CLEAR   = 1;
+        public static final int BLURRY  = 2;
+    }
+
+    public boolean setBackgroundEffect(int effect);
+
+    public int getBackgroundEffect();
+
     public void setIconified(boolean iconified);
 
     public void setMaximized(boolean maximized);

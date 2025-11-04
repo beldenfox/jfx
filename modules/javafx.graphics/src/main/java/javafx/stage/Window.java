@@ -948,6 +948,81 @@ public class Window implements EventTarget {
     }
 
     /**
+     * Blah
+     *
+     * @defaultValue 1.0
+     */
+    public enum BackgroundStyle {
+        OPAQUE,
+        TRANSPARENT,
+        TRANSLUCENT
+    }
+
+    private ObjectProperty<BackgroundStyle> backgroundStyle;
+
+    public final void setBackgroundStyle(BackgroundStyle value) {
+        backgroundStyleProperty().set(value);
+    }
+
+    public final BackgroundStyle getBackgroundStyle() {
+        if (backgroundStyle != null) return backgroundStyle.get();
+        return BackgroundStyle.OPAQUE;
+    }
+
+    private final void applyBackgroundStyle() {
+        if (peer != null) {
+            int effect = TKStage.BackgroundEffect.DEFAULT;
+            switch (backgroundStyleProperty().get()) {
+            case BackgroundStyle.OPAQUE:
+                effect = TKStage.BackgroundEffect.DEFAULT;
+                break;
+            case BackgroundStyle.TRANSPARENT:
+                effect = TKStage.BackgroundEffect.CLEAR;
+                break;
+            case BackgroundStyle.TRANSLUCENT:
+                effect = TKStage.BackgroundEffect.BLURRY;
+                break;
+            }
+            if (peer.setBackgroundEffect(effect)) return;
+
+            switch (peer.getBackgroundEffect()) {
+            case TKStage.BackgroundEffect.DEFAULT:
+                setBackgroundStyle(BackgroundStyle.OPAQUE);
+                break;
+            case TKStage.BackgroundEffect.CLEAR:
+                setBackgroundStyle(BackgroundStyle.TRANSLUCENT);
+                break;
+            case TKStage.BackgroundEffect.BLURRY:
+                setBackgroundStyle(BackgroundStyle.TRANSLUCENT);
+                break;
+            }
+        }
+    }
+
+    public final ObjectProperty<BackgroundStyle> backgroundStyleProperty() {
+        if (backgroundStyle == null) {
+            backgroundStyle = new ObjectPropertyBase<BackgroundStyle>(BackgroundStyle.OPAQUE) {
+
+                @Override
+                protected void invalidated() {
+                    applyBackgroundStyle();
+                }
+
+                @Override
+                public Object getBean() {
+                    return Window.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "backgroundStyle";
+                }
+            };
+        }
+        return backgroundStyle;
+    }
+
+    /**
      * Called when there is an external request to close this {@code Window}.
      * The installed event handler can prevent window closing by consuming the
      * received event.
@@ -1121,6 +1196,8 @@ public class Window implements EventTarget {
                     applyBounds();
 
                     peer.setOpacity((float)getOpacity());
+
+                    applyBackgroundStyle();
 
                     peer.setVisible(true);
                     fireEvent(new WindowEvent(Window.this, WindowEvent.WINDOW_SHOWN));

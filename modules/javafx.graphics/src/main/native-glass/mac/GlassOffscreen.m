@@ -58,6 +58,7 @@
     self->_backgroundG = (float)[color greenComponent];
     self->_backgroundB = (float)[color blueComponent];
     self->_backgroundA = (float)[color alphaComponent];
+    NSLog(@"Offscreen background %f %f %f %f", (float) _backgroundR, (float) _backgroundG, (float) _backgroundB, (float) _backgroundA);
 }
 
 - (unsigned int)width

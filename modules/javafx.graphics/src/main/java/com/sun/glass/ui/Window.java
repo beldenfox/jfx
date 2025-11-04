@@ -230,6 +230,7 @@ public abstract class Window {
     private float outputScaleY = 1.0f;
     private float renderScaleX = 1.0f;
     private float renderScaleY = 1.0f;
+    private int backgroundEffect = 0;
 
     private volatile boolean isResizable = false;
     private volatile boolean isVisible = false;
@@ -745,6 +746,10 @@ public abstract class Window {
         return (this.styleMask & Window.TRANSPARENT) != 0;
     }
 
+    public boolean allowsTransparentFills() {
+        return isUnifiedWindow() || this.backgroundEffect == 1;
+    }
+
     public boolean isFocused() {
         Application.checkEventThread();
         return this.isFocused;
@@ -972,6 +977,25 @@ public abstract class Window {
     public float getAlpha() {
         Application.checkEventThread();
         return this.alpha;
+    }
+
+    protected boolean _setBackgroundEffect(long ptr, int effect) {
+        return false;
+    }
+
+    public boolean setBackgroundEffect(int effect) {
+        Application.checkEventThread();
+        checkNotClosed();
+        if (_setBackgroundEffect(this.ptr, effect)) {
+            this.backgroundEffect = effect;
+            return true;
+        }
+        return false;
+    }
+
+    public int getBackgroundEffect() {
+        Application.checkEventThread();
+        return this.backgroundEffect;
     }
 
     protected abstract boolean _setBackground(long ptr, float r, float g, float b);

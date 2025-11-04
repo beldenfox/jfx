@@ -48,7 +48,6 @@ typedef enum GestureMaskType {
     NSWindow                *parentWindow;
     CGFloat                 parentWindowAlpha;
 
-    GlassHostView           *fullscreenHost;
     // not nil when the FS mode is initiated with the OS X 10.7 widget
     NSWindow*               nativeFullScreenModeWindow;
 

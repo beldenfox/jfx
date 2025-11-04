@@ -864,6 +864,47 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setAlpha
 
 /*
  * Class:     com_sun_glass_ui_mac_MacWindow
+ * Method:    _setBackgroundEffect
+ * Signature: (JI)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setBackgroundEffect
+(JNIEnv *env, jobject jWihndow, jlong jPtr, jint jEffect)
+{
+    LOG("Java_com_sun_glass_ui_mac_MacWindow__1setBackgroundEffect");
+    if (!jPtr) return JNI_FALSE;
+
+    jboolean result = JNI_FALSE;
+
+    GLASS_ASSERT_MAIN_JAVA_THREAD(env);
+    GLASS_POOL_ENTER;
+    {
+        GlassWindow *window = getGlassWindow(env, jPtr);
+        NSLog(@"Set effect to %i", (int) jEffect);
+        if (!window->isTransparent) {
+            NSWindow* nsw = window->nsWindow;
+            switch (jEffect) {
+            case 0:
+                nsw.opaque = YES;
+                nsw.backgroundColor = NSColor.whiteColor;
+
+                break;
+            case 1:
+                nsw.opaque = NO;
+                nsw.backgroundColor = NSColor.clearColor;
+                break;
+            }
+            result = JNI_TRUE;
+        }
+    }
+    GLASS_POOL_EXIT;
+    GLASS_CHECK_EXCEPTION(env);
+
+    return result;
+}
+
+
+/*
+ * Class:     com_sun_glass_ui_mac_MacWindow
  * Method:    _setBackground
  * Signature: (JFFF)Z
  */
@@ -877,6 +918,7 @@ JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setBackground
     GLASS_POOL_ENTER;
     {
         GlassWindow *window = getGlassWindow(env, jPtr);
+        NSLog(@"Setting background color to %f %f %f", (float) r, (float) g, (float) b);
         [window->nsWindow setBackgroundColor:[NSColor colorWithSRGBRed:r green:g blue:b alpha:1.0f]];
     }
     GLASS_POOL_EXIT;

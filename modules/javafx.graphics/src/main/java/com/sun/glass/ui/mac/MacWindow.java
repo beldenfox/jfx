@@ -93,6 +93,7 @@ final class MacWindow extends Window {
     @Override native protected boolean _setTitle(long ptr, String title);
     @Override native protected void _setLevel(long ptr, int level);
     @Override native protected void _setAlpha(long ptr, float alpha);
+    @Override native protected boolean _setBackgroundEffect(long ptr, int effect);
     @Override native protected boolean _setBackground(long ptr, float r, float g, float b);
     @Override native protected void _setEnabled(long ptr, boolean enabled);
     @Override native protected boolean _setMinimumSize(long ptr, int width, int height);
