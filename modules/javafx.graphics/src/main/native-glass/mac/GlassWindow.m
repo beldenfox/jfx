@@ -599,6 +599,9 @@ static jlong _createWindowCommonDo(JNIEnv *env, jobject jWindow, jlong jOwnerPtr
         [window->nsWindow setAppearance:isDarkFrame
             ? [NSAppearance appearanceNamed:NSAppearanceNameDarkAqua]
             : [NSAppearance appearanceNamed:NSAppearanceNameAqua]];
+
+        window->hostView = [[GlassHostView alloc] init];
+        window->nsWindow.contentView = window->hostView;
     }
     [pool drain];
 
@@ -892,7 +895,12 @@ JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setBackgroundEf
                 nsw.opaque = NO;
                 nsw.backgroundColor = NSColor.clearColor;
                 break;
+            case 2:
+                nsw.opaque = YES;
+                nsw.backgroundColor = NSColor.whiteColor;
+                break;
             }
+            [window->hostView enableVisualEffect: (jEffect == 2)];
             result = JNI_TRUE;
         }
     }
@@ -957,6 +965,7 @@ JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setView
 
         NSView<GlassView> *oldView = window->view;
         window->view = getMacView(env, jview);
+        [window->hostView setJFXView: window->view];
         //NSLog(@"        window: %@", window);
         //NSLog(@"                frame: %.2f,%.2f %.2fx%.2f", [window frame].origin.x, [window frame].origin.y, [window frame].size.width, [window frame].size.height);
         //NSLog(@"        view: %@", window->view);
@@ -1001,13 +1010,6 @@ JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setView
                 [window->nsWindow makeFirstResponder:window->view];
             }
             window->suppressWindowMoveEvent = NO;
-        }
-        else
-        {
-            // If the contentView is set to nil within performKeyEquivalent: the OS will crash.
-            NSView* dummy = [[NSView alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
-            [window->nsWindow performSelectorOnMainThread:@selector(setContentView:) withObject:dummy waitUntilDone:YES];
-            [dummy release];
         }
     }
     GLASS_POOL_EXIT;

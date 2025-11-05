@@ -183,9 +183,6 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
     [self->lastEvent release];
     self->lastEvent = nil;
 
-    [self->parentHost release];
-    self->parentHost = nil;
-
     [self->parentWindow release];
     self->parentWindow = nil;
 
@@ -216,10 +213,6 @@ static jint getSwipeDirFromEvent(NSEvent *theEvent)
     GET_MAIN_JENV;
     if ([self->nsView window] != nil)
     {
-        if (self->parentHost == nil)
-        {
-            self->parentHost = (GlassHostView*)[[self->nsView superview] retain];
-        }
         if (self->parentWindow == nil)
         {
             self->parentWindow = [[self->nsView window] retain];

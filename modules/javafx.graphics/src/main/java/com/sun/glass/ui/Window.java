@@ -747,7 +747,7 @@ public abstract class Window {
     }
 
     public boolean allowsTransparentFills() {
-        return isUnifiedWindow() || this.backgroundEffect == 1;
+        return isUnifiedWindow() || this.backgroundEffect != 0;
     }
 
     public boolean isFocused() {

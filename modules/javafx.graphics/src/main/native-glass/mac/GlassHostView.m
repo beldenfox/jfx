@@ -27,6 +27,16 @@
 
 @implementation GlassHostView : NSView
 
+-(instancetype)init
+{
+    self = [super initWithFrame: NSMakeRect(0, 0, 10, 10)];
+    if (self) {
+        self.autoresizingMask = (NSViewWidthSizable|NSViewHeightSizable);
+        self.autoresizesSubviews = YES;
+    }
+    return self;
+}
+
 - (void)dealloc
 {
     [super dealloc];
@@ -72,10 +82,34 @@
     return NO;
 }
 
-- (void)addSubview:(NSView *)aView
+-(void)setJFXView:(NSView*)aView
 {
-    [super addSubview:aView];
-    self->view = aView;
+    if (jfxView != nil) {
+        [jfxView removeFromSuperview];
+    }
+    jfxView = aView;
+    if (jfxView != nil) {
+        jfxView.autoresizingMask = (NSViewWidthSizable|NSViewHeightSizable);
+        [self addSubview: jfxView];
+    }
+}
+
+-(void)enableVisualEffect:(bool)enable
+{
+    if (enable) {
+        if (effectView == nil) {
+            effectView = [[NSVisualEffectView alloc] initWithFrame: self.bounds];
+            effectView.autoresizingMask = (NSViewWidthSizable|NSViewHeightSizable);
+            [self addSubview: effectView positioned: NSWindowBelow relativeTo: jfxView];
+        }
+        effectView.material = NSVisualEffectMaterialSidebar;
+    }
+    else {
+        if (effectView != nil) {
+            [effectView removeFromSuperview];
+            effectView = nil;
+        }
+    }
 }
 
 - (void)drawRect:(NSRect)rect

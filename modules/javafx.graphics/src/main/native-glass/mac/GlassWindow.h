@@ -71,6 +71,8 @@
     BOOL                isSizeAssigned;
     BOOL                isLocationAssigned;
 
+    GlassHostView*      hostView;
+
 @private
     BOOL                isWindowResizable;
 }
