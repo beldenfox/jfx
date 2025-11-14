@@ -71,6 +71,9 @@ final class MediaFeatures {
             case "-fx-prefers-persistent-scrollbars" -> booleanPreferenceExpression(
                 featureName, featureValue, "persistent", MediaQueryContext::isPersistentScrollBars);
 
+            case "-fx-backdrop-effect" -> booleanPreferenceExpression(
+                featureName, featureValue, "effective", MediaQueryContext::isBackdropEffect);
+
             default -> throw new IllegalArgumentException(
                 String.format("Unknown media feature <%s>", featureName));
         };

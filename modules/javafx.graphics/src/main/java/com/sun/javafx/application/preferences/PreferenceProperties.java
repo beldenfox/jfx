@@ -30,11 +30,13 @@ import com.sun.javafx.tk.Toolkit;
 import com.sun.javafx.util.Utils;
 import javafx.application.ColorScheme;
 import javafx.beans.property.Property;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectPropertyBase;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.paint.Color;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,6 +68,7 @@ final class PreferenceProperties {
     private final ReadOnlyBooleanWrapperImpl reducedTransparencyFlag = new ReadOnlyBooleanWrapperImpl(reducedTransparency);
     private final ReadOnlyBooleanWrapperImpl reducedDataFlag = new ReadOnlyBooleanWrapperImpl(reducedData);
     private final ReadOnlyBooleanWrapperImpl persistentScrollBarsFlag = new ReadOnlyBooleanWrapperImpl(persistentScrollBars);
+    private final BooleanProperty backdropEffect = new SimpleBooleanProperty(false);
 
     PreferenceProperties(Object bean) {
         this.bean = bean;
@@ -165,6 +168,18 @@ final class PreferenceProperties {
 
     public void setAccentColor(Color color) {
         accentColor.setValueOverride(color);
+    }
+
+    public BooleanProperty backdropEffectProperty() {
+        return backdropEffect;
+    }
+
+    public boolean isBackdropEffect() {
+        return backdropEffect.get();
+    }
+
+    public void setBackdropEffect(boolean value) {
+        backdropEffect.set(value);
     }
 
     public void update(Map<String, ChangedValue> changedPreferences,

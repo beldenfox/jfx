@@ -6158,5 +6158,37 @@ public class Scene implements EventTarget {
         ColorScheme getColorScheme();
 
         void setColorScheme(ColorScheme colorScheme);
+
+        /**
+         * Specifies whether applications should always show scroll bars. If set to {@code false}, applications
+         * may choose to hide scroll bars that are not actively used, or make them smaller or less noticeable.
+         * <p>
+         * This property corresponds to the <a href="doc-files/cssref.html#mediafeatures">
+         * {@code -fx-prefers-persistent-scrollbars}</a> media feature.
+         *
+         * @return the {@code persistentScrollBars} property
+         * @defaultValue {@link Platform.Preferences#isPersistentScrollBars()}
+         * @see Platform.Preferences#persistentScrollBarsProperty()
+         */
+        ObjectProperty<Boolean> backdropEffectProperty();
+
+        /**
+         * Gets the value of the {@code persistentScrollBars} property.
+         *
+         * @return the value of the {@code persistentScrollBars} property
+         * @see #persistentScrollBarsProperty()
+         * @see #setPersistentScrollBars(Boolean)
+         */
+        boolean isBackdropEffect();
+
+        /**
+         * Sets the value of the {@code persistentScrollBars} property.
+         *
+         * @param value the value
+         * @see #persistentScrollBarsProperty()
+         * @see #isPersistentScrollBars()
+         */
+        void setBackdropEffect(Boolean value);
+
     }
 }

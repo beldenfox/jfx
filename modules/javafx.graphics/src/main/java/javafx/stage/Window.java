@@ -825,6 +825,7 @@ public class Window implements EventTarget {
 
     private final class SceneModel extends ReadOnlyObjectWrapper<Scene> {
         private final ChangeListener<ColorScheme> colorSchemeListener = this::updateDarkFrame;
+        private final ChangeListener<Boolean> backdropEffectListener = this::updateBackdropEffect;
         private Scene oldScene;
 
         @Override protected void invalidated() {
@@ -840,6 +841,7 @@ public class Window implements EventTarget {
             // Second, dispose scene peer
             if (oldScene != null) {
                 oldScene.getPreferences().colorSchemeProperty().removeListener(colorSchemeListener);
+                oldScene.getPreferences().backdropEffectProperty().removeListener(backdropEffectListener);
                 SceneHelper.setWindow(oldScene, null);
                 StyleManager.getInstance().forget(oldScene);
             }
@@ -871,6 +873,7 @@ public class Window implements EventTarget {
                 }
 
                 newScene.getPreferences().colorSchemeProperty().addListener(colorSchemeListener);
+                newScene.getPreferences().backdropEffectProperty().addListener(backdropEffectListener);
             }
 
             oldScene = newScene;
@@ -897,6 +900,13 @@ public class Window implements EventTarget {
             if (peer != null) {
                 Toolkit.getToolkit().checkFxUserThread();
                 peer.setDarkFrame(newValue == ColorScheme.DARK);
+            }
+        }
+
+        private void updateBackdropEffect(Observable observable, Boolean oldValue, Boolean newValue) {
+            if (peer != null) {
+                Toolkit.getToolkit().checkFxUserThread();
+                peer.setBackdropEffect(newValue);
             }
         }
     }

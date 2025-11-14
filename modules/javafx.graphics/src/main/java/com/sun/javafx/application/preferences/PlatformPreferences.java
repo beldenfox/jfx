@@ -29,6 +29,7 @@ import com.sun.javafx.binding.MapExpressionHelper;
 import javafx.application.ColorScheme;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.MapChangeListener;
@@ -281,6 +282,21 @@ public final class PlatformPreferences extends AbstractMap<String, Object> imple
     @Override
     public Color getAccentColor() {
         return properties.getAccentColor();
+    }
+
+    @Override
+    public BooleanProperty backdropEffectProperty() {
+        return properties.backdropEffectProperty();
+    }
+
+    @Override
+    public boolean isBackdropEffect() {
+        return properties.isBackdropEffect();
+    }
+
+    @Override
+    public void setBackdropEffect(boolean value) {
+        properties.backdropEffectProperty().set(value);
     }
 
     /**

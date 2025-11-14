@@ -28,6 +28,7 @@ package javafx.application;
 import com.sun.javafx.application.PlatformImpl;
 import com.sun.javafx.tk.Toolkit;
 import java.util.Optional;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -714,6 +715,23 @@ public final class Platform {
         ReadOnlyObjectProperty<Color> accentColorProperty();
 
         Color getAccentColor();
+
+        /**
+         * Specifies whether applications should minimize the amount of internet traffic, which users
+         * might request because they are on a metered network or a limited data plan.
+         * <p>
+         * This property corresponds to the <a href="../scene/doc-files/cssref.html#mediafeatures">
+         * {@code prefers-reduced-data}</a> media feature.
+         *
+         * @return the {@code reducedData} property
+         * @defaultValue {@code false}
+         * @since 24
+         */
+        BooleanProperty backdropEffectProperty();
+
+        boolean isBackdropEffect();
+
+        void setBackdropEffect(boolean value);
 
         /**
          * Returns an optional {@code Integer} to which the specified key is mapped.

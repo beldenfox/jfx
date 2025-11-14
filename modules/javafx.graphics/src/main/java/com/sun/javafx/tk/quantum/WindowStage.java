@@ -919,4 +919,11 @@ public class WindowStage extends GlassStage {
             platformWindow.setDarkFrame(value);
         }
     }
+
+    @Override
+    public void setBackdropEffect(boolean value) {
+        if (platformWindow != null) {
+            platformWindow.setBackdropEffect(value);
+        }
+    }
 }
