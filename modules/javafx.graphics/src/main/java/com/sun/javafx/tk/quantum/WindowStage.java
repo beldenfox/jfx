@@ -924,6 +924,10 @@ public class WindowStage extends GlassStage {
     public void setBackdropEffect(boolean value) {
         if (platformWindow != null) {
             platformWindow.setBackdropEffect(value);
+            GlassScene gs = getScene();
+            if (gs != null) {
+                gs.entireSceneNeedsRepaint();
+            }
         }
     }
 }
