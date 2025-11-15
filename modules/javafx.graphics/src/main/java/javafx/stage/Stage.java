@@ -1116,9 +1116,9 @@ public class Stage extends Window {
             ColorScheme colorScheme = scene != null
                 ? scene.getPreferences().getColorScheme()
                 : PlatformImpl.getPlatformPreferences().getColorScheme();
-            boolean backdropEffect = scene != null
-                ? scene.getPreferences().isBackdropEffect()
-                : PlatformImpl.getPlatformPreferences().isBackdropEffect();
+            boolean backdropMaterial = scene != null
+                ? scene.getPreferences().isBackdropMaterial()
+                : PlatformImpl.getPlatformPreferences().isBackdropMaterial();
             StageStyle stageStyle = getStyle();
             setPeer(toolkit.createTKStage(this, stageStyle, isPrimary(),
                     getModality(), tkStage, rtl, colorScheme == ColorScheme.DARK));
@@ -1127,7 +1127,7 @@ public class Stage extends Window {
             getPeer().setMaximumSize((int) Math.floor(getMaxWidth()),
                     (int) Math.floor(getMaxHeight()));
             getPeer().setPrefHeaderButtonHeight(getPrefHeaderButtonHeight());
-            getPeer().setBackdropEffect(backdropEffect);
+            getPeer().enableBackdropMaterial(backdropMaterial);
             setPeerListener(new StagePeerListener(this, STAGE_ACCESSOR));
         }
     }

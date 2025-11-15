@@ -139,22 +139,22 @@ public final class ScenePreferences implements Scene.Preferences, MediaQueryCont
         this.reducedData.set(value);
     }
 
-    private final MediaProperty<Boolean> backdropEffect = new MediaProperty<>(
-            "backdropEffect", PlatformImpl.getPlatformPreferences().backdropEffectProperty());
+    private final MediaProperty<Boolean> backdropMaterial = new MediaProperty<>(
+            "backdropMaterial", PlatformImpl.getPlatformPreferences().backdropMaterialProperty());
 
     @Override
-    public ObjectProperty<Boolean> backdropEffectProperty() {
-        return backdropEffect;
+    public ObjectProperty<Boolean> backdropMaterialProperty() {
+        return backdropMaterial;
     }
 
     @Override
-    public boolean isBackdropEffect() {
-        return backdropEffect.get();
+    public boolean isBackdropMaterial() {
+        return backdropMaterial.get();
     }
 
     @Override
-    public void setBackdropEffect(Boolean value) {
-        this.backdropEffect.set(value);
+    public void setBackdropMaterial(Boolean value) {
+        this.backdropMaterial.set(value);
     }
 
     private void onShowingChanged(Boolean showing) {

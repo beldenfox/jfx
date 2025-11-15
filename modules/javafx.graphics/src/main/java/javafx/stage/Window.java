@@ -825,7 +825,7 @@ public class Window implements EventTarget {
 
     private final class SceneModel extends ReadOnlyObjectWrapper<Scene> {
         private final ChangeListener<ColorScheme> colorSchemeListener = this::updateDarkFrame;
-        private final ChangeListener<Boolean> backdropEffectListener = this::updateBackdropEffect;
+        private final ChangeListener<Boolean> backdropMaterialListener = this::updateBackdropMaterial;
         private Scene oldScene;
 
         @Override protected void invalidated() {
@@ -841,7 +841,7 @@ public class Window implements EventTarget {
             // Second, dispose scene peer
             if (oldScene != null) {
                 oldScene.getPreferences().colorSchemeProperty().removeListener(colorSchemeListener);
-                oldScene.getPreferences().backdropEffectProperty().removeListener(backdropEffectListener);
+                oldScene.getPreferences().backdropMaterialProperty().removeListener(backdropMaterialListener);
                 SceneHelper.setWindow(oldScene, null);
                 StyleManager.getInstance().forget(oldScene);
             }
@@ -873,7 +873,7 @@ public class Window implements EventTarget {
                 }
 
                 newScene.getPreferences().colorSchemeProperty().addListener(colorSchemeListener);
-                newScene.getPreferences().backdropEffectProperty().addListener(backdropEffectListener);
+                newScene.getPreferences().backdropMaterialProperty().addListener(backdropMaterialListener);
             }
 
             oldScene = newScene;
@@ -903,10 +903,10 @@ public class Window implements EventTarget {
             }
         }
 
-        private void updateBackdropEffect(Observable observable, Boolean oldValue, Boolean newValue) {
+        private void updateBackdropMaterial(Observable observable, Boolean oldValue, Boolean newValue) {
             if (peer != null) {
                 Toolkit.getToolkit().checkFxUserThread();
-                peer.setBackdropEffect(newValue);
+                peer.enableBackdropMaterial(newValue);
             }
         }
     }

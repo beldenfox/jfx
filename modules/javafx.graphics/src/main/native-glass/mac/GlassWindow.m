@@ -1510,13 +1510,13 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setDarkFrame
 
 /*
  * Class:     com_sun_glass_ui_mac_MacWindow
- * Method:    _setBackdropEffect
+ * Method:    _enableBackdropMaterial
  * Signature: (JZ)V
  */
-JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setBackdropEffect
+JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1enableBackdropMaterial
 (JNIEnv *env, jobject jWindow, jlong jPtr, jboolean backdrop)
 {
-    LOG("Java_com_sun_glass_ui_mac_MacWindow__1setBackdropEffect");
+    LOG("Java_com_sun_glass_ui_mac_MacWindow__1enableBackdropMaterial");
     if (!jPtr) return;
 
     GLASS_ASSERT_MAIN_JAVA_THREAD(env);

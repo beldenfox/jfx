@@ -717,21 +717,17 @@ public final class Platform {
         Color getAccentColor();
 
         /**
-         * Specifies whether applications should minimize the amount of internet traffic, which users
-         * might request because they are on a metered network or a limited data plan.
+         * TODO
          * <p>
          * This property corresponds to the <a href="../scene/doc-files/cssref.html#mediafeatures">
-         * {@code prefers-reduced-data}</a> media feature.
+         * {@code -fx-prefers-backdrop-material/a> media feature.
          *
-         * @return the {@code reducedData} property
+         * @return the {@code backdropMaterial} property
          * @defaultValue {@code false}
-         * @since 24
          */
-        BooleanProperty backdropEffectProperty();
+        ReadOnlyBooleanProperty backdropMaterialProperty();
 
-        boolean isBackdropEffect();
-
-        void setBackdropEffect(boolean value);
+        boolean isBackdropMaterial();
 
         /**
          * Returns an optional {@code Integer} to which the specified key is mapped.

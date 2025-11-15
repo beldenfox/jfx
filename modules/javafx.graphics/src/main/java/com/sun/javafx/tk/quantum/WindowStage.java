@@ -921,9 +921,9 @@ public class WindowStage extends GlassStage {
     }
 
     @Override
-    public void setBackdropEffect(boolean value) {
+    public void enableBackdropMaterial(boolean value) {
         if (platformWindow != null) {
-            platformWindow.setBackdropEffect(value);
+            platformWindow.enableBackdropMaterial(value);
             GlassScene gs = getScene();
             if (gs != null) {
                 gs.entireSceneNeedsRepaint();

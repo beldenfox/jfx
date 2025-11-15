@@ -285,18 +285,13 @@ public final class PlatformPreferences extends AbstractMap<String, Object> imple
     }
 
     @Override
-    public BooleanProperty backdropEffectProperty() {
-        return properties.backdropEffectProperty();
+    public ReadOnlyBooleanProperty backdropMaterialProperty() {
+        return properties.backdropMaterialProperty();
     }
 
     @Override
-    public boolean isBackdropEffect() {
-        return properties.isBackdropEffect();
-    }
-
-    @Override
-    public void setBackdropEffect(boolean value) {
-        properties.backdropEffectProperty().set(value);
+    public boolean isBackdropMaterial() {
+        return properties.isBackdropMaterial();
     }
 
     /**

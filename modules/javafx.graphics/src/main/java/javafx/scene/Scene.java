@@ -6160,35 +6160,32 @@ public class Scene implements EventTarget {
         void setColorScheme(ColorScheme colorScheme);
 
         /**
-         * Specifies whether applications should always show scroll bars. If set to {@code false}, applications
-         * may choose to hide scroll bars that are not actively used, or make them smaller or less noticeable.
+         * TODO
          * <p>
          * This property corresponds to the <a href="doc-files/cssref.html#mediafeatures">
-         * {@code -fx-prefers-persistent-scrollbars}</a> media feature.
+         * {@code -fx-prefers-backdrop-material}</a> media feature.
          *
-         * @return the {@code persistentScrollBars} property
-         * @defaultValue {@link Platform.Preferences#isPersistentScrollBars()}
-         * @see Platform.Preferences#persistentScrollBarsProperty()
+         * @return the {@code backdropMaterial} property
          */
-        ObjectProperty<Boolean> backdropEffectProperty();
+        ObjectProperty<Boolean> backdropMaterialProperty();
 
         /**
-         * Gets the value of the {@code persistentScrollBars} property.
+         * Gets the value of the {@code backdropMaterial} property.
          *
-         * @return the value of the {@code persistentScrollBars} property
-         * @see #persistentScrollBarsProperty()
-         * @see #setPersistentScrollBars(Boolean)
+         * @return the value of the {@code backdropMaterial} property
+         * @see #backdropMaterialProperty()
+         * @see #setBackdropMaterial(Boolean)
          */
-        boolean isBackdropEffect();
+        boolean isBackdropMaterial();
 
         /**
-         * Sets the value of the {@code persistentScrollBars} property.
+         * Sets the value of the {@code backdropMaterial} property.
          *
          * @param value the value
-         * @see #persistentScrollBarsProperty()
-         * @see #isPersistentScrollBars()
+         * @see #backdropMaterialProperty()
+         * @see #isBackdropMaterial()
          */
-        void setBackdropEffect(Boolean value);
+        void setBackdropMaterial(Boolean value);
 
     }
 }

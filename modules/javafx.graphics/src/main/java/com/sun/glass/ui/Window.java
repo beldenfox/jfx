@@ -996,10 +996,10 @@ public abstract class Window {
 
     public void setDarkFrame(boolean value) {}
 
-    protected void _setBackdropEffect(long ptr, boolean value) {}
+    protected void _enableBackdropMaterial(long ptr, boolean value) {}
     protected boolean _allowsTransparentFill(long ptr) { return false; }
-    public final void setBackdropEffect(boolean value) {
-        _setBackdropEffect(this.ptr, value);
+    public final void enableBackdropMaterial(boolean value) {
+        _enableBackdropMaterial(this.ptr, value);
         allowsTransparentFill = _allowsTransparentFill(this.ptr);
     }
 
