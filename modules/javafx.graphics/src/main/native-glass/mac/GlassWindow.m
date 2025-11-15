@@ -601,8 +601,7 @@ static jlong _createWindowCommonDo(JNIEnv *env, jobject jWindow, jlong jOwnerPtr
             [window->nsWindow setOpaque:YES];
         }
 
-        NSRect contentRect = [window->nsWindow contentRectForFrameRect: window->nsWindow.frame];
-        window->hostView = [[GlassHostView alloc] initWithFrame: contentRect];
+        window->hostView = [[GlassHostView alloc] initWithFrame: NSMakeRect(0, 0, 0, 0)];
         window->nsWindow.contentView = window->hostView;
 
         window->isDecorated = isTitled || isExtended;

@@ -26,17 +26,6 @@
 #import "GlassHostView.h"
 
 @implementation GlassHostView : NSView
-
-- (instancetype)initWithFrame:(NSRect)frame
-{
-    self = [super initWithFrame: frame];
-    if (self) {
-        self.autoresizingMask = (NSViewWidthSizable|NSViewHeightSizable);
-        self.autoresizesSubviews = true;
-    }
-    return self;
-}
-
 - (void)setJFXView:(NSView*)view
 {
     if (jfxView != nil) {
@@ -44,8 +33,7 @@
     }
     jfxView = view;
     if (jfxView) {
-        jfxView.autoresizingMask = (NSViewWidthSizable|NSViewHeightSizable);
-        [self addSubview: jfxView positioned: NSWindowAbove relativeTo: backdropView];
+        [self addSubview: jfxView]; // positioned: NSWindowAbove relativeTo: backdropView];
     }
 }
 
@@ -53,7 +41,6 @@
     if (enable) {
         if (backdropView == nil) {
             NSVisualEffectView* effect = [[NSVisualEffectView alloc] initWithFrame: self.bounds];
-            effect.autoresizingMask = (NSViewWidthSizable|NSViewHeightSizable);
             effect.material = NSVisualEffectMaterialSidebar;
             [self addSubview: effect positioned: NSWindowBelow relativeTo: jfxView];
             backdropView = effect;
@@ -63,6 +50,12 @@
             [backdropView removeFromSuperview];
             backdropView = nil;
         }
+    }
+}
+
+- (void)resizeSubviewsWithOldSize:(NSSize) oldSize {
+    for (NSView* child in self.subviews) {
+        child.frame = self.bounds;
     }
 }
 
