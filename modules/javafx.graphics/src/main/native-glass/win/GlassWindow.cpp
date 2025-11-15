@@ -2227,6 +2227,50 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1setCursor
 
 /*
  * Class:     com_sun_glass_ui_win_WinWindow
+ * Method:    _enableBackdropMaterial
+ * Signature: (JZ)V
+ */
+JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1enableBackdropMaterial
+    (JNIEnv *env, jobject jThis, jlong ptr, jboolean jEnable)
+{
+    ENTER_MAIN_THREAD()
+    {
+        DWM_SYSTEMBACKDROP_TYPE backdrop = (enable ? DWMSBT_TRANSIENTWINDOW : DWMSBT_NONE);
+        ::DwmSetWindowAttribute(hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(backdrop));
+    }
+    jboolean enable;
+    LEAVE_MAIN_THREAD_WITH_hWnd;
+
+    ARG(enable) = jEnable;
+    PERFORM();
+}
+
+/*
+ * Class:     com_sun_glass_ui_win_WinWindow
+ * Method:    _allowsTransparentFill
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_win_WinWindow__1allowsTransparentFill
+    (JNIEnv *env, jobject jThis, jlong ptr)
+{
+    ENTER_MAIN_THREAD_AND_RETURN(jboolean)
+    {
+        DWM_SYSTEMBACKDROP_TYPE backdrop;
+        if (SUCCEEDED(::DwmGetWindowAttribute(hWnd, DWMWA_SYSTEMBACKDROP_TYPE,
+                        &backdrop, sizeof(backdrop)))) {
+            if (backdrop != DWMSBT_NONE) {
+                return JNI_TRUE;
+            }
+        }
+        return JNI_FALSE;
+    }
+    LEAVE_MAIN_THREAD_WITH_hWnd;
+
+    return PERFORM_AND_RETURN();
+}
+
+/*
+ * Class:     com_sun_glass_ui_win_WinWindow
  * Method:    _showSystemMenu
  * Signature: (JII)V
  */
