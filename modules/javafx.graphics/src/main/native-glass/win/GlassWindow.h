@@ -103,6 +103,9 @@ public:
 
     void SetIcon(HICON hIcon);
     void SetDarkFrame(bool);
+    void EnableMaterial(bool);
+    bool IsMaterialEnabled();
+    void UpdateDWMFrameInsets();
     void HandleWindowPosChangedEvent();
     void ShowSystemMenu(int x, int y);
 
@@ -156,6 +159,8 @@ private:
     HMENU m_hMenu;
 
     HICON m_hIcon;
+
+    bool m_isMaterialEnabled;
 
     //NOTE: this is not a rectangle. The left, top, right, and bottom
     //components contain corresponding insets values.

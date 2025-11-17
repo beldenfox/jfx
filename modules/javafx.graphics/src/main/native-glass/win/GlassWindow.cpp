@@ -41,6 +41,8 @@
 #include "com_sun_glass_ui_Window_Level.h"
 #include "com_sun_glass_ui_win_WinWindow.h"
 
+#include <iostream>
+
 #define ABM_GETAUTOHIDEBAREX 0x0000000b // multimon aware autohide bars
 
 // Helper LEAVE_MAIN_THREAD for GlassWindow
@@ -78,6 +80,7 @@ GlassWindow::GlassWindow(jobject jrefThis, bool isTransparent, bool isDecorated,
     m_isUnified(isUnified),
     m_isExtended(isExtended),
     m_hMenu(NULL),
+    m_isMaterialEnabled(false),
     m_alpha(255),
     m_isEnabled(true),
     m_delegateWindow(NULL),
@@ -332,16 +335,7 @@ LRESULT GlassWindow::WindowProc(UINT msg, WPARAM wParam, LPARAM lParam)
             }
             break;
         case WM_DWMCOMPOSITIONCHANGED:
-            if (m_isUnified && (IS_WINVISTA)) {
-                BOOL bEnabled = FALSE;
-                if(SUCCEEDED(::DwmIsCompositionEnabled(&bEnabled)) && bEnabled) {
-                    MARGINS dwmMargins = { -1, -1, -1, -1 };
-                    ::DwmExtendFrameIntoClientArea(GetHWND(), &dwmMargins);
-                }
-            }
-            //When toggling between Aero and Classic theme the size of window changes
-            //No predefined WM_SIZE event type for this, so using -1 as parameters
-            HandleViewSizeEvent(GetHWND(), -1, -1, -1);
+            UpdateDWMFrameInsets();
             break;
         case WM_SIZING:
             m_winChangingReason = WasSized;
@@ -1315,6 +1309,42 @@ void GlassWindow::SetDarkFrame(bool dark)
     }
 }
 
+void GlassWindow::UpdateDWMFrameInsets()
+{
+    // For UNIFIED windows we want the distinction between the client and title bar areas
+    // to disappear (that's what unified means).
+    // TODO - for materials this may not be the case but extending the frame into the
+    // client area is the only way to get the prism pipeline to alpha composite onto
+    // the system provided material. Perhaps there's some other way to trigger this
+    // behavior with the DWM?
+    if ((m_isUnified || m_isMaterialEnabled)) {
+        MARGINS dwmMargins = { -1, -1, -1, -1 };
+        ::DwmExtendFrameIntoClientArea(GetHWND(), &dwmMargins);
+    } else {
+        MARGINS dwmMargins = { 0 };
+        ::DwmExtendFrameIntoClientArea(GetHWND(), &dwmMargins);
+    }
+    //When toggling between Aero and Classic theme the size of window changes
+    //No predefined WM_SIZE event type for this, so using -1 as parameters
+    HandleViewSizeEvent(GetHWND(), -1, -1, -1);
+}
+
+void GlassWindow::EnableMaterial(bool enable)
+{
+    DWM_SYSTEMBACKDROP_TYPE backdrop = (enable ? DWMSBT_MAINWINDOW : DWMSBT_NONE);
+    if (SUCCEEDED(::DwmSetWindowAttribute(GetHWND(), DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(backdrop)))) {
+        m_isMaterialEnabled = enable;
+    } else {
+        m_isMaterialEnabled = false;
+    }
+    UpdateDWMFrameInsets();
+}
+
+bool GlassWindow::IsMaterialEnabled()
+{
+    return m_isMaterialEnabled;
+}
+
 void GlassWindow::ShowSystemMenu(int x, int y)
 {
     WINDOWPLACEMENT placement;
@@ -2235,9 +2265,12 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1enableBackdropMater
 {
     ENTER_MAIN_THREAD()
     {
-        DWM_SYSTEMBACKDROP_TYPE backdrop = (enable ? DWMSBT_TRANSIENTWINDOW : DWMSBT_NONE);
-        ::DwmSetWindowAttribute(hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(backdrop));
+        GlassWindow *pWindow = GlassWindow::FromHandle(hWnd);
+        if (pWindow) {
+            pWindow->EnableMaterial(enable);
+        }
     }
+        
     jboolean enable;
     LEAVE_MAIN_THREAD_WITH_hWnd;
 
@@ -2255,12 +2288,9 @@ JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_win_WinWindow__1allowsTranspare
 {
     ENTER_MAIN_THREAD_AND_RETURN(jboolean)
     {
-        DWM_SYSTEMBACKDROP_TYPE backdrop;
-        if (SUCCEEDED(::DwmGetWindowAttribute(hWnd, DWMWA_SYSTEMBACKDROP_TYPE,
-                        &backdrop, sizeof(backdrop)))) {
-            if (backdrop != DWMSBT_NONE) {
-                return JNI_TRUE;
-            }
+        GlassWindow *pWindow = GlassWindow::FromHandle(hWnd);
+        if (pWindow) {
+            return pWindow->IsMaterialEnabled() ? JNI_TRUE : JNI_FALSE;
         }
         return JNI_FALSE;
     }
