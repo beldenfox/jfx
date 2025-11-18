@@ -2270,7 +2270,7 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1enableBackdrop
             pWindow->EnableMaterial(enable);
         }
     }
-        
+
     jboolean enable;
     LEAVE_MAIN_THREAD_WITH_hWnd;
 

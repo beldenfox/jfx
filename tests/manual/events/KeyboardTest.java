@@ -43,7 +43,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.robot.Robot;
-import javafx.scene.paint.Color;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -861,10 +860,9 @@ public class KeyboardTest extends Application {
         root.setPadding(new Insets(5));
         root.setSpacing(5);
         VBox.setVgrow(logArea, Priority.ALWAYS);
-        root.setBackground(null);
         root.getChildren().addAll(testControls, logArea);
 
-        Scene scene = new Scene(root, 640, 640, Color.TRANSPARENT);
+        Scene scene = new Scene(root, 640, 640);
         stage.setScene(scene);
         stage.setTitle("Keyboard Test");
         stage.show();
