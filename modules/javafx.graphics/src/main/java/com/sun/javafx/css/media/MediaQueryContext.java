@@ -68,11 +68,4 @@ public sealed interface MediaQueryContext permits ScenePreferences {
      * @return {@code true} if the application should use persistent scroll bars
      */
     boolean isPersistentScrollBars();
-
-    /**
-     * Provides the value for the {@code -fx-backdrop-material} media feature.
-     *
-     * @return {@code true} if the there is a backdrop material
-     */
-    boolean isBackdropMaterial();
 }

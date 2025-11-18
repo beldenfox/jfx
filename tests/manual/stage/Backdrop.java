@@ -15,6 +15,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.SceneBackdrop;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
@@ -57,14 +58,7 @@ public class Backdrop extends Application {
             createAndShowStage(StageStyle.UNIFIED);
         });
 
-        Button globalButton = new Button("Global Pref");
-        if (Platform.getPreferences().isBackdropMaterial()) {
-            globalButton.setText("Global ON");
-        } else {
-            globalButton.setText("Global OFF");
-        }
-
-        Button localButton = new Button("Local Pref");
+        Button localButton = new Button("Is Default");
 
         Button pinkColor = new Button("Pink");
         pinkColor.setOnAction(e -> {
@@ -85,7 +79,7 @@ public class Backdrop extends Application {
         stageButtons.setBackground(null);
         stageButtons.setPickOnBounds(false);
         stageButtons.setSpacing(10);
-        var backdropButtons = new HBox(globalButton, localButton);
+        var backdropButtons = new HBox(localButton);
         backdropButtons.setBackground(null);
         backdropButtons.setPickOnBounds(false);
         backdropButtons.setSpacing(10);
@@ -128,18 +122,17 @@ public class Backdrop extends Application {
         Scene scene = new Scene(borderPane, 640, 480, Color.TRANSPARENT);
 
         localButton.setOnAction(e -> {
-            scene.getPreferences().setBackdropMaterial(!scene.getPreferences().isBackdropMaterial());
-            if (scene.getPreferences().isBackdropMaterial()) {
-                localButton.setText("Local ON");
-            } else {
-                localButton.setText("Local OFF");
+            switch (scene.getBackdrop()) {
+            case SceneBackdrop.DEFAULT:
+                scene.setBackdrop(SceneBackdrop.PLATFORM);
+                localButton.setText("Is Platform");
+                break;
+            case SceneBackdrop.PLATFORM:
+                scene.setBackdrop(SceneBackdrop.DEFAULT);
+                localButton.setText("Is Default");
+                break;
             }
         });
-        if (scene.getPreferences().isBackdropMaterial()) {
-            localButton.setText("Local ON");
-        } else {
-            localButton.setText("Local OFF");
-        }
 
         stage.setScene(scene);
     }

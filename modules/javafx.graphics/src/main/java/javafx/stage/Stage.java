@@ -38,6 +38,7 @@ import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.geometry.NodeOrientation;
 import javafx.scene.Scene;
+import javafx.scene.SceneBackdrop;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HeaderBar;
@@ -1116,9 +1117,9 @@ public class Stage extends Window {
             ColorScheme colorScheme = scene != null
                 ? scene.getPreferences().getColorScheme()
                 : PlatformImpl.getPlatformPreferences().getColorScheme();
-            boolean backdropMaterial = scene != null
-                ? scene.getPreferences().isBackdropMaterial()
-                : PlatformImpl.getPlatformPreferences().isBackdropMaterial();
+            SceneBackdrop backdrop = scene != null
+                ? scene.getBackdrop()
+                : SceneBackdrop.DEFAULT;
             StageStyle stageStyle = getStyle();
             setPeer(toolkit.createTKStage(this, stageStyle, isPrimary(),
                     getModality(), tkStage, rtl, colorScheme == ColorScheme.DARK));
@@ -1127,7 +1128,7 @@ public class Stage extends Window {
             getPeer().setMaximumSize((int) Math.floor(getMaxWidth()),
                     (int) Math.floor(getMaxHeight()));
             getPeer().setPrefHeaderButtonHeight(getPrefHeaderButtonHeight());
-            getPeer().enableBackdropMaterial(backdropMaterial);
+            getPeer().enableBackdrop(backdrop == SceneBackdrop.PLATFORM);
             setPeerListener(new StagePeerListener(this, STAGE_ACCESSOR));
         }
     }

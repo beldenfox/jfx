@@ -126,7 +126,7 @@ public interface TKStage {
 
     public void setDarkFrame(boolean value);
 
-    public void enableBackdropMaterial(boolean value);
+    public void enableBackdrop(boolean value);
 
     // =================================================================================================================
     // Functions

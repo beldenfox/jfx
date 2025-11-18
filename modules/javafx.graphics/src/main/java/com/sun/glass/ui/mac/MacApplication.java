@@ -446,8 +446,7 @@ final class MacApplication extends Application implements InvokeLaterDispatcher.
             "macOS.NSWorkspace.accessibilityDisplayShouldReduceMotion", new PreferenceMapping<>("reducedMotion", Boolean.class),
             "macOS.NSWorkspace.accessibilityDisplayShouldReduceTransparency", new PreferenceMapping<>("reducedTransparency", Boolean.class),
             "macOS.NSScroller.preferredScrollerStyle", new PreferenceMapping<>("persistentScrollBars", String.class, "NSScrollerStyleLegacy"::equals),
-            "macOS.NWPathMonitor.currentPathConstrained", new PreferenceMapping<>("reducedData", Boolean.class),
-            "macOS.NSWindow.preferBackdropMaterial", new PreferenceMapping<>("backdropMaterial", Boolean.class)
+            "macOS.NWPathMonitor.currentPathConstrained", new PreferenceMapping<>("reducedData", Boolean.class)
         );
     }
 
@@ -505,8 +504,7 @@ final class MacApplication extends Application implements InvokeLaterDispatcher.
             Map.entry("macOS.NSWorkspace.accessibilityDisplayShouldReduceTransparency", Boolean.class),
             Map.entry("macOS.NSScroller.preferredScrollerStyle", String.class),
             Map.entry("macOS.NWPathMonitor.currentPathConstrained", Boolean.class),
-            Map.entry("macOS.NWPathMonitor.currentPathExpensive", Boolean.class),
-            Map.entry("macOS.NSWindow.preferBackdropMaterial", Boolean.class)
+            Map.entry("macOS.NWPathMonitor.currentPathExpensive", Boolean.class)
         );
     }
 

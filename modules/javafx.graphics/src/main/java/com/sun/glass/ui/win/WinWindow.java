@@ -287,6 +287,12 @@ class WinWindow extends Window {
         _setDarkFrame(getRawHandle(), value);
     }
 
+    private native void _enableBackdrop(long ptr, boolean value);
+    @Override
+    public void enableBackdrop(boolean value) {
+        _enableBackdrop(getRawHandle(), value);
+    }
+
     native private long _getInsets(long ptr);
     native private long _getAnchor(long ptr);
     native private void _showSystemMenu(long ptr, int x, int y);
@@ -314,8 +320,6 @@ class WinWindow extends Window {
     @Override native protected boolean _grabFocus(long ptr);
     @Override native protected void _ungrabFocus(long ptr);
     @Override native protected void _setCursor(long ptr, Cursor cursor);
-    @Override native protected void _enableBackdropMaterial(long ptr, boolean value);
-    @Override native protected boolean _allowsTransparentFill(long ptr);
 
     @Override
     protected void _requestInput(long ptr, String text, int type, double width, double height,

@@ -187,10 +187,6 @@
           key:"macOS.NWPathMonitor.currentPathExpensive"
           value:currentPathExpensive];
 
-    [self putBoolean:preferences
-          key:"macOS.NSWindow.preferBackdropMaterial"
-          value:true];
-
     return preferences;
 }
 

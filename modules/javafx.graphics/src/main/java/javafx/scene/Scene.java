@@ -79,6 +79,7 @@ import javafx.css.StyleableObjectProperty;
 import javafx.css.Stylesheet;
 import javafx.event.*;
 import javafx.geometry.*;
+import javafx.scene.SceneBackdrop;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.HeaderBar;
@@ -1187,6 +1188,43 @@ public class Scene implements EventTarget {
 
     void markCursorDirty() {
         markDirty(DirtyBits.CURSOR_DIRTY);
+    }
+
+    /**
+     * Defines the backdrop of this {@code Scene}.
+     *
+     * @defaultValue DEFAULT
+     */
+    private ObjectProperty<SceneBackdrop> backdrop;
+
+    public final void setBackdrop(SceneBackdrop value) {
+        backdropProperty().set(value);
+    }
+
+    public final SceneBackdrop getBackdrop() {
+        return backdrop == null ? SceneBackdrop.DEFAULT : backdrop.get();
+    }
+
+    public final ObjectProperty<SceneBackdrop> backdropProperty() {
+        if (backdrop == null) {
+            backdrop = new ObjectPropertyBase<SceneBackdrop>(SceneBackdrop.DEFAULT) {
+
+                @Override
+                protected void invalidated() {
+                }
+
+                @Override
+                public Object getBean() {
+                    return Scene.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "backdrop";
+                }
+            };
+        }
+        return backdrop;
     }
 
     /**
@@ -6158,34 +6196,6 @@ public class Scene implements EventTarget {
         ColorScheme getColorScheme();
 
         void setColorScheme(ColorScheme colorScheme);
-
-        /**
-         * TODO
-         * <p>
-         * This property corresponds to the <a href="doc-files/cssref.html#mediafeatures">
-         * {@code -fx-prefers-backdrop-material}</a> media feature.
-         *
-         * @return the {@code backdropMaterial} property
-         */
-        ObjectProperty<Boolean> backdropMaterialProperty();
-
-        /**
-         * Gets the value of the {@code backdropMaterial} property.
-         *
-         * @return the value of the {@code backdropMaterial} property
-         * @see #backdropMaterialProperty()
-         * @see #setBackdropMaterial(Boolean)
-         */
-        boolean isBackdropMaterial();
-
-        /**
-         * Sets the value of the {@code backdropMaterial} property.
-         *
-         * @param value the value
-         * @see #backdropMaterialProperty()
-         * @see #isBackdropMaterial()
-         */
-        void setBackdropMaterial(Boolean value);
 
     }
 }

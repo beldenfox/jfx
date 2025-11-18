@@ -64,12 +64,10 @@ final class PreferenceProperties {
     private final DeferredProperty<Boolean> reducedTransparency = new DeferredProperty<>("reducedTransparency", false);
     private final DeferredProperty<Boolean> reducedData = new DeferredProperty<>("reducedData", false);
     private final DeferredProperty<Boolean> persistentScrollBars = new DeferredProperty<>("persistentScrollBars", false);
-    private final DeferredProperty<Boolean> backdropMaterial = new DeferredProperty<>("backdropMaterial", false);
     private final ReadOnlyBooleanWrapperImpl reducedMotionFlag = new ReadOnlyBooleanWrapperImpl(reducedMotion);
     private final ReadOnlyBooleanWrapperImpl reducedTransparencyFlag = new ReadOnlyBooleanWrapperImpl(reducedTransparency);
     private final ReadOnlyBooleanWrapperImpl reducedDataFlag = new ReadOnlyBooleanWrapperImpl(reducedData);
     private final ReadOnlyBooleanWrapperImpl persistentScrollBarsFlag = new ReadOnlyBooleanWrapperImpl(persistentScrollBars);
-    private final ReadOnlyBooleanWrapperImpl backdropMaterialFlag = new ReadOnlyBooleanWrapperImpl(backdropMaterial);
 
     PreferenceProperties(Object bean) {
         this.bean = bean;
@@ -169,18 +167,6 @@ final class PreferenceProperties {
 
     public void setAccentColor(Color color) {
         accentColor.setValueOverride(color);
-    }
-
-    public ReadOnlyBooleanProperty backdropMaterialProperty() {
-        return backdropMaterialFlag;
-    }
-
-    public boolean isBackdropMaterial() {
-        return backdropMaterial.get();
-    }
-
-    public void setBackdropMaterial(boolean value) {
-        backdropMaterial.setValueOverride(value);
     }
 
     public void update(Map<String, ChangedValue> changedPreferences,

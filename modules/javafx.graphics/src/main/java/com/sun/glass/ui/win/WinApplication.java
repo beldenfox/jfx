@@ -368,7 +368,6 @@ final class WinApplication extends Application implements InvokeLaterDispatcher.
             "Windows.UIColor.Background", new PreferenceMapping<>("backgroundColor", Color.class),
             "Windows.UIColor.Accent", new PreferenceMapping<>("accentColor", Color.class),
             "Windows.UISettings.AdvancedEffectsEnabled", new PreferenceMapping<>("reducedTransparency", Boolean.class, b -> !b),
-            "Windows.Window.preferBackdropMaterial", new PreferenceMapping<>("backdropMaterial", Boolean.class),
             "Windows.UISettings.AutoHideScrollBars", new PreferenceMapping<>("persistentScrollBars", Boolean.class, b -> !b),
             "Windows.SPI.ClientAreaAnimation", new PreferenceMapping<>("reducedMotion", Boolean.class, b -> !b),
             "Windows.NetworkInformation.InternetCostType", new PreferenceMapping<>(
@@ -405,7 +404,6 @@ final class WinApplication extends Application implements InvokeLaterDispatcher.
             Map.entry("Windows.UIColor.AccentLight3", Color.class),
             Map.entry("Windows.UISettings.AdvancedEffectsEnabled", Boolean.class),
             Map.entry("Windows.UISettings.AutoHideScrollBars", Boolean.class),
-            Map.entry("Windows.Window.preferBackdropMaterial", Boolean.class),
             Map.entry("Windows.NetworkInformation.InternetCostType", String.class)
         );
     }

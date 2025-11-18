@@ -717,19 +717,6 @@ public final class Platform {
         Color getAccentColor();
 
         /**
-         * TODO
-         * <p>
-         * This property corresponds to the <a href="../scene/doc-files/cssref.html#mediafeatures">
-         * {@code -fx-prefers-backdrop-material/a> media feature.
-         *
-         * @return the {@code backdropMaterial} property
-         * @defaultValue {@code false}
-         */
-        ReadOnlyBooleanProperty backdropMaterialProperty();
-
-        boolean isBackdropMaterial();
-
-        /**
          * Returns an optional {@code Integer} to which the specified key is mapped.
          *
          * @param key the key

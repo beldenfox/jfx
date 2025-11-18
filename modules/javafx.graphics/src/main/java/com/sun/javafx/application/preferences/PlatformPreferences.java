@@ -284,16 +284,6 @@ public final class PlatformPreferences extends AbstractMap<String, Object> imple
         return properties.getAccentColor();
     }
 
-    @Override
-    public ReadOnlyBooleanProperty backdropMaterialProperty() {
-        return properties.backdropMaterialProperty();
-    }
-
-    @Override
-    public boolean isBackdropMaterial() {
-        return properties.isBackdropMaterial();
-    }
-
     /**
      * Updates this map of preferences with a new set of platform preferences.
      * The specified preferences may include all available preferences, or only the changed preferences.

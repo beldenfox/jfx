@@ -2257,10 +2257,10 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1setCursor
 
 /*
  * Class:     com_sun_glass_ui_win_WinWindow
- * Method:    _enableBackdropMaterial
+ * Method:    _enableBackdrop
  * Signature: (JZ)V
  */
-JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1enableBackdropMaterial
+JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1enableBackdrop
     (JNIEnv *env, jobject jThis, jlong ptr, jboolean jEnable)
 {
     ENTER_MAIN_THREAD()
@@ -2276,27 +2276,6 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1enableBackdropMater
 
     ARG(enable) = jEnable;
     PERFORM();
-}
-
-/*
- * Class:     com_sun_glass_ui_win_WinWindow
- * Method:    _allowsTransparentFill
- * Signature: (J)Z
- */
-JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_win_WinWindow__1allowsTransparentFill
-    (JNIEnv *env, jobject jThis, jlong ptr)
-{
-    ENTER_MAIN_THREAD_AND_RETURN(jboolean)
-    {
-        GlassWindow *pWindow = GlassWindow::FromHandle(hWnd);
-        if (pWindow) {
-            return pWindow->IsMaterialEnabled() ? JNI_TRUE : JNI_FALSE;
-        }
-        return JNI_FALSE;
-    }
-    LEAVE_MAIN_THREAD_WITH_hWnd;
-
-    return PERFORM_AND_RETURN();
 }
 
 /*

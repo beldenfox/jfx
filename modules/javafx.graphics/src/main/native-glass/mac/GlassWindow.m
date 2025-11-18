@@ -1510,13 +1510,13 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setDarkFrame
 
 /*
  * Class:     com_sun_glass_ui_mac_MacWindow
- * Method:    _enableBackdropMaterial
+ * Method:    _enableBackdrop
  * Signature: (JZ)V
  */
-JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1enableBackdropMaterial
+JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1enableBackdrop
 (JNIEnv *env, jobject jWindow, jlong jPtr, jboolean backdrop)
 {
-    LOG("Java_com_sun_glass_ui_mac_MacWindow__1enableBackdropMaterial");
+    LOG("Java_com_sun_glass_ui_mac_MacWindow__1enableBackdrop");
     if (!jPtr) return;
 
     GLASS_ASSERT_MAIN_JAVA_THREAD(env);
@@ -1527,29 +1527,6 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1enableBackdropMater
     }
     GLASS_POOL_EXIT;
     GLASS_CHECK_EXCEPTION(env);
-}
-
-/*
- * Class:     com_sun_glass_ui_mac_MacWindow
- * Method:    _allowsTransparentFill
- * Signature: (J)Z
- */
-JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_mac_MacWindow__1allowsTransparentFill
-(JNIEnv *env, jobject jWindow, jlong jPtr)
-{
-    LOG("Java_com_sun_glass_ui_mac_MacWindow__1allowsTransparentFill");
-    jboolean result = false;
-
-    GLASS_ASSERT_MAIN_JAVA_THREAD(env);
-    GLASS_POOL_ENTER;
-    {
-        GlassWindow *window = getGlassWindow(env, jPtr);
-        result = [window materialIsEnabled];
-    }
-    GLASS_POOL_EXIT;
-    GLASS_CHECK_EXCEPTION(env);
-
-    return result;
 }
 
 /*

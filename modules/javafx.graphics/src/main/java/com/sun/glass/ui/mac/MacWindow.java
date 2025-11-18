@@ -120,8 +120,11 @@ final class MacWindow extends Window {
 
     private native void _setDarkFrame(long ptr, boolean value);
 
-    @Override native protected void _enableBackdropMaterial(long ptr, boolean value);
-    @Override native protected boolean _allowsTransparentFill(long ptr);
+    private native void _enableBackdrop(long ptr, boolean value);
+    @Override
+    public void enableBackdrop(boolean value) {
+        _enableBackdrop(getRawHandle(), value);
+    }
 
     @Override native protected void _toFront(long ptr);
     @Override native protected void _toBack(long ptr);

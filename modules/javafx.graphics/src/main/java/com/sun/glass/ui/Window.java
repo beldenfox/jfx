@@ -236,7 +236,6 @@ public abstract class Window {
     private volatile boolean isFocused = false;
     private volatile boolean isFocusable = true;
     private volatile boolean isModal = false;
-    private volatile boolean allowsTransparentFill = false;
 
     // Indicates how many times setEnabled(false) has been called.
     // A value of 0 means the window is enabled.
@@ -996,16 +995,7 @@ public abstract class Window {
 
     public void setDarkFrame(boolean value) {}
 
-    protected void _enableBackdropMaterial(long ptr, boolean value) {}
-    protected boolean _allowsTransparentFill(long ptr) { return false; }
-    public final void enableBackdropMaterial(boolean value) {
-        _enableBackdropMaterial(this.ptr, value);
-        allowsTransparentFill = _allowsTransparentFill(this.ptr);
-    }
-
-    public boolean allowsTransparentFill() {
-        return isTransparentWindow() || isUnifiedWindow() || allowsTransparentFill;
-    }
+    public void enableBackdrop(boolean value) {}
 
     public boolean isEnabled() {
         Application.checkEventThread();

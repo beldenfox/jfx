@@ -54,6 +54,7 @@ import javafx.event.EventTarget;
 import javafx.event.EventType;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.SceneBackdrop;
 
 import com.sun.javafx.util.Utils;
 import com.sun.javafx.css.StyleManager;
@@ -825,7 +826,7 @@ public class Window implements EventTarget {
 
     private final class SceneModel extends ReadOnlyObjectWrapper<Scene> {
         private final ChangeListener<ColorScheme> colorSchemeListener = this::updateDarkFrame;
-        private final ChangeListener<Boolean> backdropMaterialListener = this::updateBackdropMaterial;
+        private final ChangeListener<SceneBackdrop> backdropListener = this::updateBackdrop;
         private Scene oldScene;
 
         @Override protected void invalidated() {
@@ -841,7 +842,7 @@ public class Window implements EventTarget {
             // Second, dispose scene peer
             if (oldScene != null) {
                 oldScene.getPreferences().colorSchemeProperty().removeListener(colorSchemeListener);
-                oldScene.getPreferences().backdropMaterialProperty().removeListener(backdropMaterialListener);
+                oldScene.backdropProperty().removeListener(backdropListener);
                 SceneHelper.setWindow(oldScene, null);
                 StyleManager.getInstance().forget(oldScene);
             }
@@ -873,7 +874,7 @@ public class Window implements EventTarget {
                 }
 
                 newScene.getPreferences().colorSchemeProperty().addListener(colorSchemeListener);
-                newScene.getPreferences().backdropMaterialProperty().addListener(backdropMaterialListener);
+                newScene.backdropProperty().addListener(backdropListener);
             }
 
             oldScene = newScene;
@@ -903,10 +904,11 @@ public class Window implements EventTarget {
             }
         }
 
-        private void updateBackdropMaterial(Observable observable, Boolean oldValue, Boolean newValue) {
+        private void updateBackdrop(Observable observable, SceneBackdrop oldValue, SceneBackdrop newValue) {
+            System.out.println("Backdrop changed");
             if (peer != null) {
                 Toolkit.getToolkit().checkFxUserThread();
-                peer.enableBackdropMaterial(newValue);
+                peer.enableBackdrop(newValue == SceneBackdrop.PLATFORM);
             }
         }
     }

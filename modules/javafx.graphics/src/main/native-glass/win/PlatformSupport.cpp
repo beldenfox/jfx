@@ -295,7 +295,6 @@ void PlatformSupport::queryUISettings(jobject properties) const
         unsigned char value;
         settings4->get_AdvancedEffectsEnabled(&value);
         putBoolean(properties, "Windows.UISettings.AdvancedEffectsEnabled", value);
-        putBoolean(properties, "Windows.Window.preferBackdropMaterial", value);
     } catch (RoException const&) {
         return;
     }
