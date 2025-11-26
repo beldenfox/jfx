@@ -71,6 +71,7 @@ public class WindowStage extends GlassStage {
     private boolean isPopupStage = false;
     private boolean isInFullScreen = false;
     private boolean isAlwaysOnTop = false;
+    private boolean backdropEnabled = false;
 
     // An active window is visible && enabled && focusable.
     // The list is maintained in the z-order, so that the last element
@@ -918,5 +919,21 @@ public class WindowStage extends GlassStage {
         if (platformWindow != null) {
             platformWindow.setDarkFrame(value);
         }
+    }
+
+    @Override
+    public void enableBackdrop(boolean value) {
+        backdropEnabled = value;
+        if (platformWindow != null) {
+            platformWindow.enableBackdrop(value);
+            GlassScene gs = getScene();
+            if (gs != null) {
+                gs.entireSceneNeedsRepaint();
+            }
+        }
+    }
+
+    public boolean allowsTransparentFill() {
+        return transparent || backdropEnabled;
     }
 }

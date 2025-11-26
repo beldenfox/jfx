@@ -995,6 +995,8 @@ public abstract class Window {
 
     public void setDarkFrame(boolean value) {}
 
+    public void enableBackdrop(boolean value) {}
+
     public boolean isEnabled() {
         Application.checkEventThread();
         return this.disableCount == 0;

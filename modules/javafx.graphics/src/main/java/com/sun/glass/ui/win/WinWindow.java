@@ -287,6 +287,12 @@ class WinWindow extends Window {
         _setDarkFrame(getRawHandle(), value);
     }
 
+    private native void _enableBackdrop(long ptr, boolean value);
+    @Override
+    public void enableBackdrop(boolean value) {
+        _enableBackdrop(getRawHandle(), value);
+    }
+
     native private long _getInsets(long ptr);
     native private long _getAnchor(long ptr);
     native private void _showSystemMenu(long ptr, int x, int y);

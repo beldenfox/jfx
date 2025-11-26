@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,17 +23,29 @@
  * questions.
  */
 
-#import <Cocoa/Cocoa.h>
-#import <jni.h>
+package javafx.scene;
 
-// host view to which our views attach, so we can move our view in/out
-@interface GlassHostView : NSView
-{
-@private
-        NSView *jfxView;
-        NSView *backdropView;
+/**
+ * Defines the backdrop of the scene. The scene's fill is composited on top of
+ * this backdrop so an opaque fill will completely obscure the backdrop. To
+ * see the backdrop the scene's fill and the background of the scene's root
+ * node should be set to null or a non-opaque paint.
+ *
+ * @since 27
+ */
+public enum SceneBackdrop {
+    /**
+     * The default (legacy) backdrop which varies based on the StageStyle.
+     */
+    DEFAULT,
+
+    /**
+     * A platform-specific backdrop. This may include advanced visual effects
+     * like translucency or it may be opaque. It is always a suitable
+     * background for drawing text in the default text color. The platform
+     * backdrop responds to platform preferences such as the color scheme and
+     * whether the user has asked to reduce transparency. Its appearance may
+     * change based on the focused state of the window.
+     */
+    PLATFORM
 }
--(void)setJFXView:(NSView*)view;
--(void)enableMaterial:(BOOL)enable;
--(BOOL)materialIsEnabled;
-@end

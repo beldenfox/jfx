@@ -44,6 +44,7 @@
     GlassWindow         *owner;
     NSMutableArray<GlassWindow*> *childWindows;
 
+    GlassHostView       *hostView;
     GlassView3D<GlassView>   *view;
     NSScreen            *currentScreen;
     GlassMenubar        *menubar;
@@ -84,6 +85,9 @@
 - (void) setMoveToActiveSpaceChildWindows:(BOOL)moveToActiveSpace;
 
 // NSWindow overrides delegate methods
+- (void)setJFXView:(GlassView3D<GlassView>*)view;
+- (void)enableMaterial:(BOOL)enable;
+- (BOOL)materialIsEnabled;
 - (void)close;
 - (void)sendEvent:(NSEvent *)event;
 - (BOOL)canBecomeMainWindow;
