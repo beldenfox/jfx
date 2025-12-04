@@ -28,7 +28,7 @@
 
 #include "BaseWnd.h"
 #include "ViewContainer.h"
-
+#include "GlassBackdrop.h"
 
 class GlassWindow : public BaseWnd, public ViewContainer {
 public:
@@ -103,8 +103,7 @@ public:
 
     void SetIcon(HICON hIcon);
     void SetDarkFrame(bool);
-    void EnableMaterial(bool);
-    bool IsMaterialEnabled();
+    void EnableBackdrop(bool);
     void UpdateDWMFrameInsets();
     void HandleWindowPosChangedEvent();
     void ShowSystemMenu(int x, int y);
@@ -160,7 +159,7 @@ private:
 
     HICON m_hIcon;
 
-    bool m_isMaterialEnabled;
+    std::shared_ptr<GlassBackdrop> m_backdrop;
 
     //NOTE: this is not a rectangle. The left, top, right, and bottom
     //components contain corresponding insets values.

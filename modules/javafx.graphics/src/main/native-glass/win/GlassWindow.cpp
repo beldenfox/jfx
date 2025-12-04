@@ -80,7 +80,6 @@ GlassWindow::GlassWindow(jobject jrefThis, bool isTransparent, bool isDecorated,
     m_isUnified(isUnified),
     m_isExtended(isExtended),
     m_hMenu(NULL),
-    m_isMaterialEnabled(false),
     m_alpha(255),
     m_isEnabled(true),
     m_delegateWindow(NULL),
@@ -1311,13 +1310,12 @@ void GlassWindow::SetDarkFrame(bool dark)
 
 void GlassWindow::UpdateDWMFrameInsets()
 {
-    // For UNIFIED windows we want the distinction between the client and title bar areas
-    // to disappear (that's what unified means).
-    // TODO - for materials this may not be the case but extending the frame into the
-    // client area is the only way to get the prism pipeline to alpha composite onto
-    // the system provided material. Perhaps there's some other way to trigger this
-    // behavior with the DWM?
-    if ((m_isUnified || m_isMaterialEnabled)) {
+    // For UNIFIED windows we want the distinction between the client and
+    // title bar areas to disappear (that's what unified means). TODO -
+    // extending the frame into the client area is the only way to get the
+    // prism pipeline to alpha composite onto the system provided backdrop.
+    // Perhaps there's some other way to trigger this behavior with the DWM?
+    if ((m_isUnified || m_backdrop != nullptr)) {
         MARGINS dwmMargins = { -1, -1, -1, -1 };
         ::DwmExtendFrameIntoClientArea(GetHWND(), &dwmMargins);
     } else {
@@ -1329,20 +1327,14 @@ void GlassWindow::UpdateDWMFrameInsets()
     HandleViewSizeEvent(GetHWND(), -1, -1, -1);
 }
 
-void GlassWindow::EnableMaterial(bool enable)
+void GlassWindow::EnableBackdrop(bool enable)
 {
-    DWM_SYSTEMBACKDROP_TYPE backdrop = (enable ? DWMSBT_MAINWINDOW : DWMSBT_NONE);
-    if (SUCCEEDED(::DwmSetWindowAttribute(GetHWND(), DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(backdrop)))) {
-        m_isMaterialEnabled = enable;
-    } else {
-        m_isMaterialEnabled = false;
+    if (enable && !m_backdrop) {
+        m_backdrop = GlassBackdrop::create(GetHWND());
+    } else if (!enable && m_backdrop) {
+        m_backdrop = nullptr;
     }
     UpdateDWMFrameInsets();
-}
-
-bool GlassWindow::IsMaterialEnabled()
-{
-    return m_isMaterialEnabled;
 }
 
 void GlassWindow::ShowSystemMenu(int x, int y)
@@ -2257,17 +2249,17 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1setCursor
 
 /*
  * Class:     com_sun_glass_ui_win_WinWindow
- * Method:    _enableBackdrop
- * Signature: (JZ)V
+ * Method:    _setBackdrop
+ * Signature: (JZDZ)V
  */
-JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1enableBackdrop
-    (JNIEnv *env, jobject jThis, jlong ptr, jboolean jEnable)
+JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1setBackdrop
+    (JNIEnv *env, jobject jThis, jlong ptr, jboolean jEnable, jdouble jRadius, jboolean jDropShadow)
 {
     ENTER_MAIN_THREAD()
     {
         GlassWindow *pWindow = GlassWindow::FromHandle(hWnd);
         if (pWindow) {
-            pWindow->EnableMaterial(enable);
+            pWindow->EnableBackdrop(enable);
         }
     }
 
