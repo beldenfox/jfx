@@ -56,6 +56,9 @@ public final class SceneBackdrop {
     /**
      * Creates a new backdrop with the specified corner radius and
      * drop shadow settings.
+     *
+     * @param cornerRadius blah
+     * @param useDropShadow blah
      */
     public SceneBackdrop(
         @NamedArg("cornerRadius") double cornerRadius,
@@ -64,10 +67,20 @@ public final class SceneBackdrop {
         this.useDropShadow = useDropShadow;
     }
 
+    /**
+     * Creates a new backdrop with the square corners and no
+     * drop shadow.
+     */
     public SceneBackdrop() {
         this(0.0, false);
     }
 
+    /**
+     * Creates a new backdrop with the specified corner radius and
+     * no drop shadow.
+     *
+     * @param cornerRadius blah
+     */
     public SceneBackdrop(@NamedArg("cornerRadius") double cornerRadius) {
         this(cornerRadius, false);
     }
