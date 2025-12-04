@@ -995,7 +995,7 @@ public abstract class Window {
 
     public void setDarkFrame(boolean value) {}
 
-    public void enableBackdrop(boolean value) {}
+    public void setBackdrop(boolean enabled, double cornerRadius, boolean useShadow) {}
 
     public boolean isEnabled() {
         Application.checkEventThread();

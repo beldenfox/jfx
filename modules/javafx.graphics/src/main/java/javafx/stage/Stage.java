@@ -1119,7 +1119,7 @@ public class Stage extends Window {
                 : PlatformImpl.getPlatformPreferences().getColorScheme();
             SceneBackdrop backdrop = scene != null
                 ? scene.getBackdrop()
-                : SceneBackdrop.DEFAULT;
+                : null;
             StageStyle stageStyle = getStyle();
             setPeer(toolkit.createTKStage(this, stageStyle, isPrimary(),
                     getModality(), tkStage, rtl, colorScheme == ColorScheme.DARK));
@@ -1128,7 +1128,11 @@ public class Stage extends Window {
             getPeer().setMaximumSize((int) Math.floor(getMaxWidth()),
                     (int) Math.floor(getMaxHeight()));
             getPeer().setPrefHeaderButtonHeight(getPrefHeaderButtonHeight());
-            getPeer().enableBackdrop(backdrop == SceneBackdrop.PLATFORM);
+            if (backdrop != null) {
+                getPeer().setBackdrop(true, backdrop.getCornerRadius(), backdrop.getUseDropShadow());
+            } else {
+                getPeer().setBackdrop(false, 0.0, false);
+            }
             setPeerListener(new StagePeerListener(this, STAGE_ACCESSOR));
         }
     }

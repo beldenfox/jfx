@@ -287,10 +287,10 @@ class WinWindow extends Window {
         _setDarkFrame(getRawHandle(), value);
     }
 
-    private native void _enableBackdrop(long ptr, boolean value);
+    private native void _setBackdrop(long ptr, boolean enable, double cornerRadius, boolean useDropShadow);
     @Override
-    public void enableBackdrop(boolean value) {
-        _enableBackdrop(getRawHandle(), value);
+    public void setBackdrop(boolean enable, double cornerRadius, boolean useDropShadow) {
+        _setBackdrop(getRawHandle(), enable, cornerRadius, useDropShadow);
     }
 
     native private long _getInsets(long ptr);

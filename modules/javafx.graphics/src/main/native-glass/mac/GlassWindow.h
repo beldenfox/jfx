@@ -86,8 +86,7 @@
 
 // NSWindow overrides delegate methods
 - (void)setJFXView:(GlassView3D<GlassView>*)view;
-- (void)enableMaterial:(BOOL)enable;
-- (BOOL)materialIsEnabled;
+- (void)setBackdrop:(BOOL)enable cornerRadius:(CGFloat)corner shadow:(BackdropShadowOption)shadow;
 - (void)close;
 - (void)sendEvent:(NSEvent *)event;
 - (BOOL)canBecomeMainWindow;

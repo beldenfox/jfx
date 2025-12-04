@@ -57,8 +57,10 @@ public class Backdrop extends Application {
     }
 
     private enum TestBackdrop {
-        DEFAULT("Default", SceneBackdrop.DEFAULT),
-        PLATFORM("Platform", SceneBackdrop.PLATFORM);
+        DEFAULT("None", null),
+        RECTANGLE("Rectangle", new SceneBackdrop()),
+        ROUNDED("Rounded", new SceneBackdrop(30.0)),
+        ROUNDED_SHADOW("Rounded w/shadow", new SceneBackdrop(30.0, true));
 
         private String label;
         private SceneBackdrop backdrop;
@@ -207,7 +209,7 @@ public class Backdrop extends Application {
             scene.getPreferences().setColorScheme(schemeChoice.getValue().getColorScheme());
         });
 
-        backdropChoice.setValue(TestBackdrop.PLATFORM);
+        backdropChoice.setValue(TestBackdrop.RECTANGLE);
         fillChoice.setValue(TestFill.TRANSPARENT);
         schemeChoice.setValue(TestColorScheme.LIGHT);
 
@@ -230,8 +232,8 @@ public class Backdrop extends Application {
 
     @Override
     public void start(Stage stage) {
-        setUserAgentStylesheet("file:////Users/martin/Java/jfx/teststyles.css");
-        Scene.setDefaultBackdrop(SceneBackdrop.PLATFORM);
+        // setUserAgentStylesheet("file:////Users/martin/Java/jfx/teststyles.css");
+        Scene.setDefaultBackdrop(null);
         showStage(stage, StageStyle.EXTENDED);
     }
 }

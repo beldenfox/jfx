@@ -1202,7 +1202,7 @@ public class Scene implements EventTarget {
     }
 
     public final SceneBackdrop getBackdrop() {
-        return backdrop == null ? SceneBackdrop.DEFAULT : backdrop.get();
+        return backdrop == null ? null : backdrop.get();
     }
 
     public final ObjectProperty<SceneBackdrop> backdropProperty() {
@@ -1240,12 +1240,12 @@ public class Scene implements EventTarget {
     }
 
     public static final SceneBackdrop getDefaultBackdrop() {
-        return defaultBackdrop == null ? SceneBackdrop.DEFAULT : defaultBackdrop.get();
+        return defaultBackdrop == null ? null : defaultBackdrop.get();
     }
 
     public static final ObjectProperty<SceneBackdrop> defaultBackdropProperty() {
         if (defaultBackdrop == null) {
-            defaultBackdrop = new ObjectPropertyBase<SceneBackdrop>(SceneBackdrop.DEFAULT) {
+            defaultBackdrop = new ObjectPropertyBase<SceneBackdrop>(null) {
 
                 @Override
                 protected void invalidated() {

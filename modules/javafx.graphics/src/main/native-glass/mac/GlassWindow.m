@@ -444,17 +444,15 @@ GLASS_NS_WINDOW_IMPLEMENTATION
     }
 }
 
-- (void)setJFXView:(GlassView3D<GlassView>*)newView {
+- (void)setJFXView:(GlassView3D<GlassView>*)newView
+{
     [hostView setJFXView: newView];
     view = newView;
 }
 
-- (void)enableMaterial:(BOOL)enable {
-    [hostView enableMaterial: enable];
-}
-
-- (BOOL)materialIsEnabled {
-    return [hostView materialIsEnabled];
+- (void)setBackdrop:(BOOL)enable cornerRadius:(CGFloat)corner shadow:(BackdropShadowOption)shadow
+{
+    [hostView setBackdrop: enable cornerRadius: corner shadow: shadow];
 }
 @end
 
@@ -1510,20 +1508,26 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setDarkFrame
 
 /*
  * Class:     com_sun_glass_ui_mac_MacWindow
- * Method:    _enableBackdrop
- * Signature: (JZ)V
+ * Method:    _setBackdrop
+ * Signature: (JZDZ)V
  */
-JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1enableBackdrop
-(JNIEnv *env, jobject jWindow, jlong jPtr, jboolean backdrop)
+JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setBackdrop
+(JNIEnv *env, jobject jWindow, jlong jPtr, jboolean enable, jdouble cornerRadius, jboolean useShadow)
 {
-    LOG("Java_com_sun_glass_ui_mac_MacWindow__1enableBackdrop");
+    LOG("Java_com_sun_glass_ui_mac_MacWindow__1setBackdrop");
     if (!jPtr) return;
 
     GLASS_ASSERT_MAIN_JAVA_THREAD(env);
     GLASS_POOL_ENTER;
     {
         GlassWindow *window = getGlassWindow(env, jPtr);
-        [window enableMaterial: backdrop];
+        BackdropShadowOption shadow = BackdropShadowOptionLeave;
+        if (!window->isTransparent) {
+            cornerRadius = 0.0;
+        } else {
+            shadow = (useShadow && enable) ? BackdropShadowOptionOn : BackdropShadowOptionOff;
+        }
+        [window setBackdrop: enable cornerRadius: cornerRadius shadow: shadow];
     }
     GLASS_POOL_EXIT;
     GLASS_CHECK_EXCEPTION(env);

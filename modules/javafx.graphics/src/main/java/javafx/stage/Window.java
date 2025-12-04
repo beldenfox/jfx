@@ -905,10 +905,13 @@ public class Window implements EventTarget {
         }
 
         private void updateBackdrop(Observable observable, SceneBackdrop oldValue, SceneBackdrop newValue) {
-            System.out.println("Backdrop changed");
             if (peer != null) {
                 Toolkit.getToolkit().checkFxUserThread();
-                peer.enableBackdrop(newValue == SceneBackdrop.PLATFORM);
+                if (newValue != null) {
+                    peer.setBackdrop(true, newValue.getCornerRadius(), newValue.getUseDropShadow());
+                } else {
+                    peer.setBackdrop(false, 0.0, false);
+                }
             }
         }
     }

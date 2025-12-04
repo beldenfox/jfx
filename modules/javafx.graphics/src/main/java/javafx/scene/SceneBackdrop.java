@@ -25,6 +25,8 @@
 
 package javafx.scene;
 
+import javafx.beans.NamedArg;
+
 /**
  * Defines the backdrop of the scene. The scene's fill is composited on top of
  * this backdrop so an opaque fill will completely obscure the backdrop. To
@@ -33,19 +35,41 @@ package javafx.scene;
  *
  * @since 27
  */
-public enum SceneBackdrop {
+public final class SceneBackdrop {
     /**
-     * The default (legacy) backdrop which varies based on the StageStyle.
+     * The corner radius.
+     *
+     * @return the corner radius.
      */
-    DEFAULT,
+    public final double getCornerRadius() { return cornerRadius; }
+    private final double cornerRadius;
+
 
     /**
-     * A platform-specific backdrop. This may include advanced visual effects
-     * like translucency or it may be opaque. It is always a suitable
-     * background for drawing text in the default text color. The platform
-     * backdrop responds to platform preferences such as the color scheme and
-     * whether the user has asked to reduce transparency. Its appearance may
-     * change based on the focused state of the window.
+     * Whether the backdrop should show a drop shadow or not.
+     *
+     * @return the drop shadow setting
      */
-    PLATFORM
-}
+    public final boolean getUseDropShadow() { return useDropShadow; }
+    private final boolean useDropShadow;
+
+    /**
+     * Creates a new backdrop with the specified corner radius and
+     * drop shadow settings.
+     */
+    public SceneBackdrop(
+        @NamedArg("cornerRadius") double cornerRadius,
+        @NamedArg("useDropShadow") boolean useDropShadow) {
+        this.cornerRadius = (cornerRadius >= 0.0) ? cornerRadius : 0;
+        this.useDropShadow = useDropShadow;
+    }
+
+    public SceneBackdrop() {
+        this(0.0, false);
+    }
+
+    public SceneBackdrop(@NamedArg("cornerRadius") double cornerRadius) {
+        this(cornerRadius, false);
+    }
+};
+

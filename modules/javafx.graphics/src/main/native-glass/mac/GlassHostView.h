@@ -27,13 +27,19 @@
 #import <jni.h>
 
 // host view to which our views attach, so we can move our view in/out
+typedef NS_ENUM(NSInteger, BackdropShadowOption) {
+    BackdropShadowOptionLeave,
+    BackdropShadowOptionOn,
+    BackdropShadowOptionOff
+};
+
 @interface GlassHostView : NSView
 {
 @private
-        NSView *jfxView;
-        NSView *backdropView;
+    NSView *jfxView;
+    NSView *backdropView;
 }
 -(void)setJFXView:(NSView*)view;
--(void)enableMaterial:(BOOL)enable;
+-(void)setBackdrop:(BOOL)enable cornerRadius:(CGFloat)radius shadow:(BackdropShadowOption) shadow;
 -(BOOL)materialIsEnabled;
 @end

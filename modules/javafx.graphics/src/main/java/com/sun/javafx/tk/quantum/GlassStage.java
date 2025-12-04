@@ -81,8 +81,7 @@ abstract class GlassStage implements TKStage {
     public void setDarkFrame(boolean value) {}
 
     @Override
-    public void enableBackdrop(boolean value) {}
-    public boolean isBackdropEnabled() { return false; }
+    public void setBackdrop(boolean enable, double cornerRadius, boolean useShadow) {}
 
     protected final GlassScene getScene() {
         return scene;
