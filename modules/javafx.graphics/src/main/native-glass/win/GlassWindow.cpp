@@ -1337,6 +1337,20 @@ void GlassWindow::EnableBackdrop(bool enable)
     UpdateDWMFrameInsets();
 }
 
+void GlassWindow::BeginPaint()
+{
+    if (m_backdrop != nullptr) {
+        m_backdrop->Begin();
+    }
+}
+
+void GlassWindow::EndPaint()
+{
+    if (m_backdrop != nullptr) {
+        m_backdrop->End();
+    }
+}
+
 void GlassWindow::ShowSystemMenu(int x, int y)
 {
     WINDOWPLACEMENT placement;

@@ -25,15 +25,23 @@
 
 #include "GlassBackdrop.h"
 
+#include <DispatcherQueue.h>
+
 #include <windows.ui.composition.interop.h>
 #include <DispatcherQueue.h>
+
 #include <winrt/Windows.System.h>
 #include <winrt/Windows.UI.Composition.Desktop.h>
+#include <winrt/Windows.Graphics.DirectX.h>
+
+#include <d3d11.h>
 
 using namespace winrt;
 using namespace winrt::Windows::UI;
 using namespace winrt::Windows::UI::Composition;
 using namespace winrt::Windows::UI::Composition::Desktop;
+using namespace winrt::Windows::Graphics::DirectX;
+using namespace winrt::Windows::Foundation;
 
 namespace
 {
@@ -48,16 +56,6 @@ namespace
         PDISPATCHERQUEUECONTROLLER controller = nullptr;
         check_hresult(CreateDispatcherQueueController(options, &controller));
         return controller;
-    }
-
-    auto CreateDesktopWindowTarget(const Compositor &compositor, HWND hWnd)
-    {
-        namespace abi = ABI::Windows::UI::Composition::Desktop;
-        auto interop = compositor.as<abi::ICompositorDesktopInterop>();
-        DesktopWindowTarget target = nullptr;
-        check_hresult(interop->CreateDesktopWindowTarget(hWnd, false,
-            reinterpret_cast<abi::IDesktopWindowTarget**>(put_abi(target))));
-        return target;
     }
 
     void AddVisual(VisualCollection const& visuals, float x, float y)
@@ -79,43 +77,111 @@ namespace
         visual.Offset({x, y, 0.0f, });
         visuals.InsertAtTop(visual);
     }
-
-    DesktopWindowTarget PrepareVisuals(HWND hWnd)
-    {
-        Compositor compositor;
-        auto target = CreateDesktopWindowTarget(compositor, hWnd);
-        auto root = compositor.CreateSpriteVisual();
-        root.RelativeSizeAdjustment({ 1.0f, 1.0f });
-        root.Brush(compositor.CreateColorBrush({ 0x80, 0xEF, 0xE4, 0xB0 }));
-        target.Root(root);
-        auto visuals = root.Children();
-        AddVisual(visuals, 100.0f, 100.0f);
-        AddVisual(visuals, 220.0f, 100.0f);
-        AddVisual(visuals, 100.0f, 220.0f);
-        AddVisual(visuals, 220.0f, 220.0f);
-        return target;
-    }
 }
 
 class RealGlassBackdrop : public GlassBackdrop
 {
-public:
-    RealGlassBackdrop(HWND hWnd) : m_target(nullptr) {
+private:
+    static PDISPATCHERQUEUECONTROLLER           s_controller;
+    static com_ptr<ID3D11Device>                s_d3dDevice;
+
+    CompositionGraphicsDevice m_graphicsDevice = nullptr;
+    CompositionDrawingSurface m_contentSurface = nullptr;
+    com_ptr<ABI::Windows::UI::Composition::ICompositionDrawingSurfaceInterop> m_contentSurfaceInterop = nullptr;
+    com_ptr<ID3D11Texture2D>  m_contentSurfaceTexture = nullptr;
+    SpriteVisual              m_contentVisual = nullptr;
+    DesktopWindowTarget       m_target;
+
+    void EnsureDevices() {
         if (s_controller == nullptr) {
             s_controller = CreateDispatcherQueueController();
         }
 
-        m_target = PrepareVisuals(hWnd);
+        if (s_d3dDevice == nullptr) {
+            unsigned flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+            #ifdef _DEBUG
+            flags |= D3D11_CREATE_DEVICE_DEBUG;
+            #endif
+
+            check_hresult(D3D11CreateDevice(
+                nullptr,        // adapter
+                D3D_DRIVER_TYPE_HARDWARE,
+                nullptr,        // module
+                flags,
+                nullptr, 0,     // feature level
+                D3D11_SDK_VERSION,
+                s_d3dDevice.put(),
+                nullptr,
+                nullptr));
+        }
+    }
+
+    void BuildTarget(HWND hWnd)
+    {
+        namespace abi = ABI::Windows::UI::Composition;
+
+        Compositor compositor;
+
+        auto desktopInterop = compositor.as<abi::Desktop::ICompositorDesktopInterop>();
+        check_hresult(desktopInterop->CreateDesktopWindowTarget(hWnd, false,
+            reinterpret_cast<abi::Desktop::IDesktopWindowTarget**>(put_abi(m_target))));
+
+        auto compositorInterop = compositor.as<abi::ICompositorInterop>();
+        check_hresult(compositorInterop->CreateGraphicsDevice(s_d3dDevice.get(),
+            reinterpret_cast<abi::ICompositionGraphicsDevice**>(put_abi(m_graphicsDevice))));
+
+        auto root = compositor.CreateContainerVisual();
+        root.RelativeSizeAdjustment({ 1.0f, 1.0f });
+
+        auto backdrop = compositor.CreateSpriteVisual();
+        backdrop.RelativeSizeAdjustment({ 1.0f, 1.0f });
+        backdrop.Brush(compositor.CreateColorBrush({ 0x80, 0xEF, 0xE4, 0xB0 }));
+        auto visuals = backdrop.Children();
+        AddVisual(visuals, 100.0f, 100.0f);
+        AddVisual(visuals, 220.0f, 100.0f);
+        AddVisual(visuals, 100.0f, 220.0f);
+        AddVisual(visuals, 220.0f, 220.0f);
+
+        Size size { 100, 100 };
+        m_contentSurface = m_graphicsDevice.CreateDrawingSurface(size,
+            DirectXPixelFormat::B8G8R8A8UIntNormalized,
+            DirectXAlphaMode::Premultiplied);
+        m_contentSurfaceInterop = m_contentSurface.as<abi::ICompositionDrawingSurfaceInterop>();
+
+        m_contentVisual = compositor.CreateSpriteVisual();
+        m_contentVisual.Brush(compositor.CreateSurfaceBrush(m_contentSurface));
+
+        root.Children().InsertAtTop(backdrop);
+        root.Children().InsertAtTop(m_contentVisual);
+
+        m_target.Root(root);
+    }
+
+public:
+    RealGlassBackdrop(HWND hWnd) : m_target(nullptr) {
+        EnsureDevices();
+        BuildTarget(hWnd);
     }
 
     virtual ~RealGlassBackdrop() {
     }
 
-private:
-    static PDISPATCHERQUEUECONTROLLER s_controller;
-    DesktopWindowTarget m_target;
+    void Begin() override {
+        POINT offset;
+        m_contentSurfaceInterop->BeginDraw(
+            nullptr, // entire surface)
+            _uuidof(ID3D11Texture2D),
+            (void**)&m_contentSurfaceTexture,
+            &offset); // offset
+    }
+
+    void End() override {
+        m_contentSurfaceInterop->EndDraw();
+        m_contentSurfaceTexture = nullptr;
+    }
 };
 PDISPATCHERQUEUECONTROLLER RealGlassBackdrop::s_controller = nullptr;
+winrt::com_ptr<ID3D11Device> RealGlassBackdrop::s_d3dDevice = nullptr;
 
 std::shared_ptr<GlassBackdrop> GlassBackdrop::create(HWND hWnd) {
     return std::make_shared<RealGlassBackdrop>(hWnd);

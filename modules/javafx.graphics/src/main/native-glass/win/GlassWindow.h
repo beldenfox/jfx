@@ -104,6 +104,8 @@ public:
     void SetIcon(HICON hIcon);
     void SetDarkFrame(bool);
     void EnableBackdrop(bool);
+    void BeginPaint();
+    void EndPaint();
     void UpdateDWMFrameInsets();
     void HandleWindowPosChangedEvent();
     void ShowSystemMenu(int x, int y);

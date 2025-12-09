@@ -34,6 +34,7 @@
 #include "com_sun_glass_events_ViewEvent.h"
 #include "com_sun_glass_ui_win_WinView.h"
 
+#include <iostream>
 
 // Helper LEAVE_MAIN_THREAD for GlassView
 #define LEAVE_MAIN_THREAD_WITH_view  \
@@ -393,8 +394,14 @@ JNIEXPORT jint JNICALL Java_com_sun_glass_ui_win_WinView__1getY
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinView__1begin
-  (JNIEnv *env, jobject jview, jlong ptr)
+  (JNIEnv *env, jobject jview, jlong viewPtr)
 {
+    std::cout << "Begin paint " << ::GetCurrentThreadId() << std::endl;
+    GlassView *view = (GlassView *)viewPtr;
+    GlassWindow *pWindow = GlassWindow::FromHandle(view->GetHostHwnd());
+    if (pWindow != nullptr) {
+        pWindow->BeginPaint();
+    }
 }
 
 /*
@@ -403,8 +410,14 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinView__1begin
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinView__1end
-  (JNIEnv *env, jobject jview, jlong ptr)
+  (JNIEnv *env, jobject jview, jlong viewPtr)
 {
+    std::cout << "End paint " << ::GetCurrentThreadId() << std::endl;
+    GlassView *view = (GlassView *)viewPtr;
+    GlassWindow *pWindow = GlassWindow::FromHandle(view->GetHostHwnd());
+    if (pWindow != nullptr) {
+        pWindow->EndPaint();
+    }
 }
 
 /*

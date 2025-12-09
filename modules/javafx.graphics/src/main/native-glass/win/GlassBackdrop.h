@@ -34,6 +34,9 @@ public:
     static std::shared_ptr<GlassBackdrop> create(HWND hWnd);
     virtual ~GlassBackdrop() {};
 
+    virtual void Begin() = 0;
+    virtual void End() = 0;
+
 protected:
     GlassBackdrop() {}
 };
