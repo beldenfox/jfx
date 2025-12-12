@@ -106,6 +106,7 @@ public:
     void EnableBackdrop(bool);
     void BeginPaint();
     void EndPaint();
+    HANDLE GetNativeFrameBuffer();
     void UpdateDWMFrameInsets();
     void HandleWindowPosChangedEvent();
     void ShowSystemMenu(int x, int y);

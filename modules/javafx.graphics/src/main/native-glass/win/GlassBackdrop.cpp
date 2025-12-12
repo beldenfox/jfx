@@ -33,14 +33,18 @@
 #include <winrt/Windows.System.h>
 #include <winrt/Windows.UI.Composition.Desktop.h>
 #include <winrt/Windows.Graphics.DirectX.h>
+#include <Windows.Graphics.h>
 
 #include <d3d11.h>
+
+#include <iostream>
 
 using namespace winrt;
 using namespace winrt::Windows::UI;
 using namespace winrt::Windows::UI::Composition;
 using namespace winrt::Windows::UI::Composition::Desktop;
 using namespace winrt::Windows::Graphics::DirectX;
+using namespace Windows::Graphics;
 using namespace winrt::Windows::Foundation;
 
 namespace
@@ -82,15 +86,29 @@ namespace
 class RealGlassBackdrop : public GlassBackdrop
 {
 private:
-    static PDISPATCHERQUEUECONTROLLER           s_controller;
-    static com_ptr<ID3D11Device>                s_d3dDevice;
+    inline static PDISPATCHERQUEUECONTROLLER    s_controller = nullptr;
+    inline static com_ptr<ID3D11Device>         s_d3dDevice = nullptr;
+    inline static com_ptr<ID3D11DeviceContext>  s_d3dDeviceContext = nullptr;
+    inline static int                           s_usageCount = 0;
 
     CompositionGraphicsDevice m_graphicsDevice = nullptr;
     CompositionDrawingSurface m_contentSurface = nullptr;
-    com_ptr<ABI::Windows::UI::Composition::ICompositionDrawingSurfaceInterop> m_contentSurfaceInterop = nullptr;
-    com_ptr<ID3D11Texture2D>  m_contentSurfaceTexture = nullptr;
     SpriteVisual              m_contentVisual = nullptr;
-    DesktopWindowTarget       m_target;
+
+    com_ptr<ID3D11Texture2D>  m_stableD3DTexture = nullptr;
+    HANDLE                    m_stableD3DTextureHandle = nullptr;
+
+    com_ptr<ID3D11Texture2D>  m_contentD3DTexture = nullptr;
+
+    HWND                      m_hwnd;
+    DesktopWindowTarget       m_target = nullptr;
+    SIZE                      m_size;
+
+    SIZE GetSize() {
+        RECT rect;
+        ::GetClientRect(m_hwnd, &rect);
+        return SIZE{rect.right - rect.left, rect.bottom - rect.top};
+    }
 
     void EnsureDevices() {
         if (s_controller == nullptr) {
@@ -112,18 +130,35 @@ private:
                 D3D11_SDK_VERSION,
                 s_d3dDevice.put(),
                 nullptr,
-                nullptr));
+                s_d3dDeviceContext.put()));
         }
     }
 
-    void BuildTarget(HWND hWnd)
+    void BuildTargetTexture() {
+        m_stableD3DTexture = nullptr;
+        D3D11_TEXTURE2D_DESC desc = { 0 };
+        desc.Width = m_size.cx;
+        desc.Height = m_size.cy;
+        desc.MipLevels = 1;
+        desc.ArraySize = 1;
+        desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+        desc.SampleDesc.Count = 1;
+        desc.SampleDesc.Quality = 0;
+        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+        desc.CPUAccessFlags = 0;
+        desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED; // | D3D11_RESOURCE_MISC_SHARED_NTHANDLE;
+        check_hresult(s_d3dDevice->CreateTexture2D(&desc, nullptr, m_stableD3DTexture.put()));
+    }
+
+    void BuildTarget()
     {
         namespace abi = ABI::Windows::UI::Composition;
 
         Compositor compositor;
 
         auto desktopInterop = compositor.as<abi::Desktop::ICompositorDesktopInterop>();
-        check_hresult(desktopInterop->CreateDesktopWindowTarget(hWnd, false,
+        check_hresult(desktopInterop->CreateDesktopWindowTarget(m_hwnd, false,
             reinterpret_cast<abi::Desktop::IDesktopWindowTarget**>(put_abi(m_target))));
 
         auto compositorInterop = compositor.as<abi::ICompositorInterop>();
@@ -142,14 +177,14 @@ private:
         AddVisual(visuals, 100.0f, 220.0f);
         AddVisual(visuals, 220.0f, 220.0f);
 
-        Size size { 100, 100 };
-        m_contentSurface = m_graphicsDevice.CreateDrawingSurface(size,
+        m_size = GetSize();
+        m_contentSurface = m_graphicsDevice.CreateDrawingSurface2(SizeInt32{m_size.cx, m_size.cy},
             DirectXPixelFormat::B8G8R8A8UIntNormalized,
             DirectXAlphaMode::Premultiplied);
-        m_contentSurfaceInterop = m_contentSurface.as<abi::ICompositionDrawingSurfaceInterop>();
-
         m_contentVisual = compositor.CreateSpriteVisual();
         m_contentVisual.Brush(compositor.CreateSurfaceBrush(m_contentSurface));
+
+        BuildTargetTexture();
 
         root.Children().InsertAtTop(backdrop);
         root.Children().InsertAtTop(m_contentVisual);
@@ -158,30 +193,75 @@ private:
     }
 
 public:
-    RealGlassBackdrop(HWND hWnd) : m_target(nullptr) {
+    RealGlassBackdrop(HWND hWnd) : m_hwnd(hWnd) {
         EnsureDevices();
-        BuildTarget(hWnd);
+        BuildTarget();
+        s_usageCount += 1;
     }
 
     virtual ~RealGlassBackdrop() {
+        s_usageCount -= 1;
+        if (s_usageCount == 0) {
+            s_d3dDeviceContext = nullptr;
+            s_d3dDevice = nullptr;
+        }
     }
 
     void Begin() override {
-        POINT offset;
-        m_contentSurfaceInterop->BeginDraw(
-            nullptr, // entire surface)
-            _uuidof(ID3D11Texture2D),
-            (void**)&m_contentSurfaceTexture,
-            &offset); // offset
+        namespace abi = ABI::Windows::UI::Composition;
+        auto surfaceInterop = m_contentSurface.as<abi::ICompositionDrawingSurfaceInterop>();
+
+        auto newSize = GetSize();
+        if (newSize.cx != m_size.cx || newSize.cy != m_size.cy) {
+            m_size = newSize;
+            BuildTargetTexture();
+            surfaceInterop->Resize(m_size);
+        }
+
+        auto dxgiResource = m_stableD3DTexture.as<IDXGIResource>();
+        if (FAILED(dxgiResource->GetSharedHandle(&m_stableD3DTextureHandle))) {
+            m_stableD3DTextureHandle = nullptr;
+        }
     }
 
     void End() override {
-        m_contentSurfaceInterop->EndDraw();
-        m_contentSurfaceTexture = nullptr;
+        namespace abi = ABI::Windows::UI::Composition;
+        auto surfaceInterop = m_contentSurface.as<abi::ICompositionDrawingSurfaceInterop>();
+
+        RECT rect;
+        rect.left = 0;
+        rect.top = 0;
+        rect.right = m_size.cx;
+        rect.bottom = m_size.cy;
+        POINT offset = {};
+        com_ptr<IDXGISurface> dxgiSurface;
+        if (SUCCEEDED(surfaceInterop->BeginDraw(&rect,
+                                        IID_PPV_ARGS(&dxgiSurface),
+                                        &offset))) {
+            auto target = dxgiSurface.as<ID3D11Texture2D>();
+            if (target != nullptr) {
+                D3D11_BOX sourceRect;
+                sourceRect.left = 0;
+                sourceRect.right = m_size.cx;
+                sourceRect.top = 0;
+                sourceRect.bottom = m_size.cy;
+                sourceRect.front = 0;
+                sourceRect.back = 1;
+
+                s_d3dDeviceContext->CopySubresourceRegion(target.get(), 0,
+                    offset.x, offset.y, 0,
+                    m_stableD3DTexture.get(), 0, &sourceRect);
+            }
+            surfaceInterop->EndDraw();
+        };
+        m_stableD3DTextureHandle = nullptr;
     }
+
+    HANDLE GetNative() override {
+        return m_stableD3DTextureHandle;
+    }
+
 };
-PDISPATCHERQUEUECONTROLLER RealGlassBackdrop::s_controller = nullptr;
-winrt::com_ptr<ID3D11Device> RealGlassBackdrop::s_d3dDevice = nullptr;
 
 std::shared_ptr<GlassBackdrop> GlassBackdrop::create(HWND hWnd) {
     return std::make_shared<RealGlassBackdrop>(hWnd);

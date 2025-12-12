@@ -36,6 +36,7 @@ public:
 
     virtual void Begin() = 0;
     virtual void End() = 0;
+    virtual HANDLE GetNative() = 0;
 
 protected:
     GlassBackdrop() {}

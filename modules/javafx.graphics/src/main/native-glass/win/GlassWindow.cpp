@@ -1351,6 +1351,13 @@ void GlassWindow::EndPaint()
     }
 }
 
+HANDLE GlassWindow::GetNativeFrameBuffer() {
+    if (m_backdrop != nullptr) {
+        return m_backdrop->GetNative();
+    }
+    return nullptr;
+}
+
 void GlassWindow::ShowSystemMenu(int x, int y)
 {
     WINDOWPLACEMENT placement;

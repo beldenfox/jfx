@@ -403,6 +403,38 @@ D3DResourceManager::CreateTexture(UINT width, UINT height,
     return res;
 }
 
+HRESULT
+D3DResourceManager::CreateSharedTexture(UINT width, UINT height, HANDLE handle,
+                                  D3DResource **ppTextureResource)
+{
+    TraceLn(NWT_TRACE_INFO, "D3DRM::CreateSharedTexture");
+    TraceLn4(NWT_TRACE_VERBOSE, "  w=%d h=%d isRTT=%d isOpaque=%d",
+                width, height, isRTT, isOpaque);
+
+    IDirect3DDevice9Ex *pd3dDevice = pCtx->Get3DDevice();
+
+    if (pd3dDevice == NULL) {
+        return E_FAIL;
+    }
+
+    D3DFORMAT format = D3DFMT_A8R8G8B8;
+    DWORD dwUsage = D3DUSAGE_RENDERTARGET;
+    IDirect3DTexture9 *pTexture = NULL;
+    HRESULT res = pd3dDevice->CreateTexture(width, height, 1/*levels*/, dwUsage,
+                                    format, D3DPOOL_DEFAULT, &pTexture, &handle);
+    if (SUCCEEDED(res)) {
+        TraceLn1(NWT_TRACE_VERBOSE, "  created texture: 0x%x", pTexture);
+        *ppTextureResource = new D3DResource((IDirect3DResource9*)pTexture);
+        res = AddResource(*ppTextureResource);
+    } else {
+        DebugPrintD3DError(res, "D3DRM::CreateSharedTexture failed");
+        *ppTextureResource = NULL;
+        format = D3DFMT_UNKNOWN;
+    }
+
+    return res;
+}
+
 HRESULT D3DResourceManager::CreateRenderTarget(UINT width, UINT height,
                                                BOOL isOpaque,
                                                D3DFORMAT *pFormat,

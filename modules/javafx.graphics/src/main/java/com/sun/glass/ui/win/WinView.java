@@ -69,9 +69,7 @@ final class WinView extends View {
     }
 
     @Override
-    protected long _getNativeFrameBuffer(long ptr) {
-        return 0;
-    }
+    native protected long _getNativeFrameBuffer(long ptr);
 
     @Override native protected void _enableInputMethodEvents(long ptr, boolean enable);
     @Override native protected void _finishInputMethodComposition(long ptr);

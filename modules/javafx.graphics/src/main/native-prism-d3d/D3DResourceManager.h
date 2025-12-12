@@ -197,6 +197,9 @@ public:
                           DWORD dwUsage,
                           D3DResource **ppTextureResource/*out*/);
 
+    HRESULT CreateSharedTexture(UINT width, UINT height, HANDLE handle,
+                                D3DResource **ppTextureResource);
+
     HRESULT D3DResourceManager::CreateRenderTarget(UINT width, UINT height,
                                   BOOL isOpaque,
                                   D3DFORMAT *pFormat,
