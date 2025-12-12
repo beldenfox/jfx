@@ -183,6 +183,7 @@ private:
             DirectXAlphaMode::Premultiplied);
         m_contentVisual = compositor.CreateSpriteVisual();
         m_contentVisual.Brush(compositor.CreateSurfaceBrush(m_contentSurface));
+        m_contentVisual.RelativeSizeAdjustment({ 1.0f, 1.0f });
 
         BuildTargetTexture();
 

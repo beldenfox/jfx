@@ -54,6 +54,7 @@ import com.sun.prism.d3d.D3DResource.D3DRecord;
 import com.sun.prism.impl.PrismSettings;
 import com.sun.prism.impl.ps.BaseShaderFactory;
 import com.sun.prism.impl.TextureResourcePool;
+import com.sun.prism.paint.Color;
 import com.sun.prism.ps.Shader;
 import com.sun.prism.ps.ShaderFactory;
 import java.util.WeakHashMap;
@@ -372,13 +373,13 @@ class D3DResourceFactory extends BaseShaderFactory {
         if (pState.getNativeFrameBuffer() != 0L) {
             int width = pState.getRenderWidth();
             int height = pState.getRenderHeight();
-            long junk = nCreateSharedTexture(context.getContextHandle(),
-                                             pState.getNativeFrameBuffer(),
-                                             width, height);
-            if (junk == 0) {
-                System.out.println("failure");
-            } else {
-                D3DResourceFactory.nReleaseResource(context.getContextHandle(), junk);
+            long sharedResource = nCreateSharedTexture(context.getContextHandle(),
+                                                       pState.getNativeFrameBuffer(),
+                                                       width, height);
+            if (sharedResource != 0) {
+                D3DRTTexture compositorTexture = new D3DRTTexture(context, WrapMode.CLAMP_NOT_NEEDED, sharedResource,
+                    width, height, 0, 0, width, height, 0);
+                return new D3DCompositorSwapChain(context, pState, compositorTexture);
             }
         }
 
