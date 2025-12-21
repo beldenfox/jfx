@@ -79,7 +79,6 @@ import javafx.css.StyleableObjectProperty;
 import javafx.css.Stylesheet;
 import javafx.event.*;
 import javafx.geometry.*;
-import javafx.scene.SceneBackdrop;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.HeaderBar;
@@ -1188,81 +1187,6 @@ public class Scene implements EventTarget {
 
     void markCursorDirty() {
         markDirty(DirtyBits.CURSOR_DIRTY);
-    }
-
-    /**
-     * Defines the backdrop of this {@code Scene}.
-     *
-     * @defaultValue DEFAULT
-     */
-    private ObjectProperty<SceneBackdrop> backdrop;
-
-    public final void setBackdrop(SceneBackdrop value) {
-        backdropProperty().set(value);
-    }
-
-    public final SceneBackdrop getBackdrop() {
-        return backdrop == null ? null : backdrop.get();
-    }
-
-    public final ObjectProperty<SceneBackdrop> backdropProperty() {
-        if (backdrop == null) {
-            backdrop = new ObjectPropertyBase<SceneBackdrop>(getDefaultBackdrop()) {
-
-                @Override
-                protected void invalidated() {
-                }
-
-                @Override
-                public Object getBean() {
-                    return Scene.this;
-                }
-
-                @Override
-                public String getName() {
-                    return "backdrop";
-                }
-            };
-        }
-        return backdrop;
-    }
-
-    /**
-     * Defines the default backdrop of a {@code Scene} which
-     * has not had its backdrop set.
-     *
-     * @defaultValue DEFAULT
-     */
-    private static ObjectProperty<SceneBackdrop> defaultBackdrop;
-
-    public static final void setDefaultBackdrop(SceneBackdrop value) {
-        defaultBackdropProperty().set(value);
-    }
-
-    public static final SceneBackdrop getDefaultBackdrop() {
-        return defaultBackdrop == null ? null : defaultBackdrop.get();
-    }
-
-    public static final ObjectProperty<SceneBackdrop> defaultBackdropProperty() {
-        if (defaultBackdrop == null) {
-            defaultBackdrop = new ObjectPropertyBase<SceneBackdrop>(null) {
-
-                @Override
-                protected void invalidated() {
-                }
-
-                @Override
-                public Object getBean() {
-                    return Scene.class;
-                }
-
-                @Override
-                public String getName() {
-                    return "defaultBackdrop";
-                }
-            };
-        }
-        return defaultBackdrop;
     }
 
     /**
@@ -6234,6 +6158,5 @@ public class Scene implements EventTarget {
         ColorScheme getColorScheme();
 
         void setColorScheme(ColorScheme colorScheme);
-
     }
 }

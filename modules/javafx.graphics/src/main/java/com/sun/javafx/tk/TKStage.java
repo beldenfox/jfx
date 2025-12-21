@@ -126,8 +126,6 @@ public interface TKStage {
 
     public void setDarkFrame(boolean value);
 
-    public void setBackdrop(boolean enable, double cornerRadius, boolean useShadow);
-
     // =================================================================================================================
     // Functions
 

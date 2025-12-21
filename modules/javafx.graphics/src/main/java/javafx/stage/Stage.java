@@ -567,6 +567,36 @@ public class Stage extends Window {
         return owner;
     }
 
+    private Backdrop backdrop = Backdrop.DEFAULT;
+
+    /**
+     * Specifies the backdrop for this stage. This must be done prior to
+     * making the stage visible.
+     *
+     * @param backdrop the backdrop for this stage.
+     *
+     * @throws IllegalStateException if this property is set after the stage
+     * has ever been made visible.
+     *
+     * @defaultValue Backdrop.DEFAULT
+     */
+    public final void initBackdrop(Backdrop backdrop) {
+        if (hasBeenVisible) {
+            throw new IllegalStateException("Cannot set backdrop once stage has been set visible");
+        }
+
+        this.backdrop = backdrop;
+    }
+
+    /**
+     * Retrieves the backdrop for this stage.
+     *
+     * @return the backdrop.
+     */
+    public final Backdrop getBackdrop() {
+        return backdrop;
+    }
+
     /**
      * Specifies whether this {@code Stage} should be a full-screen,
      * undecorated window.
@@ -1117,22 +1147,15 @@ public class Stage extends Window {
             ColorScheme colorScheme = scene != null
                 ? scene.getPreferences().getColorScheme()
                 : PlatformImpl.getPlatformPreferences().getColorScheme();
-            SceneBackdrop backdrop = scene != null
-                ? scene.getBackdrop()
-                : null;
             StageStyle stageStyle = getStyle();
             setPeer(toolkit.createTKStage(this, stageStyle, isPrimary(),
-                    getModality(), tkStage, rtl, colorScheme == ColorScheme.DARK));
+                    getModality(), tkStage, rtl, colorScheme == ColorScheme.DARK,
+                    this.backdrop));
             getPeer().setMinimumSize((int) Math.ceil(getMinWidth()),
                     (int) Math.ceil(getMinHeight()));
             getPeer().setMaximumSize((int) Math.floor(getMaxWidth()),
                     (int) Math.floor(getMaxHeight()));
             getPeer().setPrefHeaderButtonHeight(getPrefHeaderButtonHeight());
-            if (backdrop != null) {
-                getPeer().setBackdrop(true, backdrop.getCornerRadius(), backdrop.getUseDropShadow());
-            } else {
-                getPeer().setBackdrop(false, 0.0, false);
-            }
             setPeerListener(new StagePeerListener(this, STAGE_ACCESSOR));
         }
     }

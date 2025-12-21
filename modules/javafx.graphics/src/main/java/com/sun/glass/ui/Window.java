@@ -178,6 +178,13 @@ public abstract class Window {
      */
     @Native public static final int DARK_FRAME = 1 << 11;
 
+    /**
+     * The backdrop styles
+     */
+    @Native public static final int WINDOW_BACKDROP = 1 << 12;
+    @Native public static final int TABBED_BACKDROP = 1 << 13;
+    @Native public static final int TRANSIENT_BACKDROP = 1 << 14;
+
     final static public class State {
         @Native public static final int NORMAL = 1;
         @Native public static final int MINIMIZED = 2;
@@ -265,6 +272,15 @@ public abstract class Window {
                 break;
             default:
                 throw new RuntimeException("The functional type should be NORMAL, POPUP, or UTILITY, but not a combination of these");
+        }
+        switch (styleMask & (WINDOW_BACKDROP | TABBED_BACKDROP | TRANSIENT_BACKDROP)) {
+            case 0:
+            case WINDOW_BACKDROP:
+            case TABBED_BACKDROP:
+            case TRANSIENT_BACKDROP:
+                break;
+            default:
+                throw new RuntimeException("The backdrop should be WINDOW, TABBED, or TRANSIENT, but not a combination of these");
         }
 
         if ((styleMask & UNIFIED) != 0 && (styleMask & EXTENDED) != 0) {
@@ -994,8 +1010,6 @@ public abstract class Window {
     }
 
     public void setDarkFrame(boolean value) {}
-
-    public void setBackdrop(boolean enabled, double cornerRadius, boolean useShadow) {}
 
     public boolean isEnabled() {
         Application.checkEventThread();
