@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import javafx.scene.input.KeyCombination;
+import javafx.stage.Backdrop;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -62,6 +63,7 @@ public class WindowStage extends GlassStage {
     private StageStyle style;
     private GlassStage owner = null;
     private Modality modality = Modality.NONE;
+    private Backdrop backdrop = Backdrop.DEFAULT;
 
     private OverlayWarning warning = null;
     private boolean rtl = false;
@@ -71,7 +73,6 @@ public class WindowStage extends GlassStage {
     private boolean isPopupStage = false;
     private boolean isInFullScreen = false;
     private boolean isAlwaysOnTop = false;
-    private boolean backdropEnabled = false;
 
     // An active window is visible && enabled && focusable.
     // The list is maintained in the z-order, so that the last element
@@ -88,11 +89,12 @@ public class WindowStage extends GlassStage {
                                  ".QuantumMessagesBundle", LOCALE);
 
     public WindowStage(javafx.stage.Window peerWindow, final StageStyle stageStyle, Modality modality,
-                       TKStage owner, boolean darkFrame) {
+                       TKStage owner, boolean darkFrame, final Backdrop backdrop) {
         this.style = stageStyle;
         this.owner = (GlassStage)owner;
         this.modality = modality;
         this.darkFrame = darkFrame;
+        this.backdrop = backdrop;
 
         if (peerWindow instanceof javafx.stage.Stage) {
             fxStage = (Stage)peerWindow;
@@ -182,6 +184,20 @@ public class WindowStage extends GlassStage {
 
             if (darkFrame) {
                 windowMask |= Window.DARK_FRAME;
+            }
+
+            switch (backdrop) {
+                case DEFAULT:
+                    break;
+                case WINDOW:
+                    windowMask |= Window.WINDOW_BACKDROP;
+                    break;
+                case TABBED:
+                    windowMask |= Window.TABBED_BACKDROP;
+                    break;
+                case TRANSIENT:
+                    windowMask |= Window.TRANSIENT_BACKDROP;
+                    break;
             }
 
             platformWindow = app.createWindow(ownerWindow, Screen.getMainScreen(), windowMask);
@@ -921,19 +937,7 @@ public class WindowStage extends GlassStage {
         }
     }
 
-    @Override
-    public void setBackdrop(boolean enable, double cornerRadius, boolean useShadow) {
-        backdropEnabled = enable;
-        if (platformWindow != null) {
-            platformWindow.setBackdrop(enable, cornerRadius, useShadow);
-            GlassScene gs = getScene();
-            if (gs != null) {
-                gs.entireSceneNeedsRepaint();
-            }
-        }
-    }
-
     public boolean allowsTransparentFill() {
-        return transparent || backdropEnabled;
+        return transparent || backdrop != Backdrop.DEFAULT;
     }
 }

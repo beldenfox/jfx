@@ -449,11 +449,6 @@ GLASS_NS_WINDOW_IMPLEMENTATION
     [hostView setJFXView: newView];
     view = newView;
 }
-
-- (void)setBackdrop:(BOOL)enable cornerRadius:(CGFloat)corner shadow:(BackdropShadowOption)shadow
-{
-    [hostView setBackdrop: enable cornerRadius: corner shadow: shadow];
-}
 @end
 
 #pragma mark --- Dispatcher
@@ -601,6 +596,16 @@ static jlong _createWindowCommonDo(JNIEnv *env, jobject jWindow, jlong jOwnerPtr
 
         window->hostView = [[GlassHostView alloc] initWithFrame: NSMakeRect(0, 0, 0, 0)];
         window->nsWindow.contentView = window->hostView;
+
+        if ((jStyleMask & com_sun_glass_ui_Window_WINDOW_BACKDROP) != 0) {
+            [window->hostView setBackdrop: NSVisualEffectMaterialUnderWindowBackground];
+        }
+        if ((jStyleMask & com_sun_glass_ui_Window_TABBED_BACKDROP) != 0) {
+            [window->hostView setBackdrop: NSVisualEffectMaterialSidebar];
+        }
+        if ((jStyleMask & com_sun_glass_ui_Window_TRANSIENT_BACKDROP) != 0) {
+            [window->hostView setBackdrop: NSVisualEffectMaterialHUDWindow];
+        }
 
         window->isDecorated = isTitled || isExtended;
         window->isExtended = isExtended;
@@ -1501,33 +1506,6 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setDarkFrame
         [window->nsWindow setAppearance:dark
             ? [NSAppearance appearanceNamed:NSAppearanceNameDarkAqua]
             : [NSAppearance appearanceNamed:NSAppearanceNameAqua]];
-    }
-    GLASS_POOL_EXIT;
-    GLASS_CHECK_EXCEPTION(env);
-}
-
-/*
- * Class:     com_sun_glass_ui_mac_MacWindow
- * Method:    _setBackdrop
- * Signature: (JZDZ)V
- */
-JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1setBackdrop
-(JNIEnv *env, jobject jWindow, jlong jPtr, jboolean enable, jdouble cornerRadius, jboolean useShadow)
-{
-    LOG("Java_com_sun_glass_ui_mac_MacWindow__1setBackdrop");
-    if (!jPtr) return;
-
-    GLASS_ASSERT_MAIN_JAVA_THREAD(env);
-    GLASS_POOL_ENTER;
-    {
-        GlassWindow *window = getGlassWindow(env, jPtr);
-        BackdropShadowOption shadow = BackdropShadowOptionLeave;
-        if (!window->isTransparent) {
-            cornerRadius = 0.0;
-        } else {
-            shadow = (useShadow && enable) ? BackdropShadowOptionOn : BackdropShadowOptionOff;
-        }
-        [window setBackdrop: enable cornerRadius: cornerRadius shadow: shadow];
     }
     GLASS_POOL_EXIT;
     GLASS_CHECK_EXCEPTION(env);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,15 +23,35 @@
  * questions.
  */
 
-#import <Cocoa/Cocoa.h>
-#import <jni.h>
+package javafx.stage;
 
-@interface GlassHostView : NSView
-{
-@private
-    NSView *jfxView;
-    NSView *backdropView;
+import javafx.application.ConditionalFeature;
+import javafx.application.Platform;
+import javafx.scene.Node;
+
+/**
+ * This enum defines the possible styles for a {@code Stage}.
+ * @since 27
+ */
+public enum Backdrop {
+
+    /**
+     * The default backdrop
+     */
+    DEFAULT,
+
+    /**
+     * Some other backdrop
+     */
+    WINDOW,
+
+    /**
+     * Yet another backdrop
+     */
+    TABBED,
+
+    /**
+     * Yet another backdrop
+     */
+    TRANSIENT
 }
--(void)setJFXView:(NSView*)view;
--(void)setBackdrop:(NSVisualEffectMaterial)material;
-@end

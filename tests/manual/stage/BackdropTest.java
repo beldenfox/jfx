@@ -20,15 +20,15 @@ import javafx.scene.layout.Region;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.SceneBackdrop;
 import javafx.stage.Stage;
+import javafx.stage.Backdrop;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import java.util.List;
 
-public class Backdrop extends Application {
+public class BackdropTest extends Application {
     public static void main(String[] args) {
-        launch(Backdrop.class, args);
+        launch(BackdropTest.class, args);
     }
 
     private String labelForStyle(StageStyle style) {
@@ -56,21 +56,42 @@ public class Backdrop extends Application {
         return title;
     }
 
-    private enum TestBackdrop {
-        DEFAULT("None", null),
-        RECTANGLE("Rectangle", new SceneBackdrop()),
-        ROUNDED("Rounded", new SceneBackdrop(30.0)),
-        ROUNDED_SHADOW("Rounded w/shadow", new SceneBackdrop(30.0, true));
+    private enum StageStyleChoice {
+        DECORATED("Decorated", StageStyle.DECORATED),
+        UNDECORATED("Undecorated", StageStyle.UNDECORATED);
 
         private String label;
-        private SceneBackdrop backdrop;
+        private StageStyle stageStyle;
 
-        TestBackdrop(String label, SceneBackdrop backdrop) {
+        StageStyleChoice(String label, StageStyle style) {
+            this.label = label;
+            this.stageStyle = style;
+        }
+
+        public StageStyle getStageStyle() {
+            return stageStyle;
+        }
+
+        public String toString() {
+            return label;
+        }
+    }
+
+    private enum BackdropChoice {
+        DEFAULT("Default", Backdrop.DEFAULT),
+        WINDOW("Window", Backdrop.WINDOW),
+        TABBED("Tabbed", Backdrop.TABBED),
+        TRANSIENT("Transient", Backdrop.TRANSIENT);
+
+        private String label;
+        private Backdrop backdrop;
+
+        BackdropChoice(String label, Backdrop backdrop) {
             this.label = label;
             this.backdrop = backdrop;
         }
 
-        SceneBackdrop getBackdrop() {
+        public Backdrop getBackdrop() {
             return backdrop;
         }
 
@@ -123,16 +144,8 @@ public class Backdrop extends Application {
         }
     }
 
-    private MenuItem stageMenuItem(StageStyle style) {
-        var item = new MenuItem(labelForStyle(style));
-        item.setOnAction(e -> {
-            createAndShowStage(style);
-        });
-        return item;
-    }
-
-    private Parent choiceAndLabel(String label, ChoiceBox choice) {
-        VBox box = new VBox(new Label(label), choice);
+    private Parent labeledSection(String label, Parent section) {
+        VBox box = new VBox(new Label(label), section);
         box.setSpacing(5);
         return box;
     }
@@ -146,23 +159,26 @@ public class Backdrop extends Application {
         });
         var windowMenu = new Menu("Window", null, closeItem);
 
-        var decoratedItem = stageMenuItem(StageStyle.DECORATED);
-        var undecoratedItem = stageMenuItem(StageStyle.UNDECORATED);
-        var transparentItem = stageMenuItem(StageStyle.TRANSPARENT);
-        var unifiedItem = stageMenuItem(StageStyle.UNIFIED);
-        var utilityItem = stageMenuItem(StageStyle.UTILITY);
-        var extendedItem = stageMenuItem(StageStyle.EXTENDED);
-
-        var stageCreateMenu = new Menu("Stage", null,
-            decoratedItem, undecoratedItem, transparentItem,
-            unifiedItem, utilityItem, extendedItem);
-
-        var menuBar = new MenuBar(windowMenu, stageCreateMenu);
+        var menuBar = new MenuBar(windowMenu);
         menuBar.setBackground(null);
 
-        // Boxes for choosing backdrop, colors, etc.
-        ChoiceBox<TestBackdrop> backdropChoice = new ChoiceBox<>();
-        backdropChoice.getItems().setAll(TestBackdrop.values());
+        // For creating new stages
+        ChoiceBox<StageStyleChoice> stageStyleChoice = new ChoiceBox<>();
+        stageStyleChoice.getItems().setAll(StageStyleChoice.values());
+        stageStyleChoice.setValue(StageStyleChoice.DECORATED);
+
+        ChoiceBox<BackdropChoice> backdropChoice = new ChoiceBox<>();
+        backdropChoice.getItems().setAll(BackdropChoice.values());
+        backdropChoice.setValue(BackdropChoice.DEFAULT);
+
+        Button createButton = new Button("Create!");
+        createButton.setOnAction(e -> {
+            createAndShowStage(stageStyleChoice.getValue().getStageStyle(), backdropChoice.getValue().getBackdrop());
+        });
+
+        HBox stageCreationControls = new HBox(stageStyleChoice, backdropChoice, createButton);
+        stageCreationControls.setBackground(null);
+        stageCreationControls.setSpacing(10);
 
         ChoiceBox<TestFill> fillChoice = new ChoiceBox<>();
         fillChoice.getItems().setAll(TestFill.values());
@@ -173,9 +189,9 @@ public class Backdrop extends Application {
 
         // Pull it together
         VBox controls = new VBox(
-            choiceAndLabel("Backdrop", backdropChoice),
-            choiceAndLabel("Fill color", fillChoice),
-            choiceAndLabel("Color scheme", schemeChoice)
+            labeledSection("New stage", stageCreationControls),
+            labeledSection("Fill color for this stage", fillChoice),
+            labeledSection("Color scheme for this stage", schemeChoice)
         );
 
         controls.setAlignment(Pos.BASELINE_LEFT);
@@ -199,9 +215,6 @@ public class Backdrop extends Application {
 
         Scene scene = new Scene(root, 640, 480, Color.TRANSPARENT);
 
-        backdropChoice.setOnAction(e -> {
-            scene.setBackdrop(backdropChoice.getValue().getBackdrop());
-        });
         fillChoice.setOnAction(e -> {
             scene.setFill(fillChoice.getValue().getFill());
         });
@@ -209,7 +222,6 @@ public class Backdrop extends Application {
             scene.getPreferences().setColorScheme(schemeChoice.getValue().getColorScheme());
         });
 
-        backdropChoice.setValue(TestBackdrop.RECTANGLE);
         fillChoice.setValue(TestFill.TRANSPARENT);
         schemeChoice.setValue(TestColorScheme.LIGHT);
 
@@ -230,10 +242,24 @@ public class Backdrop extends Application {
         showStage(stage, style);
     }
 
+    private void showStage(Stage stage, StageStyle style, Backdrop backdrop)
+    {
+        stage.setTitle(labelForStyle(style));
+        stage.initStyle(style);
+        stage.initBackdrop(backdrop);
+        buildScene(stage);
+        stage.show();
+    }
+
+    private void createAndShowStage(StageStyle style, Backdrop backdrop)
+    {
+        Stage stage = new Stage();
+        showStage(stage, style, backdrop);
+    }
+
     @Override
     public void start(Stage stage) {
         // setUserAgentStylesheet("file:////Users/martin/Java/jfx/teststyles.css");
-        Scene.setDefaultBackdrop(null);
-        showStage(stage, StageStyle.EXTENDED);
+        showStage(stage, StageStyle.EXTENDED, Backdrop.WINDOW);
     }
 }

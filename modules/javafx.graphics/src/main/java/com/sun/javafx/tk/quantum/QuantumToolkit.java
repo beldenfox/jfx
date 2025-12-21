@@ -52,6 +52,7 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.FileChooser;
+import javafx.stage.Backdrop;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
@@ -614,9 +615,10 @@ public final class QuantumToolkit extends Toolkit {
     }
 
     @Override public TKStage createTKStage(Window peerWindow, StageStyle stageStyle, boolean primary,
-                                           Modality modality, TKStage owner, boolean rtl, boolean darkFrame) {
+                                           Modality modality, TKStage owner, boolean rtl, boolean darkFrame,
+                                           Backdrop backdrop) {
         assertToolkitRunning();
-        WindowStage stage = new WindowStage(peerWindow, stageStyle, modality, owner, darkFrame);
+        WindowStage stage = new WindowStage(peerWindow, stageStyle, modality, owner, darkFrame, backdrop);
         if (primary) {
             stage.setIsPrimary();
         }
@@ -699,7 +701,7 @@ public final class QuantumToolkit extends Toolkit {
 
     @Override public TKStage createTKPopupStage(Window peerWindow, StageStyle popupStyle, TKStage owner) {
         assertToolkitRunning();
-        WindowStage stage = new WindowStage(peerWindow, popupStyle, null, owner, false);
+        WindowStage stage = new WindowStage(peerWindow, popupStyle, null, owner, false, Backdrop.DEFAULT);
         stage.setIsPopup();
         stage.init(systemMenu);
         return stage;

@@ -37,43 +37,18 @@
     }
 }
 
--(void)setBackdrop:(BOOL)enable cornerRadius:(CGFloat)radius shadow:(BackdropShadowOption) shadowOption
+// Called when the window is first created.
+-(void)setBackdrop:(NSVisualEffectMaterial)material
 {
-    if (enable) {
-        if (backdropView == nil) {
-            NSVisualEffectView* effect = [[NSVisualEffectView alloc] initWithFrame: self.bounds];
-            effect.material = NSVisualEffectMaterialSidebar;
-            effect.wantsLayer = YES;
-            [self addSubview: effect positioned: NSWindowBelow relativeTo: jfxView];
-            backdropView = effect;
-        }
-    } else {
-        if (backdropView != nil) {
-            [backdropView removeFromSuperview];
-            backdropView = nil;
-        }
-    }
-
-    if (backdropView && radius > 0.0) {
-        backdropView.wantsLayer = YES;
-        backdropView.layer.cornerRadius = radius;
-    }
-
-    if (self.window) {
-        if (shadowOption != BackdropShadowOptionLeave) {
-            self.window.hasShadow = (shadowOption == BackdropShadowOptionOn);
-        }
-    }
+    NSVisualEffectView* effect = [[NSVisualEffectView alloc] initWithFrame: self.bounds];
+    effect.material = material;
+    [self addSubview: effect];
 }
 
 - (void)resizeSubviewsWithOldSize:(NSSize) oldSize {
     for (NSView* child in self.subviews) {
         child.frame = self.bounds;
     }
-}
-
-- (BOOL)materialIsEnabled {
-    return backdropView != nil;
 }
 
 - (void)dealloc
