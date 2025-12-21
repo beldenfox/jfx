@@ -20,7 +20,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.SceneBackdrop;
 import javafx.stage.Stage;
 import javafx.stage.Backdrop;
 import javafx.stage.StageStyle;
