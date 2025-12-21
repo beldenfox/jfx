@@ -1327,14 +1327,9 @@ void GlassWindow::UpdateDWMFrameInsets()
     HandleViewSizeEvent(GetHWND(), -1, -1, -1);
 }
 
-void GlassWindow::EnableBackdrop(bool enable)
+void GlassWindow::EnableBackdrop(GlassBackdrop::Style style)
 {
-    if (enable && !m_backdrop) {
-        m_backdrop = GlassBackdrop::create(GetHWND());
-    } else if (!enable && m_backdrop) {
-        m_backdrop = nullptr;
-    }
-    UpdateDWMFrameInsets();
+    m_backdrop = GlassBackdrop::create(GetHWND(), style);
 }
 
 void GlassWindow::BeginPaint()
@@ -1557,6 +1552,16 @@ JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_win_WinWindow__1createWindow
 
             if (mask & com_sun_glass_ui_Window_DARK_FRAME) {
                 pWindow->SetDarkFrame(true);
+            }
+
+            if (mask & com_sun_glass_ui_Window_WINDOW_BACKDROP) {
+                pWindow->EnableBackdrop(GlassBackdrop::Style::Window);
+            }
+            if (mask & com_sun_glass_ui_Window_TABBED_BACKDROP) {
+                pWindow->EnableBackdrop(GlassBackdrop::Style::Tabbed);
+            }
+            if (mask & com_sun_glass_ui_Window_TRANSIENT_BACKDROP) {
+                pWindow->EnableBackdrop(GlassBackdrop::Style::Transient);
             }
         }
 
@@ -2265,29 +2270,6 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1setCursor
     LEAVE_MAIN_THREAD_WITH_hWnd;
 
     ARG(jCursor) = jCursor;
-    PERFORM();
-}
-
-/*
- * Class:     com_sun_glass_ui_win_WinWindow
- * Method:    _setBackdrop
- * Signature: (JZDZ)V
- */
-JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1setBackdrop
-    (JNIEnv *env, jobject jThis, jlong ptr, jboolean jEnable, jdouble jRadius, jboolean jDropShadow)
-{
-    ENTER_MAIN_THREAD()
-    {
-        GlassWindow *pWindow = GlassWindow::FromHandle(hWnd);
-        if (pWindow) {
-            pWindow->EnableBackdrop(enable);
-        }
-    }
-
-    jboolean enable;
-    LEAVE_MAIN_THREAD_WITH_hWnd;
-
-    ARG(enable) = jEnable;
     PERFORM();
 }
 

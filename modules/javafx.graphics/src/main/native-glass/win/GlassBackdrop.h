@@ -31,7 +31,13 @@
 class GlassBackdrop
 {
 public:
-    static std::shared_ptr<GlassBackdrop> create(HWND hWnd);
+    enum Style {
+        Window,
+        Tabbed,
+        Transient
+    };
+
+    static std::shared_ptr<GlassBackdrop> create(HWND hWnd, Style style);
     virtual ~GlassBackdrop() {};
 
     virtual void Begin() = 0;

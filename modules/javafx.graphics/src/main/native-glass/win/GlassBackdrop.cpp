@@ -91,8 +91,19 @@ private:
     HWND m_hwnd;
 
 public:
-    SystemGlassBackdrop(HWND hWnd) : m_hwnd(hWnd) {
+    SystemGlassBackdrop(HWND hWnd, Style style) : m_hwnd(hWnd) {
         DWM_SYSTEMBACKDROP_TYPE type = DWMSBT_TRANSIENTWINDOW;
+        switch (style) {
+            case Window:
+                type = DWMSBT_MAINWINDOW;
+                break;
+            case Tabbed:
+                type = DWMSBT_TABBEDWINDOW;
+                break;
+            case Transient:
+                type = DWMSBT_TRANSIENTWINDOW;
+                break;
+        }
         DwmSetWindowAttribute(m_hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type));
     }
 
@@ -304,6 +315,6 @@ public:
 
 };
 
-std::shared_ptr<GlassBackdrop> GlassBackdrop::create(HWND hWnd) {
-    return std::make_shared<SystemGlassBackdrop>(hWnd);
+std::shared_ptr<GlassBackdrop> GlassBackdrop::create(HWND hWnd, Style style) {
+    return std::make_shared<SystemGlassBackdrop>(hWnd, style);
 }

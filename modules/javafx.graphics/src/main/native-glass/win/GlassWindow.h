@@ -103,7 +103,7 @@ public:
 
     void SetIcon(HICON hIcon);
     void SetDarkFrame(bool);
-    void EnableBackdrop(bool);
+    void EnableBackdrop(GlassBackdrop::Style style);
     void BeginPaint();
     void EndPaint();
     HANDLE GetNativeFrameBuffer();
