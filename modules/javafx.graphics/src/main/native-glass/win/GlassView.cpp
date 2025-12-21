@@ -396,7 +396,6 @@ JNIEXPORT jint JNICALL Java_com_sun_glass_ui_win_WinView__1getY
 JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinView__1begin
   (JNIEnv *env, jobject jview, jlong viewPtr)
 {
-    std::cout << "Begin paint " << ::GetCurrentThreadId() << std::endl;
     GlassView *view = (GlassView *)viewPtr;
     GlassWindow *pWindow = GlassWindow::FromHandle(view->GetHostHwnd());
     if (pWindow != nullptr) {
@@ -412,7 +411,6 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinView__1begin
 JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinView__1end
   (JNIEnv *env, jobject jview, jlong viewPtr)
 {
-    std::cout << "End paint " << ::GetCurrentThreadId() << std::endl;
     GlassView *view = (GlassView *)viewPtr;
     GlassWindow *pWindow = GlassWindow::FromHandle(view->GetHostHwnd());
     if (pWindow != nullptr) {

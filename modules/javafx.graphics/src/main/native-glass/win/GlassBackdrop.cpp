@@ -35,6 +35,8 @@
 #include <winrt/Windows.Graphics.DirectX.h>
 #include <Windows.Graphics.h>
 
+#include <Dwmapi.h>
+
 #include <d3d11.h>
 
 #include <iostream>
@@ -83,7 +85,37 @@ namespace
     }
 }
 
-class RealGlassBackdrop : public GlassBackdrop
+class SystemGlassBackdrop : public GlassBackdrop
+{
+private:
+    HWND m_hwnd;
+
+public:
+    SystemGlassBackdrop(HWND hWnd) : m_hwnd(hWnd) {
+        DWM_SYSTEMBACKDROP_TYPE type = DWMSBT_TRANSIENTWINDOW;
+        DwmSetWindowAttribute(m_hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type));
+    }
+
+    virtual ~SystemGlassBackdrop() {
+        DWM_SYSTEMBACKDROP_TYPE type = DWMSBT_AUTO;
+        DwmSetWindowAttribute(m_hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type));
+        BOOL enable = FALSE;
+        DwmSetWindowAttribute(m_hwnd, DWMWA_USE_HOSTBACKDROPBRUSH, &enable, sizeof(enable));
+
+    }
+
+    void Begin() override {
+    }
+
+    void End() override {
+    }
+
+    HANDLE GetNative() override {
+        return NULL;
+    }
+};
+
+class CustomGlassBackdrop : public GlassBackdrop
 {
 private:
     inline static PDISPATCHERQUEUECONTROLLER    s_controller = nullptr;
@@ -134,11 +166,11 @@ private:
         }
     }
 
-    void BuildTargetTexture() {
+    void BuildTargetTexture(SIZE size) {
         m_stableD3DTexture = nullptr;
         D3D11_TEXTURE2D_DESC desc = { 0 };
-        desc.Width = m_size.cx;
-        desc.Height = m_size.cy;
+        desc.Width = size.cx;
+        desc.Height = size.cy;
         desc.MipLevels = 1;
         desc.ArraySize = 1;
         desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -147,12 +179,15 @@ private:
         desc.Usage = D3D11_USAGE_DEFAULT;
         desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags = 0;
-        desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED; // | D3D11_RESOURCE_MISC_SHARED_NTHANDLE;
+        desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
         check_hresult(s_d3dDevice->CreateTexture2D(&desc, nullptr, m_stableD3DTexture.put()));
     }
 
     void BuildTarget()
     {
+        BOOL enable = TRUE;
+        DwmSetWindowAttribute(m_hwnd, DWMWA_USE_HOSTBACKDROPBRUSH, &enable, sizeof(enable));
+
         namespace abi = ABI::Windows::UI::Composition;
 
         Compositor compositor;
@@ -170,7 +205,7 @@ private:
 
         auto backdrop = compositor.CreateSpriteVisual();
         backdrop.RelativeSizeAdjustment({ 1.0f, 1.0f });
-        backdrop.Brush(compositor.CreateColorBrush({ 0x80, 0xEF, 0xE4, 0xB0 }));
+        backdrop.Brush(compositor.CreateHostBackdropBrush());
         auto visuals = backdrop.Children();
         AddVisual(visuals, 100.0f, 100.0f);
         AddVisual(visuals, 220.0f, 100.0f);
@@ -183,9 +218,9 @@ private:
             DirectXAlphaMode::Premultiplied);
         m_contentVisual = compositor.CreateSpriteVisual();
         m_contentVisual.Brush(compositor.CreateSurfaceBrush(m_contentSurface));
-        m_contentVisual.RelativeSizeAdjustment({ 1.0f, 1.0f });
+        m_contentVisual.Size({float(m_size.cx), float(m_size.cy)});
 
-        BuildTargetTexture();
+        BuildTargetTexture(m_size);
 
         root.Children().InsertAtTop(backdrop);
         root.Children().InsertAtTop(m_contentVisual);
@@ -194,13 +229,13 @@ private:
     }
 
 public:
-    RealGlassBackdrop(HWND hWnd) : m_hwnd(hWnd) {
+    CustomGlassBackdrop(HWND hWnd) : m_hwnd(hWnd) {
         EnsureDevices();
         BuildTarget();
         s_usageCount += 1;
     }
 
-    virtual ~RealGlassBackdrop() {
+    virtual ~CustomGlassBackdrop() {
         s_usageCount -= 1;
         if (s_usageCount == 0) {
             s_d3dDeviceContext = nullptr;
@@ -209,14 +244,12 @@ public:
     }
 
     void Begin() override {
-        namespace abi = ABI::Windows::UI::Composition;
-        auto surfaceInterop = m_contentSurface.as<abi::ICompositionDrawingSurfaceInterop>();
-
         auto newSize = GetSize();
         if (newSize.cx != m_size.cx || newSize.cy != m_size.cy) {
-            m_size = newSize;
-            BuildTargetTexture();
-            surfaceInterop->Resize(m_size);
+            // The texture is resized immediately. Everything
+            // else in the compositor state is resized when
+            // drawing is done so we can update the pixels in sync.
+            BuildTargetTexture(newSize);
         }
 
         auto dxgiResource = m_stableD3DTexture.as<IDXGIResource>();
@@ -228,6 +261,13 @@ public:
     void End() override {
         namespace abi = ABI::Windows::UI::Composition;
         auto surfaceInterop = m_contentSurface.as<abi::ICompositionDrawingSurfaceInterop>();
+
+        auto newSize = GetSize();
+        if (newSize.cx != m_size.cx || newSize.cy != m_size.cy) {
+            m_size = newSize;
+            surfaceInterop->Resize(m_size);
+            m_contentVisual.Size({float(m_size.cx), float(m_size.cy)});
+        }
 
         RECT rect;
         rect.left = 0;
@@ -265,5 +305,5 @@ public:
 };
 
 std::shared_ptr<GlassBackdrop> GlassBackdrop::create(HWND hWnd) {
-    return std::make_shared<RealGlassBackdrop>(hWnd);
+    return std::make_shared<SystemGlassBackdrop>(hWnd);
 }

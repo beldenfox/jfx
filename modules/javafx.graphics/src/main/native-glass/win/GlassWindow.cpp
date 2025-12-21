@@ -1315,7 +1315,7 @@ void GlassWindow::UpdateDWMFrameInsets()
     // extending the frame into the client area is the only way to get the
     // prism pipeline to alpha composite onto the system provided backdrop.
     // Perhaps there's some other way to trigger this behavior with the DWM?
-    if ((m_isUnified || m_backdrop != nullptr)) {
+    if (m_isUnified || m_backdrop != nullptr) {
         MARGINS dwmMargins = { -1, -1, -1, -1 };
         ::DwmExtendFrameIntoClientArea(GetHWND(), &dwmMargins);
     } else {
