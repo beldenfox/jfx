@@ -336,7 +336,7 @@ LRESULT GlassWindow::WindowProc(UINT msg, WPARAM wParam, LPARAM lParam)
             }
             break;
         case WM_DWMCOMPOSITIONCHANGED:
-            if (m_isUnified && (IS_WINVISTA)) {
+            if (m_isUnified || m_backdrop != nullptr) {
                 BOOL bEnabled = FALSE;
                 if(SUCCEEDED(::DwmIsCompositionEnabled(&bEnabled)) && bEnabled) {
                     MARGINS dwmMargins = { -1, -1, -1, -1 };
@@ -1332,6 +1332,11 @@ void GlassWindow::SetDarkFrame(bool dark)
     }
 }
 
+void GlassWindow::EnableBackdrop(GlassBackdrop::Style style)
+{
+    m_backdrop = GlassBackdrop::create(GetHWND(), style);
+}
+
 void GlassWindow::ShowSystemMenu(int x, int y)
 {
     WINDOWPLACEMENT placement;
@@ -1531,6 +1536,16 @@ JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_win_WinWindow__1createWindow
 
             if (mask & com_sun_glass_ui_Window_DARK_FRAME) {
                 pWindow->SetDarkFrame(true);
+            }
+
+            if (mask & com_sun_glass_ui_Window_WINDOW_BACKDROP) {
+                pWindow->EnableBackdrop(GlassBackdrop::Style::Window);
+            }
+            if (mask & com_sun_glass_ui_Window_TABBED_BACKDROP) {
+                pWindow->EnableBackdrop(GlassBackdrop::Style::Tabbed);
+            }
+            if (mask & com_sun_glass_ui_Window_TRANSIENT_BACKDROP) {
+                pWindow->EnableBackdrop(GlassBackdrop::Style::Transient);
             }
         }
 

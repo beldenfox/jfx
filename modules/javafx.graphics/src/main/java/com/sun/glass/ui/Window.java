@@ -178,6 +178,13 @@ public abstract class Window {
      */
     @Native public static final int DARK_FRAME = 1 << 11;
 
+    /**
+     * The backdrop styles
+     */
+    @Native public static final int WINDOW_BACKDROP = 1 << 12;
+    @Native public static final int TABBED_BACKDROP = 1 << 13;
+    @Native public static final int TRANSIENT_BACKDROP = 1 << 14;
+
     final static public class State {
         @Native public static final int NORMAL = 1;
         @Native public static final int MINIMIZED = 2;
@@ -249,6 +256,7 @@ public abstract class Window {
     protected abstract long _createWindow(long ownerPtr, long screenPtr, int mask);
     protected Window(Window owner, Screen screen, int styleMask) {
         Application.checkEventThread();
+        int backdropMask = (WINDOW_BACKDROP | TABBED_BACKDROP | TRANSIENT_BACKDROP);
         switch (styleMask & (TITLED | TRANSPARENT | EXTENDED)) {
             case UNTITLED:
             case TITLED:
@@ -266,6 +274,15 @@ public abstract class Window {
             default:
                 throw new RuntimeException("The functional type should be NORMAL, POPUP, or UTILITY, but not a combination of these");
         }
+        switch (styleMask & backdropMask) {
+            case 0:
+            case WINDOW_BACKDROP:
+            case TABBED_BACKDROP:
+            case TRANSIENT_BACKDROP:
+                break;
+            default:
+                throw new RuntimeException("The backdrop should be WINDOW, TABBED, or TRANSIENT, but not a combination of these");
+        }
 
         if ((styleMask & UNIFIED) != 0 && (styleMask & EXTENDED) != 0) {
             throw new RuntimeException("UNIFIED and EXTENDED cannot be combined");
@@ -276,9 +293,18 @@ public abstract class Window {
            styleMask &= ~UNIFIED;
         }
 
+        if ((styleMask & TRANSPARENT) != 0) {
+            styleMask &= ~backdropMask;
+        }
+
         if (((styleMask & TRANSPARENT) != 0)
                 && !Application.GetApplication().supportsTransparentWindows()) {
             styleMask &= ~TRANSPARENT;
+        }
+
+        if (((styleMask & backdropMask) != 0)
+            && !Application.GetApplication().supportsWindowBackdrops()) {
+            styleMask &= ~backdropMask;
         }
 
         this.owner = owner;

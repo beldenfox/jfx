@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,51 +23,34 @@
  * questions.
  */
 
-#ifndef _GLASS_COMMON_
-#define _GLASS_COMMON_
+package javafx.stage;
 
-#ifndef _WIN32_WINNT
-    #define _WIN32_WINNT 0x0A00
-#endif
-#ifndef _WIN32_IE
-    #define _WIN32_IE 0x0500
-#endif
+import javafx.application.ConditionalFeature;
+import javafx.application.Platform;
 
-#ifndef _WIN32_WINNT_
-    #define _WIN32_WINNT_ _WIN32_WINNT
-#endif
+/**
+ * This enum defines the possible backdrops for a {@code Stage}.
+ * @since 27
+ */
+public enum StageBackdrop {
 
-#ifndef NTDDI_VERSION
-    #define NTDDI_VERSION NTDDI_WIN10
-#endif
+    /**
+     * The default backdrop
+     */
+    DEFAULT,
 
-#pragma warning(disable : 4675)
+    /**
+     * Some other backdrop
+     */
+    WINDOW,
 
-#include <assert.h>
-#include <comdef.h>
-#include <comutil.h>
-#include <imm.h>
-#include <jni.h>
-#include <malloc.h>
-#include <manipulations.h>
-#include <memory>
-#include <mmsystem.h>
-#include <new>
-#include <ole2.h>
-#include <shlobj.h>
-#include <stdio.h>
-#include <string.h>
-#include <Tpcshrd.h>
-#include <tchar.h>
-#include <vector>
-#include <wchar.h>
-#include <windows.h>
-#include <windowsx.h>
-#include <shellapi.h>
-#include <versionhelpers.h>
+    /**
+     * Yet another backdrop
+     */
+    TABBED,
 
-#include "Utils.h"
-#include "OleUtils.h"
-#include "Dwmapi.h"
-
-#endif /* #ifndef _GLASS_COMMON_ */
+    /**
+     * Yet another backdrop
+     */
+    TRANSIENT
+}

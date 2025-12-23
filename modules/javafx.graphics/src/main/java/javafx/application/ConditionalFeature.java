@@ -164,6 +164,13 @@ public enum ConditionalFeature {
     EXTENDED_WINDOW,
 
     /**
+     * Indicates that a system supports window backdrops.
+     * <p>
+     * This feature is currently supported on Windows 11 and macOS.
+     */
+    WINDOW_BACKDROP,
+
+    /**
      * Indicates whether or not controls should use two-level focus. Two-level
      * focus is when separate operations are needed in some controls to first
      * enter a control and then to perform operations on the control. Two-level
