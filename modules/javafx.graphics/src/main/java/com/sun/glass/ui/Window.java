@@ -256,6 +256,7 @@ public abstract class Window {
     protected abstract long _createWindow(long ownerPtr, long screenPtr, int mask);
     protected Window(Window owner, Screen screen, int styleMask) {
         Application.checkEventThread();
+        int backdropMask = (WINDOW_BACKDROP | TABBED_BACKDROP | TRANSIENT_BACKDROP);
         switch (styleMask & (TITLED | TRANSPARENT | EXTENDED)) {
             case UNTITLED:
             case TITLED:
@@ -273,7 +274,7 @@ public abstract class Window {
             default:
                 throw new RuntimeException("The functional type should be NORMAL, POPUP, or UTILITY, but not a combination of these");
         }
-        switch (styleMask & (WINDOW_BACKDROP | TABBED_BACKDROP | TRANSIENT_BACKDROP)) {
+        switch (styleMask & backdropMask) {
             case 0:
             case WINDOW_BACKDROP:
             case TABBED_BACKDROP:
@@ -292,9 +293,18 @@ public abstract class Window {
            styleMask &= ~UNIFIED;
         }
 
+        if ((styleMask & TRANSPARENT) != 0) {
+            styleMask &= ~backdropMask;
+        }
+
         if (((styleMask & TRANSPARENT) != 0)
                 && !Application.GetApplication().supportsTransparentWindows()) {
             styleMask &= ~TRANSPARENT;
+        }
+
+        if (((styleMask & backdropMask) != 0)
+            && !Application.GetApplication().supportsBackdrops()) {
+            styleMask &= ~backdropMask;
         }
 
         this.owner = owner;

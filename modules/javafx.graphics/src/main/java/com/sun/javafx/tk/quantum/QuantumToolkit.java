@@ -1274,6 +1274,8 @@ public final class QuantumToolkit extends Toolkit {
                 return Application.GetApplication().supportsUnifiedWindows();
             case EXTENDED_WINDOW:
                 return Application.GetApplication().supportsExtendedWindows();
+            case BACKDROP:
+                return Application.GetApplication().supportsBackdrops();
             case TWO_LEVEL_FOCUS:
                 return Application.GetApplication().hasTwoLevelFocus();
             case VIRTUAL_KEYBOARD:

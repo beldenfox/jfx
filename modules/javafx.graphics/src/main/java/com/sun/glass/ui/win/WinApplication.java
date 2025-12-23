@@ -341,6 +341,8 @@ final class WinApplication extends Application implements InvokeLaterDispatcher.
         return true;
     }
 
+    @Override native protected boolean _supportsBackdrops();
+
     @Override
     public String getDataDirectory() {
         checkEventThread();

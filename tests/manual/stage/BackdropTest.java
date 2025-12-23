@@ -58,7 +58,10 @@ public class BackdropTest extends Application {
 
     private enum StageStyleChoice {
         DECORATED("Decorated", StageStyle.DECORATED),
-        UNDECORATED("Undecorated", StageStyle.UNDECORATED);
+        UNDECORATED("Undecorated", StageStyle.UNDECORATED),
+        EXTENDED("Extended", StageStyle.EXTENDED),
+        UTILITY("Utility", StageStyle.UTILITY),
+        TRANSPARENT("Transparent", StageStyle.TRANSPARENT);
 
         private String label;
         private StageStyle stageStyle;
@@ -100,16 +103,17 @@ public class BackdropTest extends Application {
         }
     }
 
-    private enum TestFill {
+    private enum FillChoice {
         NONE("None", null),
         TRANSPARENT("Transparent", Color.TRANSPARENT),
         BLUE("Light blue", Color.LIGHTBLUE),
-        TRANSLUCENT_RED("Red (50% opaque)", new Color(1.0, 0.0, 0.0, 0.5));
+        TRANSLUCENT_RED("Red (50% opaque)", new Color(1.0, 0.0, 0.0, 0.5)),
+        TRANSLUCENT_GREEN("Green (20% opaque)", new Color(0.0, 1.0, 0.0, 0.2));
 
         private String label;
         private Color color;
 
-        TestFill(String label, Color color) {
+        FillChoice(String label, Color color) {
             this.label = label;
             this.color = color;
         }
@@ -123,20 +127,42 @@ public class BackdropTest extends Application {
         }
     }
 
-    private enum TestColorScheme {
+    private enum ColorSchemeChoice {
         LIGHT("Light", ColorScheme.LIGHT),
         DARK("Dark", ColorScheme.DARK);
 
         private String label;
         private ColorScheme scheme;
 
-        TestColorScheme(String label, ColorScheme scheme) {
+        ColorSchemeChoice(String label, ColorScheme scheme) {
             this.label = label;
             this.scheme = scheme;
         }
 
         ColorScheme getColorScheme() {
             return scheme;
+        }
+
+        public String toString() {
+            return label;
+        }
+    }
+
+    private enum OpacityChoice {
+        P100("100%", 1.0),
+        P75("75%", 0.75),
+        P50("50%", 0.50);
+
+        private String label;
+        private double opacity;
+
+        OpacityChoice(String label, double opacity) {
+            this.label = label;
+            this.opacity = opacity;
+        }
+
+        double getOpacity() {
+            return opacity;
         }
 
         public String toString() {
@@ -180,18 +206,21 @@ public class BackdropTest extends Application {
         stageCreationControls.setBackground(null);
         stageCreationControls.setSpacing(10);
 
-        ChoiceBox<TestFill> fillChoice = new ChoiceBox<>();
-        fillChoice.getItems().setAll(TestFill.values());
+        ChoiceBox<FillChoice> fillChoice = new ChoiceBox<>();
+        fillChoice.getItems().setAll(FillChoice.values());
 
-        // Box for choosing color scheme
-        ChoiceBox<TestColorScheme> schemeChoice = new ChoiceBox<>();
-        schemeChoice.getItems().setAll(TestColorScheme.values());
+        ChoiceBox<ColorSchemeChoice> schemeChoice = new ChoiceBox<>();
+        schemeChoice.getItems().setAll(ColorSchemeChoice.values());
+
+        ChoiceBox<OpacityChoice> opacityChoice = new ChoiceBox<>();
+        opacityChoice.getItems().setAll(OpacityChoice.values());
 
         // Pull it together
         VBox controls = new VBox(
             labeledSection("New stage", stageCreationControls),
             labeledSection("Fill color for this stage", fillChoice),
-            labeledSection("Color scheme for this stage", schemeChoice)
+            labeledSection("Color scheme for this stage", schemeChoice),
+            labeledSection("Opacity of this stage", opacityChoice)
         );
 
         controls.setAlignment(Pos.BASELINE_LEFT);
@@ -221,9 +250,13 @@ public class BackdropTest extends Application {
         schemeChoice.setOnAction(e -> {
             scene.getPreferences().setColorScheme(schemeChoice.getValue().getColorScheme());
         });
+        opacityChoice.setOnAction(e -> {
+            stage.setOpacity(opacityChoice.getValue().getOpacity());
+        });
 
-        fillChoice.setValue(TestFill.TRANSPARENT);
-        schemeChoice.setValue(TestColorScheme.LIGHT);
+        fillChoice.setValue(FillChoice.TRANSPARENT);
+        schemeChoice.setValue(ColorSchemeChoice.LIGHT);
+        opacityChoice.setValue(OpacityChoice.P100);
 
         stage.setScene(scene);
     }

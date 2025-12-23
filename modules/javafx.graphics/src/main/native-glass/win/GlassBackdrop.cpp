@@ -240,7 +240,7 @@ private:
     }
 
 public:
-    CustomGlassBackdrop(HWND hWnd) : m_hwnd(hWnd) {
+    CustomGlassBackdrop(HWND hWnd, Style unused) : m_hwnd(hWnd) {
         EnsureDevices();
         BuildTarget();
         s_usageCount += 1;
@@ -316,5 +316,5 @@ public:
 };
 
 std::shared_ptr<GlassBackdrop> GlassBackdrop::create(HWND hWnd, Style style) {
-    return std::make_shared<SystemGlassBackdrop>(hWnd, style);
+    return std::make_shared<CustomGlassBackdrop>(hWnd, style);
 }

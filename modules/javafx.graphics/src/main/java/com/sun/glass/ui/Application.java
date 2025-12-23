@@ -717,6 +717,12 @@ public abstract class Application {
         return _supportsExtendedWindows();
     }
 
+    protected abstract boolean _supportsBackdrops();
+    public final boolean supportsBackdrops() {
+        checkEventThread();
+        return _supportsBackdrops();
+    }
+
     protected boolean _supportsSystemMenu() {
         // Overridden in subclasses
         return false;

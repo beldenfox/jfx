@@ -443,6 +443,10 @@ final class GtkApplication extends Application implements
         return true;
     }
 
+    @Override protected boolean _supportsBackdrops() {
+        return false;
+    }
+
     @Override
     protected native int _getKeyCodeForChar(char c, int hint);
 

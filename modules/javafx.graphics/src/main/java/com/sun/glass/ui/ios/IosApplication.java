@@ -227,6 +227,11 @@ public final class IosApplication extends Application {
         return false;
     }
 
+    @Override
+    protected boolean _supportsBackdrops() {
+        return false;
+    }
+
     /**
      * Hides / Shows iOS status bar.
      * @param hidden

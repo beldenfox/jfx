@@ -234,6 +234,11 @@ public class HeadlessApplication extends Application {
     }
 
     @Override
+    protected boolean _supportsBackdrops() {
+        return false;
+    }
+
+    @Override
     protected int _getKeyCodeForChar(char c, int hint) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
