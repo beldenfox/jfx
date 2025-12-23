@@ -41,8 +41,6 @@
 #include "com_sun_glass_ui_Window_Level.h"
 #include "com_sun_glass_ui_win_WinWindow.h"
 
-#include <iostream>
-
 #define ABM_GETAUTOHIDEBAREX 0x0000000b // multimon aware autohide bars
 
 // Helper LEAVE_MAIN_THREAD for GlassWindow
@@ -1322,7 +1320,6 @@ void GlassWindow::UpdateDWMFrameInsets()
         MARGINS dwmMargins = { 0 };
         ::DwmExtendFrameIntoClientArea(GetHWND(), &dwmMargins);
     }
-    //When toggling between Aero and Classic theme the size of window changes
     //No predefined WM_SIZE event type for this, so using -1 as parameters
     HandleViewSizeEvent(GetHWND(), -1, -1, -1);
 }
@@ -1527,6 +1524,12 @@ JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_win_WinWindow__1createWindow
 
         if (mask & com_sun_glass_ui_Window_RIGHT_TO_LEFT) {
             dwExStyle |= WS_EX_NOINHERITLAYOUT | WS_EX_LAYOUTRTL;
+        }
+
+        if ((mask & com_sun_glass_ui_Window_WINDOW_BACKDROP) ||
+            (mask & com_sun_glass_ui_Window_TABBED_BACKDROP) ||
+            (mask & com_sun_glass_ui_Window_TRANSIENT_BACKDROP)) {
+            dwExStyle |= WS_EX_NOREDIRECTIONBITMAP;
         }
 
         GlassWindow *pWindow =

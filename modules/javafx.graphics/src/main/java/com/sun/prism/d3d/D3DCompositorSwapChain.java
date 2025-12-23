@@ -71,9 +71,12 @@ class D3DCompositorSwapChain implements Presentable, GraphicsResource {
         if (g == null) {
             return false;
         }
+        context.flushVertexBuffer();
         stableBackbuffer.unlock();
         return true;
     }
+
+    private static native int nSync(long context);
 
     public D3DContext getContext() {
         return pContext;
@@ -85,7 +88,8 @@ class D3DCompositorSwapChain implements Presentable, GraphicsResource {
         if (context.isDisposed()) {
             return false;
         }
-        return true;
+        int res = nSync(context.getContextHandle());
+        return context.validatePresent(res);
     }
 
     @Override

@@ -56,32 +56,12 @@ namespace
         DispatcherQueueOptions options = {
             sizeof(DispatcherQueueOptions),
             DQTYPE_THREAD_CURRENT,
-            DQTAT_COM_STA
+            DQTAT_COM_NONE
         };
 
         PDISPATCHERQUEUECONTROLLER controller = nullptr;
         check_hresult(CreateDispatcherQueueController(options, &controller));
         return controller;
-    }
-
-    void AddVisual(VisualCollection const& visuals, float x, float y)
-    {
-        auto compositor = visuals.Compositor();
-        auto visual = compositor.CreateSpriteVisual();
-
-        static Color colors[] = {
-            { 0xDC, 0x5B, 0x9B, 0xD5 },
-            { 0xDC, 0xFF, 0xC0, 0x00 },
-            { 0xDC, 0xED, 0x7D, 0x31 },
-            { 0xDC, 0x70, 0xAD, 0x47 }
-        };
-
-        static unsigned last = 0;
-        unsigned const next = ++last % _countof(colors);
-        visual.Brush(compositor.CreateColorBrush(colors[next]));
-        visual.Size({ 100.0f, 100.0f });
-        visual.Offset({x, y, 0.0f, });
-        visuals.InsertAtTop(visual);
     }
 }
 
@@ -217,11 +197,6 @@ private:
         auto backdrop = compositor.CreateSpriteVisual();
         backdrop.RelativeSizeAdjustment({ 1.0f, 1.0f });
         backdrop.Brush(compositor.CreateHostBackdropBrush());
-        auto visuals = backdrop.Children();
-        AddVisual(visuals, 100.0f, 100.0f);
-        AddVisual(visuals, 220.0f, 100.0f);
-        AddVisual(visuals, 100.0f, 220.0f);
-        AddVisual(visuals, 220.0f, 220.0f);
 
         m_size = GetSize();
         m_contentSurface = m_graphicsDevice.CreateDrawingSurface2(SizeInt32{m_size.cx, m_size.cy},
