@@ -52,12 +52,9 @@ public:
     virtual ~SystemGlassBackdrop() {
         DWM_SYSTEMBACKDROP_TYPE type = DWMSBT_AUTO;
         DwmSetWindowAttribute(m_hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type));
-        BOOL enable = FALSE;
-        DwmSetWindowAttribute(m_hwnd, DWMWA_USE_HOSTBACKDROPBRUSH, &enable, sizeof(enable));
-
     }
 };
 
 std::shared_ptr<GlassBackdrop> GlassBackdrop::create(HWND hWnd, Style style) {
-    return std::make_shared<CustomGlassBackdrop>(hWnd, style);
+    return std::make_shared<SystemGlassBackdrop>(hWnd, style);
 }
