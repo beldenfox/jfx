@@ -164,10 +164,13 @@ public enum ConditionalFeature {
     EXTENDED_WINDOW,
 
     /**
-     * Indicates that a system supports window backdrops.
+     * Indicates that a system supports the use of a {@code StageBackdrop}.
      * <p>
      * This feature is currently supported on Windows 11 and macOS.
+     * @since 27
+     * @deprecated This is a preview feature which may be changed or removed in a future release.
      */
+    @Deprecated(since = "27")
     WINDOW_BACKDROP,
 
     /**

@@ -293,10 +293,6 @@ public abstract class Window {
            styleMask &= ~UNIFIED;
         }
 
-        if ((styleMask & TRANSPARENT) != 0) {
-            styleMask &= ~backdropMask;
-        }
-
         if (((styleMask & TRANSPARENT) != 0)
                 && !Application.GetApplication().supportsTransparentWindows()) {
             styleMask &= ~TRANSPARENT;

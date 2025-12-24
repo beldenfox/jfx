@@ -32,6 +32,7 @@ import javafx.application.Platform;
  * This enum defines the possible backdrops for a {@code Stage}.
  * @since 27
  */
+@Deprecated(since = "27")
 public enum StageBackdrop {
 
     /**

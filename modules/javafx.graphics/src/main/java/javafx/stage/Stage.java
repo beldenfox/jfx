@@ -579,7 +579,10 @@ public class Stage extends Window {
      *
      * @defaultValue StageBackdrop.DEFAULT
      */
+    @SuppressWarnings("deprecation")
     public final void initBackdrop(StageBackdrop backdrop) {
+        PreviewFeature.WINDOW_BACKDROP.checkEnabled();
+
         if (hasBeenVisible) {
             throw new IllegalStateException("Cannot set backdrop once stage has been set visible");
         }
