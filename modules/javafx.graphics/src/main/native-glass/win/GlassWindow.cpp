@@ -380,6 +380,9 @@ LRESULT GlassWindow::WindowProc(UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         case WM_DISPLAYCHANGE:
         case WM_SETTINGCHANGE:
+            if (m_backdrop) {
+                m_backdrop->SettingChanged();
+            }
           // Trigger a move event to notify the stage about possible changes in the window location
           // (for instance, if this is a secondary screen and the primary screen changed its resolution,
           // or if the screens relative position was rearranged)
@@ -1337,6 +1340,28 @@ void GlassWindow::EnableBackdrop(GlassBackdrop::Style style)
     m_backdrop = GlassBackdrop::create(GetHWND(), style);
 }
 
+void GlassWindow::BeginPaint()
+{
+    if (m_backdrop != nullptr) {
+        m_backdrop->BeginPaint();
+    }
+}
+
+void GlassWindow::EndPaint()
+{
+    if (m_backdrop != nullptr) {
+        m_backdrop->EndPaint();
+    }
+}
+
+HANDLE GlassWindow::GetNativeFrameBuffer()
+{
+    if (m_backdrop != nullptr) {
+        return m_backdrop->GetNativeFrameBuffer();
+    }
+    return nullptr;
+}
+
 void GlassWindow::ShowSystemMenu(int x, int y)
 {
     WINDOWPLACEMENT placement;
@@ -1511,6 +1536,13 @@ JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_win_WinWindow__1createWindow
 
         if (mask & com_sun_glass_ui_Window_RIGHT_TO_LEFT) {
             dwExStyle |= WS_EX_NOINHERITLAYOUT | WS_EX_LAYOUTRTL;
+        }
+
+        jint backdropMask = com_sun_glass_ui_Window_WINDOW_BACKDROP
+            | com_sun_glass_ui_Window_TABBED_BACKDROP
+            | com_sun_glass_ui_Window_TRANSIENT_BACKDROP;
+        if (((mask & backdropMask) != 0) && GlassBackdrop::DrawsEverything()) {
+            dwExStyle |= WS_EX_NOREDIRECTIONBITMAP;
         }
 
         GlassWindow *pWindow =

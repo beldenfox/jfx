@@ -37,8 +37,19 @@ public:
         Transient
     };
 
+    static bool Configure(HWND hWnd);
+    static bool DrawsEverything();
+
     static std::shared_ptr<GlassBackdrop> create(HWND hWnd, Style style);
     virtual ~GlassBackdrop() {};
+
+    virtual void SettingChanged() {};
+
+    // Implements the begin/end/getNativeFrameBuffer drawing
+    // protocol.
+    virtual void BeginPaint() {};
+    virtual void EndPaint() {};
+    virtual HANDLE GetNativeFrameBuffer() { return NULL; }
 
 protected:
     GlassBackdrop() {}

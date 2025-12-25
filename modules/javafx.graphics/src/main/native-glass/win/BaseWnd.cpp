@@ -27,6 +27,7 @@
 
 #include "BaseWnd.h"
 #include "GlassApplication.h"
+#include "GlassBackdrop.h"
 
 
 //NOTE: it's not thread-safe
@@ -164,8 +165,7 @@ BOOL BaseWnd::BackdropsSupported()
     HWND hwnd = ::CreateWindow(szClassName, L"", WS_OVERLAPPED,
                                CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
                                0, 0, 0, 0);
-    DWM_SYSTEMBACKDROP_TYPE type = DWMSBT_AUTO;
-    supported = SUCCEEDED(DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)));
+    supported = GlassBackdrop::Configure(hwnd);
     ::DestroyWindow(hwnd);
     ::UnregisterClass(szClassName, hInst);
 

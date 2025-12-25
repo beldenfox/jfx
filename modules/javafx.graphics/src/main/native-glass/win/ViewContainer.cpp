@@ -107,12 +107,12 @@ void ViewContainer::InitDropTarget(HWND hwnd)
     }
 
     m_spDropTarget =
-        std::auto_ptr<IDropTarget>(new GlassDropTarget(this, hwnd));
+        std::unique_ptr<IDropTarget>(new GlassDropTarget(this, hwnd));
 }
 
 void ViewContainer::ReleaseDropTarget()
 {
-    m_spDropTarget = std::auto_ptr<IDropTarget>();
+    m_spDropTarget = std::unique_ptr<IDropTarget>();
 }
 
 void ViewContainer::InitManipProcessor(HWND hwnd)

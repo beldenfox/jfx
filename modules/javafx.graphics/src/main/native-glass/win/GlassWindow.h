@@ -104,6 +104,9 @@ public:
     void SetIcon(HICON hIcon);
     void SetDarkFrame(bool);
     void EnableBackdrop(GlassBackdrop::Style style);
+    void BeginPaint();
+    void EndPaint();
+    HANDLE GetNativeFrameBuffer();
     void HandleWindowPosChangedEvent();
     void ShowSystemMenu(int x, int y);
 

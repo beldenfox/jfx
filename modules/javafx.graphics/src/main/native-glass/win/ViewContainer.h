@@ -37,7 +37,7 @@ class ViewContainer {
         LANGID m_idLang;
         WPARAM m_deadKeyWParam;
 
-        std::auto_ptr<IDropTarget> m_spDropTarget;
+        std::unique_ptr<IDropTarget> m_spDropTarget;
 
         IManipulationProcessor*             m_manipProc;
         IInertiaProcessor*                  m_inertiaProc;

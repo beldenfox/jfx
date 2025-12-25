@@ -369,6 +369,19 @@ class D3DResourceFactory extends BaseShaderFactory {
             System.err.println("SwapChain allocation while the device is lost");
         }
 
+        if (pState.getNativeFrameBuffer() != 0L) {
+            int width = pState.getRenderWidth();
+            int height = pState.getRenderHeight();
+            long sharedResource = nCreateSharedTexture(context.getContextHandle(),
+                                                    pState.getNativeFrameBuffer(),
+                                                    width, height);
+            if (sharedResource != 0) {
+                D3DRTTexture compositorTexture = new D3DRTTexture(context, WrapMode.CLAMP_NOT_NEEDED, sharedResource,
+                    width, height, 0, 0, width, height, 0);
+                return new D3DCompositorSwapChain(context, pState, compositorTexture);
+            }
+        }
+
         long pResource = nCreateSwapChain(context.getContextHandle(),
                                           pState.getNativeView(),
                                           PrismSettings.isVsyncEnabled);
@@ -555,6 +568,8 @@ class D3DResourceFactory extends BaseShaderFactory {
                                       boolean isRTT,
                                       int width, int height, int samples,
                                       boolean useMipmap);
+    static native long nCreateSharedTexture(long pContext, long handle,
+                                      int width, int height);
     static native long nCreateSwapChain(long pContext, long hwnd,
                                         boolean isVsyncEnabled);
     static native int nReleaseResource(long pContext, long resource);
