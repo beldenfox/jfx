@@ -43,6 +43,7 @@
 using namespace winrt;
 using namespace Windows::Graphics;
 using namespace winrt::Windows::Graphics::DirectX;
+using namespace winrt::Windows::UI;
 using namespace winrt::Windows::UI::ViewManagement;
 using namespace winrt::Windows::UI::Composition;
 using namespace winrt::Windows::UI::Composition::Desktop;
@@ -88,7 +89,8 @@ public:
 class CompositionGlassBackdrop : public GlassBackdrop
 {
 private:
-    HWND m_hwnd;
+    HWND  m_hwnd;
+    Style m_style;
 
     inline static PDISPATCHERQUEUECONTROLLER    s_controller = nullptr;
     inline static com_ptr<ID3D11Device>         s_d3dDevice = nullptr;
@@ -100,15 +102,41 @@ private:
 
     DesktopWindowTarget       m_windowTarget = nullptr;
 
+    SpriteVisual              m_backdropColorOverlay = nullptr;
+    Color                     m_backdropColor;
+
     SIZE                      m_size;
     CompositionGraphicsDevice m_graphicsDevice = nullptr;
     CompositionDrawingSurface m_contentSurface = nullptr;
     SpriteVisual              m_contentVisual = nullptr;
 
+
     SIZE GetSize() {
         RECT rect;
         ::GetClientRect(m_hwnd, &rect);
         return SIZE{rect.right - rect.left, rect.bottom - rect.top};
+    }
+
+    Color GetBackdropColor() {
+        try {
+            auto settings = UISettings();
+            auto baseColor = settings.GetColorValue(UIColorType::Background);
+            switch (m_style) {
+                case Window:
+                    baseColor.A = 0xD0;
+                    break;
+                case Tabbed:
+                    baseColor.A = 0xA0;
+                    break;
+                case Transient:
+                    baseColor.A = 0x80;
+                    break;
+            }
+            return baseColor;
+        } catch (winrt::hresult_error const&) {
+        }
+
+        return Color({0xFF, 0xFF, 0xFF, 0xFF});
     }
 
     void EnsureDispatcherQueueController() {
@@ -181,19 +209,30 @@ private:
                 reinterpret_cast<abi::Desktop::IDesktopWindowTarget**>(put_abi(m_windowTarget))));
 
             // The blurred backdrop
-             BOOL enable = TRUE;
+            BOOL enable = TRUE;
             DwmSetWindowAttribute(m_hwnd, DWMWA_USE_HOSTBACKDROPBRUSH, &enable, sizeof(enable));
 
-            auto backdrop = compositor.CreateSpriteVisual();
-            backdrop.RelativeSizeAdjustment({ 1.0f, 1.0f });
-            backdrop.Brush(compositor.CreateHostBackdropBrush());
+            auto desktop = compositor.CreateSpriteVisual();
+            desktop.RelativeSizeAdjustment({ 1.0f, 1.0f });
+            desktop.Brush(compositor.CreateHostBackdropBrush());
+
+            m_backdropColorOverlay = compositor.CreateSpriteVisual();
+            m_backdropColorOverlay.RelativeSizeAdjustment({ 1.0f, 1.0f });
+            m_backdropColor = GetBackdropColor();
+            auto colorBrush = compositor.CreateColorBrush(m_backdropColor);
+            m_backdropColorOverlay.Brush(colorBrush);
+
+            auto backdropContainer = compositor.CreateContainerVisual();
+            backdropContainer.RelativeSizeAdjustment({ 1.0f, 1.0f });
+            backdropContainer.Children().InsertAtBottom(desktop);
+            backdropContainer.Children().InsertAtTop(m_backdropColorOverlay);
 
             m_contentVisual = compositor.CreateSpriteVisual();
 
             auto root = compositor.CreateContainerVisual();
             root.RelativeSizeAdjustment({ 1.0f, 1.0f });
 
-            root.Children().InsertAtTop(backdrop);
+            root.Children().InsertAtTop(backdropContainer);
             root.Children().InsertAtTop(m_contentVisual);
 
             m_windowTarget.Root(root);
@@ -227,29 +266,12 @@ private:
     }
 
 public:
-    CompositionGlassBackdrop(HWND hWnd, Style style) : m_hwnd(hWnd) {
+    CompositionGlassBackdrop(HWND hWnd, Style style) : m_hwnd(hWnd), m_style(style) {
         EnsureDispatcherQueueController();
         EnsureD3DDevice();
         BuildBackdropVisuals();
         BuildContentSurface();
         s_usageCount += 1;
-
-        DWM_SYSTEMBACKDROP_TYPE type = DWMSBT_TRANSIENTWINDOW;
-        switch (style) {
-            case Window:
-                type = DWMSBT_MAINWINDOW;
-                break;
-            case Tabbed:
-                type = DWMSBT_TABBEDWINDOW;
-                break;
-            case Transient:
-                type = DWMSBT_TRANSIENTWINDOW;
-                break;
-        }
-        DwmSetWindowAttribute(m_hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type));
-
-        COLORREF captionColor = DWMWA_COLOR_NONE;
-        DwmSetWindowAttribute(m_hwnd, DWMWA_CAPTION_COLOR, &captionColor, sizeof(captionColor));
     }
 
     virtual ~CompositionGlassBackdrop() {
@@ -261,19 +283,21 @@ public:
         if (s_usageCount > 0) {
             s_usageCount -= 1;
         }
-
-        DWM_SYSTEMBACKDROP_TYPE type = DWMSBT_AUTO;
-        DwmSetWindowAttribute(m_hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type));
-
-        COLORREF captionColor = DWMWA_COLOR_DEFAULT;
-        DwmSetWindowAttribute(m_hwnd, DWMWA_CAPTION_COLOR, &captionColor, sizeof(captionColor));
     }
 
     void SettingChanged() override {
+        if (m_backdropColorOverlay == nullptr) return;
+
         try {
-            auto settings = UISettings();
-            auto color = settings.GetColorValue(UIColorType::Background);
-            std::cout << "New color " << (int) color.R << ' ' << (int) color.G << ' ' << (int) color.B << std::endl;
+            auto color = GetBackdropColor();
+            if (color != m_backdropColor) {
+                auto compositor = m_backdropColorOverlay.Compositor();
+                auto animation = compositor.CreateColorKeyFrameAnimation();
+                animation.InsertKeyFrame(1.0f, color);
+                animation.Duration(std::chrono::seconds(1));
+                m_backdropColorOverlay.Brush().StartAnimation(L"Color", animation);
+                m_backdropColor = color;
+            }
         }
         catch (winrt::hresult_error const&) {
         }
