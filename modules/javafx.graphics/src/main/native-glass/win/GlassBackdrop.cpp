@@ -48,6 +48,65 @@ using namespace winrt::Windows::UI::ViewManagement;
 using namespace winrt::Windows::UI::Composition;
 using namespace winrt::Windows::UI::Composition::Desktop;
 
+/*
+  Two different implementations of stage backdrops. SystemGlassBackdrop uses
+  DwmSetWindowAttribute to invoke the system backdrops on Windows 11.
+  CompositionGlassBackdrop uses Windows.UI.Composition to create an entirely
+  custom backdrop implementation. The current composition backdrop visuals
+  are placeholders and probably only work on Windows 11.
+
+  This code defaults to composition backdrops unless the JFXSYSBACKDROP
+  environment variable is set (value doesn't matter).
+
+  One approach would be to use SystemGlassBackdrop whenever possible and treat
+  CompositionGlassBackdrop as a fallback eventually phasing it out entirely.
+  But there are differences in the behavior as outlined in the issues below
+  so that becomes complicated.
+
+  Known issues
+
+  Device synchronization (possible showstopper) - CompositionGlassBackdrop
+  uses the existing begin/end/getNativeFrameBuffer protocol to redirect
+  Prism's output to the correct composition layer. It uses D3D11 to create a
+  shared texture which is passed to Prism to draw on. Prism is currently
+  based on D3D9 and so uses a different D3D device. It looks like we're
+  encountering problems flushing the D3D9 GPU commands to the texture before
+  the D3D11 device can pull pixels from it. Not sure how to fix that.
+
+  (There's work in progress to add a D3D12 backend to Prism. That won't allow
+  us to share the D3D device since Windows.UI.Composition only works with
+  D3D11. There is the possibility that D3D12 can create a composition swap
+  chain directly and we can bypass the begin/end/getNativeFramebuffer
+  protocol entirely.)
+
+  Title bars - SystemGlassBackdrop extends the effect into the title bar area.
+  CompositionGlassBackdrop does not and only produces a satisfying effect for
+  stages like EXTENDED that don't contain platform title bars.
+
+  Dark mode - SystemGlassBackdrop tracks the per-window DWM immersive dark
+  mode setting (both dark mode and backdrops are DWM features). I have not
+  found a way for CompositionGlassBackdrop to retrieve that color. At the
+  moment CompositionGlassBackdrop tracks the global window background color
+  and SystemGlassBackdrop tracks the local window dark mode setting.
+  Backdrops on macOS always track the local window dark mode setting so
+  CompositionGlassBackdrop is the odd man out.
+
+  Transparent windows - Currently on Windows if a user clicks on a fully
+  transparent pixel in a TRANSPARENT stage it doesn't hit test and the click
+  passes through to the window below. SystemGlassBackdrop maintains that
+  behavior but CustomGlassBackdrop does not, TRANSPARENT stages register hits
+  across the entire window. This is also how macOS works so this may not be
+  an issue. I haven't tested Linux yet.
+
+  VSync - Not sure how to enforce vsync with CompositionGlassBackdrop.
+
+  MSAA - CompositionGlassBackdrop does not support MSAA yet.
+
+  Undecorated window bug - SystemGlassBackdrop draw the wrong backdrop for
+  UNDECORATED stages. If you alter the window's dark mode setting after it's
+  shown the backdrop corrects itself.
+*/
+
 static bool s_useSystemBackdrop = false;
 
 class SystemGlassBackdrop : public GlassBackdrop
@@ -440,8 +499,23 @@ bool GlassBackdrop::Configure(HWND hWnd) {
     // now hard-coded.
     DWM_SYSTEMBACKDROP_TYPE type = DWMSBT_AUTO;
     BOOL canUseSystem = SUCCEEDED(DwmSetWindowAttribute(hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)));
-    s_useSystemBackdrop = true;
-    return true;
+
+    BOOL enable = TRUE;
+    BOOL canUseHostBackdrop = DwmSetWindowAttribute(hWnd, DWMWA_USE_HOSTBACKDROPBRUSH, &enable, sizeof(enable));
+
+    // At this point we should choose which we want. But instead
+    // it's hard-coded to use the composition brush unless an
+    // environment variable is set.
+    s_useSystemBackdrop = false;
+
+    constexpr DWORD envLen = 50;
+    TCHAR buffer[envLen];
+
+    if (::GetEnvironmentVariable(TEXT("JFXSYSBACKDROP"), buffer, envLen) != 0) {
+        s_useSystemBackdrop = true;
+    }
+
+    return canUseSystem || canUseHostBackdrop;
 }
 
 bool GlassBackdrop::DrawsEverything() {
