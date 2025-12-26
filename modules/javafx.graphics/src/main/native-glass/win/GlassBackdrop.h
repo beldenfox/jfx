@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "Pixels.h"
+
 #include <memory>
 #include <windows.h>
 
@@ -43,6 +45,7 @@ public:
     static std::shared_ptr<GlassBackdrop> create(HWND hWnd, Style style);
     virtual ~GlassBackdrop() {};
 
+    virtual void Resize() {};
     virtual void SettingChanged() {};
 
     // Implements the begin/end/getNativeFrameBuffer drawing
@@ -50,6 +53,7 @@ public:
     virtual void BeginPaint() {};
     virtual void EndPaint() {};
     virtual HANDLE GetNativeFrameBuffer() { return NULL; }
+    virtual void UploadPixels(Pixels&) {}
 
 protected:
     GlassBackdrop() {}

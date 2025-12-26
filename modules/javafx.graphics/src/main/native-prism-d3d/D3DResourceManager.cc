@@ -27,7 +27,6 @@
 #include "D3DResourceManager.h"
 #include "D3DPipelineManager.h"
 
-#include <iostream>
 
 /*
  * TODO: Missing types that proper handling for 3D
@@ -423,7 +422,7 @@ D3DResourceManager::CreateSharedTexture(UINT width, UINT height, HANDLE handle,
     HRESULT res = pd3dDevice->CreateTexture(width, height, 1/*levels*/, dwUsage,
                                     format, D3DPOOL_DEFAULT, &pTexture, &handle);
     if (SUCCEEDED(res)) {
-        TraceLn1(NWT_TRACE_VERBOSE, "  created texture: 0x%x", pTexture);
+        TraceLn1(NWT_TRACE_VERBOSE, "  created shared texture: 0x%x", pTexture);
         *ppTextureResource = new D3DResource((IDirect3DResource9*)pTexture);
         res = AddResource(*ppTextureResource);
     } else {

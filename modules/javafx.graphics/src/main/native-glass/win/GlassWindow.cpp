@@ -817,6 +817,10 @@ void GlassWindow::HandleSizeEvent(int type, RECT *pRect)
 {
     JNIEnv* env = GetEnv();
 
+    if (m_backdrop) {
+        m_backdrop->Resize();
+    }
+
     RECT r;
     if (pRect == NULL) {
         ::GetWindowRect(GetHWND(), &r);
@@ -1360,6 +1364,19 @@ HANDLE GlassWindow::GetNativeFrameBuffer()
         return m_backdrop->GetNativeFrameBuffer();
     }
     return nullptr;
+}
+
+BOOL GlassWindow::HandlesUploadPixels()
+{
+    if (m_backdrop != nullptr && m_backdrop->DrawsEverything()) {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+void GlassWindow::UploadPixels(Pixels& pixels)
+{
+    m_backdrop->UploadPixels(pixels);
 }
 
 void GlassWindow::ShowSystemMenu(int x, int y)

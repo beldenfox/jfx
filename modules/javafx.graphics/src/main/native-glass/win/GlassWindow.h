@@ -29,6 +29,7 @@
 #include "BaseWnd.h"
 #include "ViewContainer.h"
 #include "GlassBackdrop.h"
+#include "Pixels.h"
 
 class GlassWindow : public BaseWnd, public ViewContainer {
 public:
@@ -107,6 +108,8 @@ public:
     void BeginPaint();
     void EndPaint();
     HANDLE GetNativeFrameBuffer();
+    BOOL HandlesUploadPixels();
+    void UploadPixels(Pixels&);
     void HandleWindowPosChangedEvent();
     void ShowSystemMenu(int x, int y);
 

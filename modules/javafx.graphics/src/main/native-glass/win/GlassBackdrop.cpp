@@ -23,10 +23,9 @@
  * questions.
  */
 
-#include "GlassBackdrop.h"
+#include <common.h>
 
-// For DWM-supplied backdrops
-#include <Dwmapi.h>
+#include "GlassBackdrop.h"
 
 // For Composition-supplied backdrops
 #include <DispatcherQueue.h>
@@ -37,6 +36,7 @@
 #include <winrt/Windows.UI.ViewManagement.h>
 #include <winrt/Windows.Graphics.DirectX.h>
 #include <d3d11.h>
+#include <mutex>
 
 #include <iostream>
 
@@ -86,6 +86,10 @@ public:
     }
 };
 
+static std::ostream& operator<<(std::ostream& strm, const SizeInt32& sz) {
+    strm << sz.Width << ' ' << sz.Height;
+    return strm;
+}
 class CompositionGlassBackdrop : public GlassBackdrop
 {
 private:
@@ -97,6 +101,9 @@ private:
     inline static com_ptr<ID3D11DeviceContext>  s_d3dDeviceContext = nullptr;
     inline static int                           s_usageCount = 0;
 
+    // This always contains the most up-to-date pixels we have. It might lag
+    // behind the window's size since it's only resized when new pixels are
+    // delivered by the rendering thread or by uploading pixels.
     com_ptr<ID3D11Texture2D>  m_sharedTexture = nullptr;
     HANDLE                    m_sharedTextureHandle = NULL;
 
@@ -105,16 +112,22 @@ private:
     SpriteVisual              m_backdropColorOverlay = nullptr;
     Color                     m_backdropColor;
 
-    SIZE                      m_size;
+    std::mutex                m_deviceMutex;
     CompositionGraphicsDevice m_graphicsDevice = nullptr;
     CompositionDrawingSurface m_contentSurface = nullptr;
     SpriteVisual              m_contentVisual = nullptr;
 
-
-    SIZE GetSize() {
+    SizeInt32 GetClientSize() {
         RECT rect;
         ::GetClientRect(m_hwnd, &rect);
-        return SIZE{rect.right - rect.left, rect.bottom - rect.top};
+        return SizeInt32({rect.right - rect.left, rect.bottom - rect.top});
+    }
+
+    SizeInt32 GetSurfaceSize() {
+        if (m_contentSurface) {
+            return m_contentSurface.SizeInt32();
+        }
+        return SizeInt32({0, 0});
     }
 
     Color GetBackdropColor() {
@@ -176,12 +189,20 @@ private:
             s_d3dDeviceContext.put());
     }
 
-    void BuildSharedTexture(SIZE size) {
+    void BuildSharedTexture() {
         if (s_d3dDevice == nullptr) return;
-        m_sharedTexture = nullptr;
+        auto size = GetSurfaceSize();
+        if (m_sharedTexture != nullptr) {
+            D3D11_TEXTURE2D_DESC desc = { 0 };
+            m_sharedTexture->GetDesc(&desc);
+            if (desc.Width == size.Width && desc.Height == size.Height) {
+                return;
+            }
+        }
+
         D3D11_TEXTURE2D_DESC desc = { 0 };
-        desc.Width = size.cx;
-        desc.Height = size.cy;
+        desc.Width = size.Width;
+        desc.Height = size.Height;
         desc.MipLevels = 1;
         desc.ArraySize = 1;
         desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -254,14 +275,59 @@ private:
             check_hresult(compositorInterop->CreateGraphicsDevice(s_d3dDevice.get(),
                 reinterpret_cast<abi::ICompositionGraphicsDevice**>(put_abi(m_graphicsDevice))));
 
-            m_size = GetSize();
-            m_contentSurface = m_graphicsDevice.CreateDrawingSurface2(SizeInt32{m_size.cx, m_size.cy},
+            // ::GetClientRect initially returns bogus values.
+            m_contentSurface = m_graphicsDevice.CreateDrawingSurface2(SizeInt32{100, 100},
                 DirectXPixelFormat::B8G8R8A8UIntNormalized,
                 DirectXAlphaMode::Premultiplied);
             m_contentVisual.Brush(compositor.CreateSurfaceBrush(m_contentSurface));
-            m_contentVisual.Size({float(m_size.cx), float(m_size.cy)});
+            m_contentVisual.Size({100, 100});
         } catch (winrt::hresult_error const&) {
             RemoveVisuals();
+        }
+    }
+
+    void CopyTextureToSurface()
+    {
+        if (m_contentSurface == nullptr || m_contentVisual == nullptr) return;
+        if (m_sharedTexture == nullptr) return;
+
+        D3D11_TEXTURE2D_DESC desc;
+        m_sharedTexture->GetDesc(&desc);
+        auto surfaceSize = GetSurfaceSize();
+        UINT srcWidth = (desc.Width < (UINT) surfaceSize.Width ? desc.Width : (UINT) surfaceSize.Width);
+        UINT srcHeight = (desc.Height < (UINT) surfaceSize.Height ? desc.Height : (UINT) surfaceSize.Height);
+
+        namespace abi = ABI::Windows::UI::Composition;
+        auto surfaceInterop = m_contentSurface.as<abi::ICompositionDrawingSurfaceInterop>();
+
+        RECT rect;
+        rect.left = 0;
+        rect.top = 0;
+        rect.right = surfaceSize.Width;
+        rect.bottom = surfaceSize.Height;
+        POINT offset = {};
+        com_ptr<IDXGISurface> dxgiSurface;
+        if (SUCCEEDED(surfaceInterop->BeginDraw(&rect,
+                                        IID_PPV_ARGS(&dxgiSurface),
+                                        &offset))) {
+            auto target = dxgiSurface.as<ID3D11Texture2D>();
+            if (target != nullptr) {
+                D3D11_BOX sourceRect;
+                sourceRect.left = 0;
+                sourceRect.right = srcWidth;
+                sourceRect.top = 0;
+                sourceRect.bottom = srcHeight;
+                sourceRect.front = 0;
+                sourceRect.back = 1;
+                s_d3dDeviceContext->CopySubresourceRegion(target.get(), 0,
+                            offset.x, offset.y, 0,
+                            m_sharedTexture.get(), 0, &sourceRect);
+            }
+            surfaceInterop->EndDraw();
+        } else {
+            std::cout << "BeginDraw failed" << std::endl;
+            std::cout << "Asked for rect " << rect.right << ' ' << rect.bottom << std::endl;
+            std::cout << "Surface size " << surfaceSize << std::endl;
         }
     }
 
@@ -291,32 +357,45 @@ public:
         try {
             auto color = GetBackdropColor();
             if (color != m_backdropColor) {
+                m_backdropColor = color;
                 auto compositor = m_backdropColorOverlay.Compositor();
                 auto animation = compositor.CreateColorKeyFrameAnimation();
                 animation.InsertKeyFrame(1.0f, color);
                 animation.Duration(std::chrono::seconds(1));
                 m_backdropColorOverlay.Brush().StartAnimation(L"Color", animation);
-                m_backdropColor = color;
             }
         }
         catch (winrt::hresult_error const&) {
         }
     }
 
-    void BeginPaint() override {
-        m_sharedTextureHandle = NULL;
-        auto newSize = GetSize();
-        if (newSize.cx != m_size.cx || newSize.cy != m_size.cy || m_sharedTexture == nullptr) {
-            // The texture is resized immediately. Everything
-            // else in the compositor state is resized when
-            // drawing is done so we can update the pixels in sync.
-            BuildSharedTexture(newSize);
+    void Resize() override {
+        if (::IsIconic(m_hwnd)) return;
+        auto newSize = GetClientSize();
+        auto oldSize = GetSurfaceSize();
+        if (newSize != oldSize) {
+            namespace abi = ABI::Windows::UI::Composition;
+            m_deviceMutex.lock();
+            auto surfaceInterop = m_contentSurface.as<abi::ICompositionDrawingSurfaceInterop>();
+            m_contentVisual.Size({float(newSize.Width), float(newSize.Height)});
+            SIZE s;
+            s.cx = newSize.Width;
+            s.cy = newSize.Height;
+            surfaceInterop->Resize(s);
+            CopyTextureToSurface();
+            m_deviceMutex.unlock();
         }
+    }
 
+    void BeginPaint() override {
+        m_deviceMutex.lock();
+
+        m_sharedTextureHandle = NULL;
+
+        BuildSharedTexture();
         if (m_sharedTexture == nullptr) {
             return;
         }
-
         auto dxgiResource = m_sharedTexture.as<IDXGIResource>();
         if (FAILED(dxgiResource->GetSharedHandle(&m_sharedTextureHandle))) {
             m_sharedTextureHandle = nullptr;
@@ -324,44 +403,28 @@ public:
     }
 
     void EndPaint() override {
-        m_sharedTextureHandle = nullptr;
-        if (m_contentSurface == nullptr || m_contentVisual == nullptr) return;
-
-        namespace abi = ABI::Windows::UI::Composition;
-        auto surfaceInterop = m_contentSurface.as<abi::ICompositionDrawingSurfaceInterop>();
-        auto newSize = GetSize();
-        if (newSize.cx != m_size.cx || newSize.cy != m_size.cy) {
-            m_size = newSize;
-            surfaceInterop->Resize(m_size);
-            m_contentVisual.Size({float(m_size.cx), float(m_size.cy)});
+        if (m_sharedTextureHandle != nullptr) {
+            CopyTextureToSurface();
         }
+        m_deviceMutex.unlock();
+    }
 
-        RECT rect;
-        rect.left = 0;
-        rect.top = 0;
-        rect.right = m_size.cx;
-        rect.bottom = m_size.cy;
-        POINT offset = {};
-        com_ptr<IDXGISurface> dxgiSurface;
-        if (SUCCEEDED(surfaceInterop->BeginDraw(&rect,
-                                        IID_PPV_ARGS(&dxgiSurface),
-                                        &offset))) {
-            auto target = dxgiSurface.as<ID3D11Texture2D>();
-            if (target != nullptr) {
-                D3D11_BOX sourceRect;
-                sourceRect.left = 0;
-                sourceRect.right = m_size.cx;
-                sourceRect.top = 0;
-                sourceRect.bottom = m_size.cy;
-                sourceRect.front = 0;
-                sourceRect.back = 1;
-                s_d3dDeviceContext->CopySubresourceRegion(target.get(), 0,
-                            offset.x, offset.y, 0,
-                            m_sharedTexture.get(), 0, &sourceRect);
-            }
-            surfaceInterop->EndDraw();
+    void UploadPixels(Pixels& p) override {
+        auto size = GetSurfaceSize();
+        if (m_sharedTexture && p.GetWidth() == size.Width && p.GetHeight() == size.Height) {
+            D3D11_BOX destBox;
+            destBox.left = 0;
+            destBox.right = size.Width;
+            destBox.top = 0;
+            destBox.bottom = size.Height;
+            destBox.front = 0;
+            destBox.back = 1;
+            s_d3dDeviceContext->UpdateSubresource(m_sharedTexture.get(), 0,
+                &destBox, p.GetBits(), size.Width * 4, 0);
         } else {
-            std::cout << "BeginDraw failed" << std::endl;
+            std::cout << "Upload failed due to size mismatch" << std::endl;
+            std::cout << "Upload size " << p.GetWidth() << ' ' << p.GetHeight() << std::endl;
+            std::cout << "Surface size " << size << std::endl;
         }
     }
 
@@ -381,5 +444,5 @@ bool GlassBackdrop::DrawsEverything() {
 }
 
 std::shared_ptr<GlassBackdrop> GlassBackdrop::create(HWND hWnd, Style style) {
-    return std::make_shared<CompositionGlassBackdrop>(hWnd, style);
+    return std::make_shared<SystemGlassBackdrop>(hWnd, style);
 }

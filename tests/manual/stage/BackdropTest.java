@@ -31,9 +31,6 @@ import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -201,24 +198,38 @@ public class BackdropTest extends Application {
 
     private void buildScene(Stage stage) {
 
-        // The menus and menu bar
-        var closeItem = new MenuItem("Close");
-        closeItem.setOnAction(e -> {
+        var iconifyButton = new Button("Iconify");
+        iconifyButton.setOnAction(e -> {
+            stage.setIconified(!stage.isIconified());
+        });
+
+        var maximizeButton = new Button("Maximize");
+        maximizeButton.setOnAction(e -> {
+            stage.setMaximized(!stage.isMaximized());
+        });
+
+        var fullscreenButton = new Button("Fullscreen");
+        fullscreenButton.setOnAction(e -> {
+            stage.setFullScreen(!stage.isFullScreen());
+        });
+
+        var closeButton = new Button("Close");
+        closeButton.setOnAction(e -> {
             stage.close();
         });
-        var windowMenu = new Menu("Window", null, closeItem);
 
-        var menuBar = new MenuBar(windowMenu);
-        menuBar.setBackground(null);
+        var actionButtons = new HBox(fullscreenButton, maximizeButton, iconifyButton, closeButton);
+        actionButtons.setSpacing(5);
+        actionButtons.setAlignment(Pos.BASELINE_RIGHT);
 
         // For creating new stages
         ChoiceBox<StageStyleChoice> stageStyleChoice = new ChoiceBox<>();
         stageStyleChoice.getItems().setAll(StageStyleChoice.values());
-        stageStyleChoice.setValue(StageStyleChoice.DECORATED);
+        stageStyleChoice.setValue(StageStyleChoice.TRANSPARENT);
 
         ChoiceBox<StageBackdropChoice> backdropChoice = new ChoiceBox<>();
         backdropChoice.getItems().setAll(StageBackdropChoice.values());
-        backdropChoice.setValue(StageBackdropChoice.DEFAULT);
+        backdropChoice.setValue(StageBackdropChoice.TRANSIENT);
 
         Button createButton = new Button("Create!");
         createButton.setOnAction(e -> {
@@ -247,14 +258,13 @@ public class BackdropTest extends Application {
         );
 
         controls.setAlignment(Pos.BASELINE_LEFT);
-        controls.setBackground(null);
         controls.setSpacing(10);
         controls.setPadding(new Insets(10, 10, 10, 10));
 
         var borderPane = new BorderPane();
-        borderPane.setBackground(null);
-        borderPane.setTop(menuBar);
+        borderPane.setTop(actionButtons);
         borderPane.setCenter(controls);
+        borderPane.setPadding(new Insets(10, 10, 10, 10));
 
         Parent root = borderPane;
         if (stage.getStyle() == StageStyle.EXTENDED) {

@@ -26,6 +26,8 @@
 #ifndef PIXELS_H
 #define PIXELS_H
 
+#include <windows.h>
+#include <jni.h>
 
 class Pixels;
 
