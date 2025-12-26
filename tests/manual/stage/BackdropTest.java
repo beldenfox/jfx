@@ -51,37 +51,13 @@ public class BackdropTest extends Application {
         launch(BackdropTest.class, args);
     }
 
-    private String labelForStyle(StageStyle style) {
-        String title = "Unknown";
-        switch (style) {
-            case DECORATED:
-                title = "Decorated";
-                break;
-            case UNDECORATED:
-                title = "Undecorated";
-                break;
-            case TRANSPARENT:
-                title = "Transparent";
-                break;
-            case UNIFIED:
-                title = "Unified";
-                break;
-            case UTILITY:
-                title = "Utility";
-                break;
-            case EXTENDED:
-                title = "Extended";
-                break;
-        }
-        return title;
-    }
-
     private enum StageStyleChoice {
         DECORATED("Decorated", StageStyle.DECORATED),
         UNDECORATED("Undecorated", StageStyle.UNDECORATED),
         EXTENDED("Extended", StageStyle.EXTENDED),
         UTILITY("Utility", StageStyle.UTILITY),
-        TRANSPARENT("Transparent", StageStyle.TRANSPARENT);
+        TRANSPARENT("Transparent", StageStyle.TRANSPARENT),
+        UNIFIED("Unified", StageStyle.UNIFIED);
 
         private String label;
         private StageStyle stageStyle;
@@ -196,7 +172,13 @@ public class BackdropTest extends Application {
         return box;
     }
 
-    private void buildScene(Stage stage) {
+    private Parent labeledSection(String label) {
+        VBox box = new VBox(new Label(label));
+        box.setSpacing(5);
+        return box;
+    }
+
+    private void buildScene(Stage stage, StageStyleChoice stageStyle, StageBackdropChoice backdrop) {
 
         var iconifyButton = new Button("Iconify");
         iconifyButton.setOnAction(e -> {
@@ -225,7 +207,7 @@ public class BackdropTest extends Application {
         // For creating new stages
         ChoiceBox<StageStyleChoice> stageStyleChoice = new ChoiceBox<>();
         stageStyleChoice.getItems().setAll(StageStyleChoice.values());
-        stageStyleChoice.setValue(StageStyleChoice.TRANSPARENT);
+        stageStyleChoice.setValue(StageStyleChoice.EXTENDED);
 
         ChoiceBox<StageBackdropChoice> backdropChoice = new ChoiceBox<>();
         backdropChoice.getItems().setAll(StageBackdropChoice.values());
@@ -233,11 +215,10 @@ public class BackdropTest extends Application {
 
         Button createButton = new Button("Create!");
         createButton.setOnAction(e -> {
-            createAndShowStage(stageStyleChoice.getValue().getStageStyle(), backdropChoice.getValue().getBackdrop());
+            createAndShowStage(stageStyleChoice.getValue(), backdropChoice.getValue());
         });
 
         HBox stageCreationControls = new HBox(stageStyleChoice, backdropChoice, createButton);
-        stageCreationControls.setBackground(null);
         stageCreationControls.setSpacing(10);
 
         ChoiceBox<FillChoice> fillChoice = new ChoiceBox<>();
@@ -251,6 +232,7 @@ public class BackdropTest extends Application {
 
         // Pull it together
         VBox controls = new VBox(
+            labeledSection("This is an " + stageStyle + " stage with a " + backdrop + " backdrop"),
             labeledSection("New stage", stageCreationControls),
             labeledSection("Fill color for this stage", fillChoice),
             labeledSection("Color scheme for this stage", schemeChoice),
@@ -264,7 +246,14 @@ public class BackdropTest extends Application {
         var borderPane = new BorderPane();
         borderPane.setTop(actionButtons);
         borderPane.setCenter(controls);
+        borderPane.setBackground(null);
         borderPane.setPadding(new Insets(10, 10, 10, 10));
+        borderPane.setOnMousePressed(pressEvent -> {
+            borderPane.setOnMouseDragged(dragEvent -> {
+                stage.setX(dragEvent.getScreenX() - pressEvent.getSceneX());
+                stage.setY(dragEvent.getScreenY() - pressEvent.getSceneY());
+            });
+        });
 
         Parent root = borderPane;
         if (stage.getStyle() == StageStyle.EXTENDED) {
@@ -294,16 +283,16 @@ public class BackdropTest extends Application {
         stage.setScene(scene);
     }
 
-    private void showStage(Stage stage, StageStyle style, StageBackdrop backdrop)
+    private void showStage(Stage stage, StageStyleChoice style, StageBackdropChoice backdrop)
     {
-        stage.setTitle(labelForStyle(style));
-        stage.initStyle(style);
-        stage.initBackdrop(backdrop);
-        buildScene(stage);
+        stage.setTitle(style.toString());
+        stage.initStyle(style.getStageStyle());
+        stage.initBackdrop(backdrop.getBackdrop());
+        buildScene(stage, style, backdrop);
         stage.show();
     }
 
-    private void createAndShowStage(StageStyle style, StageBackdrop backdrop)
+    private void createAndShowStage(StageStyleChoice style, StageBackdropChoice backdrop)
     {
         Stage stage = new Stage();
         showStage(stage, style, backdrop);
@@ -312,6 +301,6 @@ public class BackdropTest extends Application {
     @Override
     public void start(Stage stage) {
         // setUserAgentStylesheet("file:////Users/martin/Java/jfx/teststyles.css");
-        showStage(stage, StageStyle.EXTENDED, StageBackdrop.WINDOW);
+        showStage(stage, StageStyleChoice.EXTENDED, StageBackdropChoice.WINDOW);
     }
 }

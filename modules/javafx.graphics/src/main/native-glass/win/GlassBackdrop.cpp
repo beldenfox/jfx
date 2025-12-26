@@ -433,10 +433,15 @@ public:
     }
 };
 
-
+// Returns 'true' if backdrops are supported at all.
 bool GlassBackdrop::Configure(HWND hWnd) {
+    // At this point we should test to see if we're going to use
+    // the system backdrop or not. For debug purposes this is
+    // now hard-coded.
     DWM_SYSTEMBACKDROP_TYPE type = DWMSBT_AUTO;
-    return SUCCEEDED(DwmSetWindowAttribute(hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)));
+    BOOL canUseSystem = SUCCEEDED(DwmSetWindowAttribute(hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)));
+    s_useSystemBackdrop = true;
+    return true;
 }
 
 bool GlassBackdrop::DrawsEverything() {
@@ -444,5 +449,8 @@ bool GlassBackdrop::DrawsEverything() {
 }
 
 std::shared_ptr<GlassBackdrop> GlassBackdrop::create(HWND hWnd, Style style) {
-    return std::make_shared<SystemGlassBackdrop>(hWnd, style);
+    if (s_useSystemBackdrop) {
+        return std::make_shared<SystemGlassBackdrop>(hWnd, style);
+    }
+    return std::make_shared<CompositionGlassBackdrop>(hWnd, style);
 }
