@@ -29,29 +29,44 @@ import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 
 /**
- * This enum defines the possible backdrops for a {@code Stage}.
+ * This enum defines the possible backdrops for a {@code Stage}. Backdrops are
+ * typically drawn by the operating system and appear behind the Scene's fill
+ * and background. The specific effects vary but in general the backdrop will
+ * track the system color scheme and be drawn using the window background as
+ * defined by the PlatformPreferences.
+ *
+ * Backdrops are a conditional feature. Currently they are only supported
+ * on Windows and macOS.
+ *
  * @since 27
  */
 @Deprecated(since = "27")
 public enum StageBackdrop {
 
     /**
-     * The default backdrop
+     * The default backdrop consistent with earlier versions of JavaFX.
      */
     DEFAULT,
 
     /**
-     * Some other backdrop
+     * The standard window backdrop. This is opaque enough that you can
+     * draw text on it using the platform's foreground color.
      */
     WINDOW,
 
     /**
-     * Yet another backdrop
+     * A backdrop to be used when the majority of the window is filled with
+     * opaque content but the user can see a sidebar or tab bar along one
+     * edge of the window. This is opaque enough that you can draw text on it
+     * using the platform's foreground color.
      */
     TABBED,
 
     /**
-     * Yet another backdrop
+     * A backdrop useful for transient windows or heads-up displays. On some
+     * platform this backdrop is so translucent that you cannot reliably draw
+     * text on it. It's recommended that you set the Scene's fill to a
+     * translucent color to overly on the backdrop.
      */
     TRANSIENT
 }
