@@ -370,6 +370,7 @@ class D3DResourceFactory extends BaseShaderFactory {
         }
 
         if (pState.getNativeFrameBuffer() != 0L) {
+            System.out.println("Creating presentable");
             int width = pState.getRenderWidth();
             int height = pState.getRenderHeight();
             long sharedResource = nCreateSharedTexture(context.getContextHandle(),

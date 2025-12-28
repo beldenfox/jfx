@@ -69,9 +69,11 @@ using namespace winrt::Windows::UI::Composition::Desktop;
   uses the existing begin/end/getNativeFrameBuffer protocol to redirect
   Prism's output to the correct composition layer. It uses D3D11 to create a
   shared texture which is passed to Prism to draw on. Prism is currently
-  based on D3D9 and so uses a different D3D device. It looks like we're
-  encountering problems flushing the D3D9 GPU commands to the texture before
-  the D3D11 device can pull pixels from it. Not sure how to fix that.
+  based on D3D9 and so uses a different D3D device than the Glass platform
+  code. It looks like we're encountering problems flushing the D3D9 GPU
+  commands to the texture before the D3D11 device can pull pixels from it.
+  This is particularly noticable if you drag a window corner to rapidly
+  resize it.
 
   (There's work in progress to add a D3D12 backend to Prism. That won't allow
   us to share the D3D device since Windows.UI.Composition only works with
@@ -95,8 +97,8 @@ using namespace winrt::Windows::UI::Composition::Desktop;
   transparent pixel in a TRANSPARENT stage it doesn't hit test and the click
   passes through to the window below. SystemGlassBackdrop maintains that
   behavior but CustomGlassBackdrop does not, TRANSPARENT stages register hits
-  across the entire window. This is also how macOS works so this may not be
-  an issue. I haven't tested Linux yet.
+  across the entire window. This is how macOS and Linux work so this may not
+  be an issue.
 
   VSync - Not sure how to enforce vsync with CompositionGlassBackdrop.
 
@@ -272,6 +274,11 @@ private:
         desc.CPUAccessFlags = 0;
         desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
         s_d3dDevice->CreateTexture2D(&desc, nullptr, m_sharedTexture.put());
+
+        auto dxgiResource = m_sharedTexture.as<IDXGIResource>();
+        if (FAILED(dxgiResource->GetSharedHandle(&m_sharedTextureHandle))) {
+            m_sharedTextureHandle = nullptr;
+        }
     }
 
     void RemoveVisuals() {
@@ -448,16 +455,9 @@ public:
 
     void BeginPaint() override {
         m_deviceMutex.lock();
-
-        m_sharedTextureHandle = NULL;
-
         BuildSharedTexture();
         if (m_sharedTexture == nullptr) {
             return;
-        }
-        auto dxgiResource = m_sharedTexture.as<IDXGIResource>();
-        if (FAILED(dxgiResource->GetSharedHandle(&m_sharedTextureHandle))) {
-            m_sharedTextureHandle = nullptr;
         }
     }
 

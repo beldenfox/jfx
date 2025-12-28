@@ -57,10 +57,16 @@ class D3DCompositorSwapChain implements Presentable, GraphicsResource {
             h != state.getRenderHeight() ||
             pixelScaleFactorX != state.getRenderScaleX() ||
             pixelScaleFactorY != state.getRenderScaleY()) {
+            stableBackbuffer.dispose();
+            stableBackbuffer = null;
             return true;
         }
         stableBackbuffer.lock();
-        return stableBackbuffer.isSurfaceLost();
+        if (stableBackbuffer.isSurfaceLost()) {
+            stableBackbuffer.dispose();
+            stableBackbuffer = null;
+        }
+        return stableBackbuffer == null;
     }
 
     @Override
@@ -71,7 +77,6 @@ class D3DCompositorSwapChain implements Presentable, GraphicsResource {
         if (g == null) {
             return false;
         }
-        context.flushVertexBuffer();
         stableBackbuffer.unlock();
         return true;
     }
