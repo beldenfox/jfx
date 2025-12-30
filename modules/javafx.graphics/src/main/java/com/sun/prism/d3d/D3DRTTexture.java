@@ -30,6 +30,7 @@ import com.sun.prism.Graphics;
 import com.sun.prism.Image;
 import com.sun.prism.PixelFormat;
 import com.sun.prism.RTTexture;
+import com.sun.prism.UploadRTTexture;
 import com.sun.prism.ReadbackRenderTarget;
 import com.sun.prism.Texture;
 
@@ -38,10 +39,11 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 class D3DRTTexture extends D3DTexture
-    implements D3DRenderTarget, RTTexture, ReadbackRenderTarget
+    implements D3DRenderTarget, UploadRTTexture, ReadbackRenderTarget
 {
 
     private boolean opaque;
+    private long uploadHandle;
 
     D3DRTTexture(D3DContext context, WrapMode wrapMode, long pResource,
                  int physicalWidth, int physicalHeight,
@@ -178,5 +180,14 @@ class D3DRTTexture extends D3DTexture
     @Override
     public boolean isMSAA() {
         return resource.getResource().getSamples() != 0;
+    }
+
+    public void setUploadHandle(long uploadHandle) {
+        this.uploadHandle = uploadHandle;
+    }
+
+    @Override
+    public long getUploadHandle() {
+        return uploadHandle;
     }
 }

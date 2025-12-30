@@ -108,6 +108,8 @@ public:
     void BeginPaint();
     void EndPaint();
     HANDLE GetNativeFrameBuffer();
+    BOOL WantsTextureUpload();
+    BOOL UploadTexture(HANDLE handle, UINT width, UINT height);
     BOOL HandlesUploadPixels();
     void UploadPixels(Pixels&);
     void HandleWindowPosChangedEvent();

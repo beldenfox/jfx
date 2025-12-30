@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,40 +23,10 @@
  * questions.
  */
 
-#pragma once
+package com.sun.prism;
 
-#include "Pixels.h"
+import java.nio.Buffer;
 
-#include <memory>
-#include <windows.h>
-
-class GlassBackdrop
-{
-public:
-    enum Style {
-        Window,
-        Tabbed,
-        Transient
-    };
-
-    static bool Configure(HWND hWnd);
-    static bool DrawsEverything();
-
-    static std::shared_ptr<GlassBackdrop> create(HWND hWnd, Style style);
-    virtual ~GlassBackdrop() {};
-
-    virtual void Resize() {};
-    virtual void SettingChanged() {};
-
-    // Implements the begin/end/getNativeFrameBuffer drawing
-    // protocol.
-    virtual void BeginPaint() {};
-    virtual void EndPaint() {};
-    virtual HANDLE GetNativeFrameBuffer() { return NULL; }
-    virtual BOOL WantsTextureUpload() { return FALSE; }
-    virtual BOOL UploadTexture(HANDLE handle, UINT width, UINT height) { return TRUE; }
-    virtual void UploadPixels(Pixels&) {}
-
-protected:
-    GlassBackdrop() {}
-};
+public interface UploadRTTexture extends RTTexture {
+    public long getUploadHandle();
+}

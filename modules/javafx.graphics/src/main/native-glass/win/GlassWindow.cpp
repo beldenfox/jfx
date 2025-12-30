@@ -41,6 +41,8 @@
 #include "com_sun_glass_ui_Window_Level.h"
 #include "com_sun_glass_ui_win_WinWindow.h"
 
+#include <iostream>
+
 #define ABM_GETAUTOHIDEBAREX 0x0000000b // multimon aware autohide bars
 
 // Helper LEAVE_MAIN_THREAD for GlassWindow
@@ -1366,6 +1368,22 @@ HANDLE GlassWindow::GetNativeFrameBuffer()
     return nullptr;
 }
 
+BOOL GlassWindow::WantsTextureUpload()
+{
+    if (m_backdrop != nullptr) {
+        return m_backdrop->WantsTextureUpload();
+    }
+    return FALSE;
+}
+
+BOOL GlassWindow::UploadTexture(HANDLE handle, UINT width, UINT height)
+{
+    if (m_backdrop != nullptr) {
+        return m_backdrop->UploadTexture(handle, width, height);
+    }
+    return FALSE;
+}
+
 BOOL GlassWindow::HandlesUploadPixels()
 {
     if (m_backdrop != nullptr && m_backdrop->DrawsEverything()) {
@@ -2327,6 +2345,24 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1showSystemMenu
     ARG(x) = x;
     ARG(y) = y;
     PERFORM();
+}
+
+/*
+ * Class:     com_sun_glass_ui_win_WinWindow
+ * Method:    _wantsTextureUpload
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_win_WinWindow__1wantsTextureUpload
+  (JNIEnv *, jobject, jlong ptr)
+{
+    HWND hWnd = (HWND)ptr;
+    std::cout << "Wants texture upload" << std::endl;
+    GlassWindow *pWindow = GlassWindow::FromHandle(hWnd);
+    if (pWindow) {
+        std::cout << "Asking" << std::endl;
+        return pWindow->WantsTextureUpload();
+    }
+    return false;
 }
 
 }   // extern "C"

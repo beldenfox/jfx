@@ -31,6 +31,8 @@
 
 #include "TextureUploader.h"
 
+#include <iostream>
+
 /*
  * Class:     com_sun_prism_d3d_D3DResourceFactory
  * Method:    nGetContext
@@ -129,6 +131,50 @@ Java_com_sun_prism_d3d_D3DResourceFactory_nCreateTexture
     }
 
     return 0L;
+}
+
+/*
+ * Class:     com_sun_prism_d3d_D3DResourceFactory
+ * Method:    nCreateUploadTexture
+ */
+JNIEXPORT jobjectArray JNICALL
+Java_com_sun_prism_d3d_D3DResourceFactory_nCreateUploadTexture
+  (JNIEnv *env, jclass klass,
+        jlong ctx, jint width, jint height)
+{
+    TraceLn6(NWT_TRACE_INFO,
+             "nCreateTexture formatHint=%d usageHint=%d isRTT=%d w=%d h=%d useMipmap=%d",
+             formatHint, usageHint, isRTT, width, height, useMipmap);
+
+    D3DContext *pCtx = (D3DContext *)jlong_to_ptr(ctx);
+    RETURN_STATUS_IF_NULL(pCtx, 0L);
+
+    D3DResourceManager *pMgr = pCtx->GetResourceManager();
+    RETURN_STATUS_IF_NULL(pMgr, 0L);
+
+    D3DResource *pTexResource;
+    HANDLE handle;
+    HRESULT res;
+
+    res = pMgr->CreateUploadTexture(width, height, &pTexResource, &handle);
+
+    if (SUCCEEDED(res)) {
+        std::cout << "Created upload texture " << handle << std::endl;
+    } else {
+        std::cout << "Could not create upload texture" << std::endl;
+        handle = NULL;
+        pTexResource = NULL;
+    }
+
+    jobjectArray ret = (jobjectArray)env->NewObjectArray(2, env->FindClass("java/lang/Object"), NULL);
+    jclass longClass = env->FindClass("java/lang/Long");
+    jmethodID longConstructor = env->GetMethodID(longClass, "<init>", "(J)V");
+    jobject resObj = env->NewObject(longClass, longConstructor, ptr_to_jlong(pTexResource));
+    jobject handleObj = env->NewObject(longClass, longConstructor, ptr_to_jlong(handle));
+    env->SetObjectArrayElement(ret, 0, resObj);
+    env->SetObjectArrayElement(ret, 1, handleObj);
+
+    return ret;
 }
 
 /*

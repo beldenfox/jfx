@@ -151,6 +151,7 @@ static std::ostream& operator<<(std::ostream& strm, const SizeInt32& sz) {
     strm << sz.Width << ' ' << sz.Height;
     return strm;
 }
+
 class CompositionGlassBackdrop : public GlassBackdrop
 {
 private:
@@ -352,13 +353,13 @@ private:
         }
     }
 
-    void CopyTextureToSurface()
+    void CopyTextureToSurface(com_ptr<ID3D11Texture2D> texture)
     {
         if (m_contentSurface == nullptr || m_contentVisual == nullptr) return;
-        if (m_sharedTexture == nullptr) return;
+        if (texture == nullptr) return;
 
         D3D11_TEXTURE2D_DESC desc;
-        m_sharedTexture->GetDesc(&desc);
+        texture->GetDesc(&desc);
         auto surfaceSize = GetSurfaceSize();
         UINT srcWidth = (desc.Width < (UINT) surfaceSize.Width ? desc.Width : (UINT) surfaceSize.Width);
         UINT srcHeight = (desc.Height < (UINT) surfaceSize.Height ? desc.Height : (UINT) surfaceSize.Height);
@@ -387,7 +388,7 @@ private:
                 sourceRect.back = 1;
                 s_d3dDeviceContext->CopySubresourceRegion(target.get(), 0,
                             offset.x, offset.y, 0,
-                            m_sharedTexture.get(), 0, &sourceRect);
+                            texture.get(), 0, &sourceRect);
             }
             surfaceInterop->EndDraw();
         } else {
@@ -448,7 +449,7 @@ public:
             s.cx = newSize.Width;
             s.cy = newSize.Height;
             surfaceInterop->Resize(s);
-            CopyTextureToSurface();
+            CopyTextureToSurface(m_sharedTexture);
             m_deviceMutex.unlock();
         }
     }
@@ -463,9 +464,30 @@ public:
 
     void EndPaint() override {
         if (m_sharedTextureHandle != nullptr) {
-            CopyTextureToSurface();
+            // CopyTextureToSurface(m_sharedTexture);
         }
         m_deviceMutex.unlock();
+    }
+
+    BOOL WantsTextureUpload() {
+        return TRUE;
+    }
+
+    BOOL UploadTexture(HANDLE handle, UINT width, UINT height) {
+        std::cout << "Upload texture " << handle << ' ' << width << ' ' << height << std::endl;
+
+        if (s_d3dDevice) {
+            com_ptr<ID3D11Resource> resource;
+            if (SUCCEEDED(s_d3dDevice->OpenSharedResource(handle, IID_PPV_ARGS(&resource)))) {
+                auto texture = resource.as<ID3D11Texture2D>();
+                if (texture != nullptr) {
+                    CopyTextureToSurface(texture);
+                    std::cout << "Texture was opened" << std::endl;
+                }
+            }
+            return TRUE;
+        }
+        return FALSE;
     }
 
     void UploadPixels(Pixels& p) override {
@@ -488,7 +510,7 @@ public:
     }
 
     HANDLE GetNativeFrameBuffer() override {
-        return m_sharedTextureHandle;
+        return NULL; // m_sharedTextureHandle;
     }
 };
 

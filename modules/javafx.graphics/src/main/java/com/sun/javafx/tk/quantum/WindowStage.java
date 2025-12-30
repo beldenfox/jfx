@@ -595,6 +595,10 @@ public class WindowStage extends GlassStage {
         return transparent && (Application.GetApplication().shouldUpdateWindow());
     }
 
+    public boolean wantsTextureUpload() {
+        return platformWindow.wantsTextureUpload();
+    }
+
     @Override public void setIconified(boolean iconified) {
         if (platformWindow.isMinimized() == iconified) {
             return;

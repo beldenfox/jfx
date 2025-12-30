@@ -242,6 +242,7 @@ public interface ResourceFactory extends GraphicsResource {
     public Texture createFloatTexture(int width, int height);
     public RTTexture createRTTexture(int width, int height, Texture.WrapMode wrapMode);
     public RTTexture createRTTexture(int width, int height, Texture.WrapMode wrapMode, boolean msaa);
+    default public UploadRTTexture createUploadRTTexture(int width, int height) { return null; }
 
     /**
      * A Texture may have been obtained from a different resource factory.

@@ -86,7 +86,18 @@ final class WinView extends View {
     @Override native protected boolean _enterFullscreen(long ptr, boolean animate, boolean keepRatio, boolean hideCursor);
     @Override native protected void _exitFullscreen(long ptr, boolean animate);
 
-    @Override
+    @Override protected boolean _wantsTextureUpload(long ptr) {
+        var window = getWindow();
+        if (window != null) {
+            return window.hasBackdrop();
+        } else {
+            System.out.println("Window is null");
+        }
+        return false;
+    }
+
+    @Override native protected boolean _uploadTexture(long ptr, long textureHandle, int width, int height);
+
     protected void notifyResize(int width, int height) {
         super.notifyResize(width, height);
 

@@ -218,6 +218,7 @@ public abstract class Window {
     private final int styleMask;
     private final boolean isDecorated;
     private final boolean isPopup;
+    private final boolean hasBackdrop;
 
     protected View view = null;
     protected Screen screen = null;
@@ -255,6 +256,7 @@ public abstract class Window {
 
     protected abstract long _createWindow(long ownerPtr, long screenPtr, int mask);
     protected Window(Window owner, Screen screen, int styleMask) {
+        System.out.println("Constructing window");
         Application.checkEventThread();
         int backdropMask = (WINDOW_BACKDROP | TABBED_BACKDROP | TRANSIENT_BACKDROP);
         switch (styleMask & (TITLED | TRANSPARENT | EXTENDED)) {
@@ -307,6 +309,7 @@ public abstract class Window {
         this.styleMask = styleMask;
         this.isDecorated = (this.styleMask & Window.TITLED) != 0;
         this.isPopup = (this.styleMask & Window.POPUP) != 0;
+        this.hasBackdrop = (this.styleMask & backdropMask) != 0;
         this.isModal = (this.styleMask & Window.MODAL) != 0;
 
         this.screen = screen != null ? screen : Screen.getMainScreen();
@@ -490,6 +493,10 @@ public abstract class Window {
     public int getStyleMask() {
         Application.checkEventThread();
         return this.styleMask;
+    }
+
+    public boolean hasBackdrop() {
+        return this.hasBackdrop;
     }
 
     public MenuBar getMenuBar() {
@@ -1382,4 +1389,15 @@ public abstract class Window {
 
     protected abstract void _releaseInput(long ptr);
 
+    protected boolean _wantsTextureUpload(long ptr) {
+        return false;
+    }
+
+    /**
+     * Drawing
+     */
+    public boolean wantsTextureUpload()
+    {
+        return _wantsTextureUpload(this.ptr);
+    }
 }

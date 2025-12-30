@@ -34,6 +34,7 @@
 #include "com_sun_glass_events_ViewEvent.h"
 #include "com_sun_glass_ui_win_WinView.h"
 
+#include <iostream>
 
 // Helper LEAVE_MAIN_THREAD for GlassView
 #define LEAVE_MAIN_THREAD_WITH_view  \
@@ -519,6 +520,22 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinView__1uploadPixels
 
     ARG(jPixels) = jPixels;
     PERFORM();
+}
+
+/*
+ * Class:     com_sun_glass_ui_win_WinView
+ * Method:    _uploadTexture
+ * Signature: (JJII)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_win_WinView__1uploadTexture
+  (JNIEnv *env, jobject jThis, jlong ptr, jlong uploadHandle, jint width, jint height)
+{
+    GlassView *view = (GlassView *)ptr;
+    GlassWindow *pWindow = GlassWindow::FromHandle(view->GetHostHwnd());
+    if (pWindow != nullptr) {
+        return (jboolean) pWindow->UploadTexture((HANDLE)uploadHandle, width, height);
+    }
+    return false;
 }
 
 /*

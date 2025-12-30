@@ -404,6 +404,57 @@ D3DResourceManager::CreateTexture(UINT width, UINT height,
 }
 
 HRESULT
+D3DResourceManager::CreateUploadTexture(UINT width, UINT height,
+                                        D3DResource **ppTextureResource,
+                                        HANDLE* handle)
+{
+    TraceLn(NWT_TRACE_INFO, "D3DRM::CreateTexture");
+    TraceLn4(NWT_TRACE_VERBOSE, "  w=%d h=%d isRTT=%d isOpaque=%d",
+                width, height, isRTT, isOpaque);
+
+    IDirect3DDevice9Ex *pd3dDevice = pCtx->Get3DDevice();
+
+    if (pd3dDevice == NULL) {
+        return E_FAIL;
+    }
+
+    D3DFORMAT format = D3DFMT_A8R8G8B8;
+    DWORD dwUsage = D3DUSAGE_RENDERTARGET;
+    D3DPOOL pool = D3DPOOL_DEFAULT;
+
+    if (pCtx->IsPow2TexturesOnly()) {
+          UINT w, h;
+          for (w = 1; width  > w; w <<= 1);
+          for (h = 1; height > h; h <<= 1);
+          width = w;
+          height = h;
+    }
+    if (pCtx->IsSquareTexturesOnly()) {
+        if (width > height) {
+            height = width;
+        } else {
+            width = height;
+        }
+    }
+
+    IDirect3DTexture9 *pTexture = NULL;
+    *handle = NULL;
+    HRESULT res = pd3dDevice->CreateTexture(width, height, 1/*levels*/, dwUsage,
+                                    format, pool, &pTexture, handle);
+    if (SUCCEEDED(res)) {
+        TraceLn1(NWT_TRACE_VERBOSE, "  created upload texture: 0x%x", pTexture);
+        *ppTextureResource = new D3DResource((IDirect3DResource9*)pTexture);
+        res = AddResource(*ppTextureResource);
+    } else {
+        DebugPrintD3DError(res, "D3DRM::CreateUploadTexture failed");
+        *ppTextureResource = NULL;
+        *handle = NULL;
+    }
+
+    return res;
+}
+
+HRESULT
 D3DResourceManager::CreateSharedTexture(UINT width, UINT height, HANDLE handle,
                                   D3DResource **ppTextureResource)
 {

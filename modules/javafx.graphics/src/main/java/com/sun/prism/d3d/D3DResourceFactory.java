@@ -362,6 +362,43 @@ class D3DResourceFactory extends BaseShaderFactory {
     }
 
     @Override
+    public D3DRTTexture createUploadRTTexture(int width, int height) {
+        if (checkDisposed()) return null;
+
+        if (PrismSettings.verbose && context.isLost()) {
+            System.err.println("RT Texture allocation while the device is lost");
+        }
+
+        int createw = width;
+        int createh = height;
+        int cx = 0;
+        int cy = 0;
+
+        if (createw <= 0 || createh <= 0) {
+            throw new RuntimeException("Illegal texture dimensions (" + createw + "x" + createh + ")");
+        }
+
+        Object[] o = nCreateUploadTexture(context.getContextHandle(), createw, createh);
+        long pResource = (Long)o[0];
+        long uploadHandle = (Long)o[1];
+        System.out.println("Upload texture " + String.format("%016X", pResource) + String.format(" %16X", uploadHandle));
+        if (pResource == 0L) {
+            return null;
+        }
+
+        int texw = nGetTextureWidth(pResource);
+        int texh = nGetTextureHeight(pResource);
+        D3DRTTexture rtt = new D3DRTTexture(context, WrapMode.CLAMP_NOT_NEEDED, pResource, texw, texh,
+                                            cx, cy, width, height, 0);
+        rtt.setUploadHandle(uploadHandle);
+        // ensure the RTTexture is cleared to all zeros before returning
+        // (Decora relies on the Java2D behavior, where an image is expected
+        // to be fully transparent after initialization)
+        rtt.createGraphics().clear();
+        return rtt;
+    }
+
+    @Override
     public Presentable createPresentable(PresentableState pState) {
         if (checkDisposed()) return null;
 
@@ -569,6 +606,7 @@ class D3DResourceFactory extends BaseShaderFactory {
                                       boolean isRTT,
                                       int width, int height, int samples,
                                       boolean useMipmap);
+    static native Object[] nCreateUploadTexture(long pContext, int width, int height);
     static native long nCreateSharedTexture(long pContext, long handle,
                                       int width, int height);
     static native long nCreateSwapChain(long pContext, long hwnd,

@@ -328,6 +328,7 @@ class WinWindow extends Window {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override native protected boolean _wantsTextureUpload(long ptr);
 
     private boolean deferredClosing = false;
     private boolean closingRequested = false;

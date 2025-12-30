@@ -312,6 +312,15 @@ public abstract class PresentableState {
         }
     }
 
+    /**
+     * Put the texture on the screen.
+     *
+     * @param source - the source for the Pixels object to be uploaded
+     */
+    public boolean uploadTexture(long textureHandle, int width, int height) {
+        return view.uploadTexture(textureHandle, width, height);
+    }
+
     private int scale(int dim, float fromScale, float toScale) {
         return (fromScale == toScale)
                ? dim

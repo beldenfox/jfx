@@ -197,6 +197,9 @@ public:
                           DWORD dwUsage,
                           D3DResource **ppTextureResource/*out*/);
 
+    HRESULT CreateUploadTexture(UINT width, UINT height,
+                                D3DResource **ppTextureResource, HANDLE *handle);
+
     HRESULT CreateSharedTexture(UINT width, UINT height, HANDLE handle,
                                 D3DResource **ppTextureResource);
 

@@ -59,7 +59,7 @@ class ViewScene extends GlassScene {
     }
 
     @Override protected boolean isSynchronous() {
-        return painter != null && painter instanceof PresentingPainter;
+        return painter != null && (painter instanceof PresentingPainter || painter instanceof TexturePainter);
     }
 
     @Override
@@ -76,7 +76,10 @@ class ViewScene extends GlassScene {
         super.setStage(stage);
         if (stage != null) {
             WindowStage wstage  = (WindowStage)stage;
-            if (wstage.needsUpdateWindow() || GraphicsPipeline.getPipeline().isUploading()) {
+            if (wstage.wantsTextureUpload()) {
+                painter = new TexturePainter(this);
+            }
+            else if (wstage.needsUpdateWindow() || GraphicsPipeline.getPipeline().isUploading()) {
                 if (Pixels.getNativeFormat() != Pixels.Format.BYTE_BGRA_PRE ||
                     ByteOrder.nativeOrder() != ByteOrder.LITTLE_ENDIAN) {
                     throw new UnsupportedOperationException(UNSUPPORTED_FORMAT);
