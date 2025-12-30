@@ -68,7 +68,10 @@ final class WinView extends View {
         return multiClickMaxY;
     }
 
-    native protected long _getNativeFrameBuffer(long ptr);
+    @Override
+    protected long _getNativeFrameBuffer(long ptr) {
+        return 0;
+    }
 
     @Override native protected void _enableInputMethodEvents(long ptr, boolean enable);
     @Override native protected void _finishInputMethodComposition(long ptr);
@@ -85,16 +88,6 @@ final class WinView extends View {
     @Override native protected void _uploadPixels(long ptr, Pixels pixels);
     @Override native protected boolean _enterFullscreen(long ptr, boolean animate, boolean keepRatio, boolean hideCursor);
     @Override native protected void _exitFullscreen(long ptr, boolean animate);
-
-    @Override protected boolean _wantsTextureUpload(long ptr) {
-        var window = getWindow();
-        if (window != null) {
-            return window.hasBackdrop();
-        } else {
-            System.out.println("Window is null");
-        }
-        return false;
-    }
 
     @Override native protected boolean _uploadTexture(long ptr, long textureHandle, int width, int height);
 

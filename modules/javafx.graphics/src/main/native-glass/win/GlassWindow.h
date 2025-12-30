@@ -107,7 +107,6 @@ public:
     void EnableBackdrop(GlassBackdrop::Style style);
     void BeginPaint();
     void EndPaint();
-    HANDLE GetNativeFrameBuffer();
     BOOL WantsTextureUpload();
     BOOL UploadTexture(HANDLE handle, UINT width, UINT height);
     BOOL HandlesUploadPixels();

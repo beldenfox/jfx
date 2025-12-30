@@ -200,9 +200,6 @@ public:
     HRESULT CreateUploadTexture(UINT width, UINT height,
                                 D3DResource **ppTextureResource, HANDLE *handle);
 
-    HRESULT CreateSharedTexture(UINT width, UINT height, HANDLE handle,
-                                D3DResource **ppTextureResource);
-
     HRESULT D3DResourceManager::CreateRenderTarget(UINT width, UINT height,
                                   BOOL isOpaque,
                                   D3DFORMAT *pFormat,

@@ -41,8 +41,6 @@
 #include "com_sun_glass_ui_Window_Level.h"
 #include "com_sun_glass_ui_win_WinWindow.h"
 
-#include <iostream>
-
 #define ABM_GETAUTOHIDEBAREX 0x0000000b // multimon aware autohide bars
 
 // Helper LEAVE_MAIN_THREAD for GlassWindow
@@ -1360,14 +1358,6 @@ void GlassWindow::EndPaint()
     }
 }
 
-HANDLE GlassWindow::GetNativeFrameBuffer()
-{
-    if (m_backdrop != nullptr) {
-        return m_backdrop->GetNativeFrameBuffer();
-    }
-    return nullptr;
-}
-
 BOOL GlassWindow::WantsTextureUpload()
 {
     if (m_backdrop != nullptr) {
@@ -2356,10 +2346,8 @@ JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_win_WinWindow__1wantsTextureUpl
   (JNIEnv *, jobject, jlong ptr)
 {
     HWND hWnd = (HWND)ptr;
-    std::cout << "Wants texture upload" << std::endl;
     GlassWindow *pWindow = GlassWindow::FromHandle(hWnd);
     if (pWindow) {
-        std::cout << "Asking" << std::endl;
         return pWindow->WantsTextureUpload();
     }
     return false;

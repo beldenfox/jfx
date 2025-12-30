@@ -420,22 +420,6 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinView__1end
 
 /*
  * Class:     com_sun_glass_ui_win_WinView
- * Method:    _getNativeFrameBuffer
- * Signature: (J)J
- */
-JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_win_WinView__1getNativeFrameBuffer
-  (JNIEnv *env, jobject jview, jlong ptr)
-{
-    GlassView *view = (GlassView *)ptr;
-    GlassWindow *pWindow = GlassWindow::FromHandle(view->GetHostHwnd());
-    if (pWindow != nullptr) {
-        return (jlong) pWindow->GetNativeFrameBuffer();
-    }
-    return 0;
-}
-
-/*
- * Class:     com_sun_glass_ui_win_WinView
  * Method:    _uploadPixels
  * Signature: (JLcom/sun/glass/ui/Pixels;)V
  */

@@ -163,12 +163,6 @@ private:
     inline static com_ptr<ID3D11DeviceContext>  s_d3dDeviceContext = nullptr;
     inline static int                           s_usageCount = 0;
 
-    // This always contains the most up-to-date pixels we have. It might lag
-    // behind the window's size since it's only resized when new pixels are
-    // delivered by the rendering thread or by uploading pixels.
-    com_ptr<ID3D11Texture2D>  m_sharedTexture = nullptr;
-    HANDLE                    m_sharedTextureHandle = NULL;
-
     DesktopWindowTarget       m_windowTarget = nullptr;
 
     SpriteVisual              m_backdropColorOverlay = nullptr;
@@ -178,6 +172,9 @@ private:
     CompositionGraphicsDevice m_graphicsDevice = nullptr;
     CompositionDrawingSurface m_contentSurface = nullptr;
     SpriteVisual              m_contentVisual = nullptr;
+
+    // For uploading Pixels
+    com_ptr<ID3D11Texture2D>  m_pixelsTexture = nullptr;
 
     SizeInt32 GetClientSize() {
         RECT rect;
@@ -251,12 +248,12 @@ private:
             s_d3dDeviceContext.put());
     }
 
-    void BuildSharedTexture() {
+    void BuildPixelsTexture() {
         if (s_d3dDevice == nullptr) return;
         auto size = GetSurfaceSize();
-        if (m_sharedTexture != nullptr) {
+        if (m_pixelsTexture != nullptr) {
             D3D11_TEXTURE2D_DESC desc = { 0 };
-            m_sharedTexture->GetDesc(&desc);
+            m_pixelsTexture->GetDesc(&desc);
             if (desc.Width == size.Width && desc.Height == size.Height) {
                 return;
             }
@@ -274,12 +271,7 @@ private:
         desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags = 0;
         desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
-        s_d3dDevice->CreateTexture2D(&desc, nullptr, m_sharedTexture.put());
-
-        auto dxgiResource = m_sharedTexture.as<IDXGIResource>();
-        if (FAILED(dxgiResource->GetSharedHandle(&m_sharedTextureHandle))) {
-            m_sharedTextureHandle = nullptr;
-        }
+        s_d3dDevice->CreateTexture2D(&desc, nullptr, m_pixelsTexture.put());
     }
 
     void RemoveVisuals() {
@@ -449,23 +441,15 @@ public:
             s.cx = newSize.Width;
             s.cy = newSize.Height;
             surfaceInterop->Resize(s);
-            CopyTextureToSurface(m_sharedTexture);
             m_deviceMutex.unlock();
         }
     }
 
     void BeginPaint() override {
         m_deviceMutex.lock();
-        BuildSharedTexture();
-        if (m_sharedTexture == nullptr) {
-            return;
-        }
     }
 
     void EndPaint() override {
-        if (m_sharedTextureHandle != nullptr) {
-            // CopyTextureToSurface(m_sharedTexture);
-        }
         m_deviceMutex.unlock();
     }
 
@@ -474,15 +458,12 @@ public:
     }
 
     BOOL UploadTexture(HANDLE handle, UINT width, UINT height) {
-        std::cout << "Upload texture " << handle << ' ' << width << ' ' << height << std::endl;
-
         if (s_d3dDevice) {
             com_ptr<ID3D11Resource> resource;
             if (SUCCEEDED(s_d3dDevice->OpenSharedResource(handle, IID_PPV_ARGS(&resource)))) {
                 auto texture = resource.as<ID3D11Texture2D>();
                 if (texture != nullptr) {
                     CopyTextureToSurface(texture);
-                    std::cout << "Texture was opened" << std::endl;
                 }
             }
             return TRUE;
@@ -491,8 +472,9 @@ public:
     }
 
     void UploadPixels(Pixels& p) override {
+        BuildPixelsTexture();
         auto size = GetSurfaceSize();
-        if (m_sharedTexture && p.GetWidth() == size.Width && p.GetHeight() == size.Height) {
+        if (m_pixelsTexture && p.GetWidth() == size.Width && p.GetHeight() == size.Height) {
             D3D11_BOX destBox;
             destBox.left = 0;
             destBox.right = size.Width;
@@ -500,17 +482,14 @@ public:
             destBox.bottom = size.Height;
             destBox.front = 0;
             destBox.back = 1;
-            s_d3dDeviceContext->UpdateSubresource(m_sharedTexture.get(), 0,
+            s_d3dDeviceContext->UpdateSubresource(m_pixelsTexture.get(), 0,
                 &destBox, p.GetBits(), size.Width * 4, 0);
+            CopyTextureToSurface(m_pixelsTexture);
         } else {
             std::cout << "Upload failed due to size mismatch" << std::endl;
             std::cout << "Upload size " << p.GetWidth() << ' ' << p.GetHeight() << std::endl;
             std::cout << "Surface size " << size << std::endl;
         }
-    }
-
-    HANDLE GetNativeFrameBuffer() override {
-        return NULL; // m_sharedTextureHandle;
     }
 };
 

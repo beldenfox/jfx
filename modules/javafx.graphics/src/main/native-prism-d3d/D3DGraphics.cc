@@ -30,7 +30,6 @@
 
 #include "com_sun_prism_d3d_D3DGraphics.h"
 #include "com_sun_prism_d3d_D3DSwapChain.h"
-#include "com_sun_prism_d3d_D3DCompositorSwapChain.h"
 #include "com_sun_prism_d3d_D3DContext.h"
 
 /*
@@ -54,47 +53,6 @@ JNIEXPORT jint JNICALL Java_com_sun_prism_d3d_D3DSwapChain_nPresent
 
     RECT r = { 0, 0, pSwapChainRes->GetDesc()->Width, pSwapChainRes->GetDesc()->Height };
     return pSwapChainRes->GetSwapChain()->Present(0, &r, 0, 0, 0);
-}
-
-/*
- * Class:     com_sun_prism_d3d_D3DCompositorSwapChain
- * Method:    nSync
- */
-JNIEXPORT jint JNICALL Java_com_sun_prism_d3d_D3DCompositorSwapChain_nSync
-  (JNIEnv *, jclass, jlong ctx)
-{
-    TraceLn(NWT_TRACE_INFO, "D3DCompositorSwapChain_nSync");
-
-    D3DContext *pCtx = (D3DContext*)jlong_to_ptr(ctx);
-
-    RETURN_STATUS_IF_NULL(pCtx, E_FAIL);
-
-    IDirect3DDevice9Ex *device = pCtx->Get3DDevice();
-
-    RETURN_STATUS_IF_NULL(device, E_FAIL);
-
-    IDirect3DQuery9* pEventQuery = nullptr;
-
-    if (FAILED(device->CreateQuery(D3DQUERYTYPE_EVENT, &pEventQuery))) {
-        return E_FAIL;
-    }
-
-    // Flush the GPU pipeline by issuing an event query and waiting
-    // for it to complete. It might also return an error code in
-    // which case the present has failed.
-    pEventQuery->Issue(D3DISSUE_END);
-
-    HRESULT res;
-    do {
-        res = pEventQuery->GetData(NULL, 0, D3DGETDATA_FLUSH);
-        if (res == S_FALSE) {
-            ::SwitchToThread();
-        }
-    } while (res == S_FALSE);
-
-    pEventQuery->Release();
-
-    return res;
 }
 
 void setIntField(JNIEnv *env, jobject object, jclass clazz, const char *name, int value);

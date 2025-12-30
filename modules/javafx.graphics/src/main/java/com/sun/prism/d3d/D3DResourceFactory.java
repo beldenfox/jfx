@@ -381,7 +381,6 @@ class D3DResourceFactory extends BaseShaderFactory {
         Object[] o = nCreateUploadTexture(context.getContextHandle(), createw, createh);
         long pResource = (Long)o[0];
         long uploadHandle = (Long)o[1];
-        System.out.println("Upload texture " + String.format("%016X", pResource) + String.format(" %16X", uploadHandle));
         if (pResource == 0L) {
             return null;
         }
@@ -404,20 +403,6 @@ class D3DResourceFactory extends BaseShaderFactory {
 
         if (PrismSettings.verbose && context.isLost()) {
             System.err.println("SwapChain allocation while the device is lost");
-        }
-
-        if (pState.getNativeFrameBuffer() != 0L) {
-            System.out.println("Creating presentable");
-            int width = pState.getRenderWidth();
-            int height = pState.getRenderHeight();
-            long sharedResource = nCreateSharedTexture(context.getContextHandle(),
-                                                    pState.getNativeFrameBuffer(),
-                                                    width, height);
-            if (sharedResource != 0) {
-                D3DRTTexture compositorTexture = new D3DRTTexture(context, WrapMode.CLAMP_NOT_NEEDED, sharedResource,
-                    width, height, 0, 0, width, height, 0);
-                return new D3DCompositorSwapChain(context, pState, compositorTexture);
-            }
         }
 
         long pResource = nCreateSwapChain(context.getContextHandle(),
@@ -607,8 +592,6 @@ class D3DResourceFactory extends BaseShaderFactory {
                                       int width, int height, int samples,
                                       boolean useMipmap);
     static native Object[] nCreateUploadTexture(long pContext, int width, int height);
-    static native long nCreateSharedTexture(long pContext, long handle,
-                                      int width, int height);
     static native long nCreateSwapChain(long pContext, long hwnd,
                                         boolean isVsyncEnabled);
     static native int nReleaseResource(long pContext, long resource);

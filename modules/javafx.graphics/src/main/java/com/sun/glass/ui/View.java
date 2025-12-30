@@ -798,19 +798,6 @@ public abstract class View {
         }
     }
 
-    protected boolean _wantsTextureUpload(long ptr) {
-        return false;
-    }
-
-    /**
-     * Determines whether the view wants textures to be
-     * uploaded or not.
-     */
-    public boolean wantsTextureUpload() {
-        checkNotClosed();
-        return _wantsTextureUpload(this.ptr);
-    }
-
     protected boolean _uploadTexture(long ptr, long textureHandle, int width, int height) {
         return true;
     }

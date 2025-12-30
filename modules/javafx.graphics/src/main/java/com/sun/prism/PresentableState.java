@@ -315,7 +315,9 @@ public abstract class PresentableState {
     /**
      * Put the texture on the screen.
      *
-     * @param source - the source for the Pixels object to be uploaded
+     * @param texture - the texture to be uploaded
+     * @param width - the width of the texture
+     * @param height - the height of the texture
      */
     public boolean uploadTexture(long textureHandle, int width, int height) {
         return view.uploadTexture(textureHandle, width, height);

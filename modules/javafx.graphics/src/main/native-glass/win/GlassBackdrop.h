@@ -39,20 +39,25 @@ public:
         Transient
     };
 
+    // Called when the first window is created to determine what backdrop
+    // implementation to use.
     static bool Configure(HWND hWnd);
+    // Returns true if the backdrop won't need the operating system's window
+    // backing store/redirection bitmap. If true all JavaFX content needs to
+    // be uploaded as a texture or Pixels.
     static bool DrawsEverything();
 
     static std::shared_ptr<GlassBackdrop> create(HWND hWnd, Style style);
     virtual ~GlassBackdrop() {};
 
+    // Local call to respond to size events.
     virtual void Resize() {};
+    // Local call to respond to platform pref changes like window color.
     virtual void SettingChanged() {};
 
-    // Implements the begin/end/getNativeFrameBuffer drawing
-    // protocol.
+    // Implements the begin/end/upload drawing protocol.
     virtual void BeginPaint() {};
     virtual void EndPaint() {};
-    virtual HANDLE GetNativeFrameBuffer() { return NULL; }
     virtual BOOL WantsTextureUpload() { return FALSE; }
     virtual BOOL UploadTexture(HANDLE handle, UINT width, UINT height) { return TRUE; }
     virtual void UploadPixels(Pixels&) {}

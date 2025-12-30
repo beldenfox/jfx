@@ -31,7 +31,6 @@
 
 #include "TextureUploader.h"
 
-#include <iostream>
 
 /*
  * Class:     com_sun_prism_d3d_D3DResourceFactory
@@ -142,9 +141,8 @@ Java_com_sun_prism_d3d_D3DResourceFactory_nCreateUploadTexture
   (JNIEnv *env, jclass klass,
         jlong ctx, jint width, jint height)
 {
-    TraceLn6(NWT_TRACE_INFO,
-             "nCreateTexture formatHint=%d usageHint=%d isRTT=%d w=%d h=%d useMipmap=%d",
-             formatHint, usageHint, isRTT, width, height, useMipmap);
+    TraceLn2(NWT_TRACE_INFO,
+             "nCreateUploadTexture w=%d h=%d", width, height);
 
     D3DContext *pCtx = (D3DContext *)jlong_to_ptr(ctx);
     RETURN_STATUS_IF_NULL(pCtx, 0L);
@@ -158,10 +156,7 @@ Java_com_sun_prism_d3d_D3DResourceFactory_nCreateUploadTexture
 
     res = pMgr->CreateUploadTexture(width, height, &pTexResource, &handle);
 
-    if (SUCCEEDED(res)) {
-        std::cout << "Created upload texture " << handle << std::endl;
-    } else {
-        std::cout << "Could not create upload texture" << std::endl;
+    if (!SUCCEEDED(res)) {
         handle = NULL;
         pTexResource = NULL;
     }
@@ -177,38 +172,6 @@ Java_com_sun_prism_d3d_D3DResourceFactory_nCreateUploadTexture
     return ret;
 }
 
-/*
- * Class:     com_sun_prism_d3d_D3DResourceFactory
- * Method:    nCreateSharedTexture
- */
-JNIEXPORT jlong JNICALL
-Java_com_sun_prism_d3d_D3DResourceFactory_nCreateSharedTexture
-  (JNIEnv *env, jclass klass,
-        jlong ctx, jlong handle,
-        jint width, jint height)
-{
-    TraceLn2(NWT_TRACE_INFO,
-             "nCreateSharedTexture w=%d h=%d", width, height);
-
-    D3DContext *pCtx = (D3DContext *)jlong_to_ptr(ctx);
-    RETURN_STATUS_IF_NULL(pCtx, 0L);
-
-    D3DResourceManager *pMgr = pCtx->GetResourceManager();
-    RETURN_STATUS_IF_NULL(pMgr, 0L);
-
-    if (handle == 0) {
-        return 0L;
-    }
-
-    D3DResource *pTexResource;
-    HRESULT res;
-    res = pMgr->CreateSharedTexture(width, height, (HANDLE) handle, &pTexResource);
-    if (SUCCEEDED(res)) {
-        return ptr_to_jlong(pTexResource);
-    }
-
-    return 0L;
-}
 /*
  * Class:     com_sun_prism_d3d_D3DResourceFactory
  * Method:    nCreateSwapChain
