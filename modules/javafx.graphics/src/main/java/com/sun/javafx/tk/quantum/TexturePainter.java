@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -37,7 +37,7 @@ import com.sun.prism.impl.Disposer;
 /**
  * TexturePainter is used when we need to render into an offscreen buffer.
  * The pixels are passed to the platform synchronously using a platform
- * specific shared handle.
+ * specific shared handle to a texture.
  */
 final class TexturePainter extends ViewPainter {
 
@@ -158,6 +158,7 @@ final class TexturePainter extends ViewPainter {
                 rtt = (UploadRTTexture) rttexture;
             }
 
+            rtt.prepareForUpload();
             if (!sceneState.uploadTexture(rtt.getUploadHandle(), outWidth, outHeight)) {
                 sceneState.getScene().entireSceneNeedsRepaint();
                 disposeRTTexture();

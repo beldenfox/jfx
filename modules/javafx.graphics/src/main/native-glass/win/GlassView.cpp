@@ -440,10 +440,7 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinView__1uploadPixels
         GlassWindow *pWindow = GlassWindow::FromHandle(hWnd);
         Pixels pixels(GetEnv(), jPixels);
 
-        if (pWindow && pWindow->HandlesUploadPixels()) {
-            pWindow->UploadPixels(pixels);
-        }
-        else if (!pWindow || !pWindow->IsTransparent()) {
+        if (!pWindow || !pWindow->IsTransparent()) {
             // Either a non-glass window (FullScreenWindow), or not transparent
             BITMAPINFOHEADER bmi;
 

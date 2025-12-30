@@ -28,5 +28,10 @@ package com.sun.prism;
 import java.nio.Buffer;
 
 public interface UploadRTTexture extends RTTexture {
+    // The texture is about to be uploaded. Ensure that all pending drawing
+    // has been flushed to the texture.
+    public void prepareForUpload();
+
+    // Retrieve the handle to pass to the platform code for upload.
     public long getUploadHandle();
 }

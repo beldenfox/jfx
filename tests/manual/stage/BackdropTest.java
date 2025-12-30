@@ -166,8 +166,11 @@ public class BackdropTest extends Application {
         }
     }
 
-    private Parent labeledSection(String label, Parent section) {
-        VBox box = new VBox(new Label(label), section);
+    private Parent labeledSection(String text, Parent section) {
+        var label = new Label(text);
+        label.textFillProperty().bind(Platform.getPreferences().foregroundColorProperty());
+        label.setStyle("-fx-text-fill: red;");
+        VBox box = new VBox(label, section);
         box.setSpacing(5);
         return box;
     }

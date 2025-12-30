@@ -669,4 +669,9 @@ class D3DContext extends BaseShaderContext {
                           srcX0, srcY0, srcX1, srcY1,
                           dstX0, dstY0, dstX1, dstY1);
     }
+
+    private static native void nFlushGPU(long pContext);
+    void flushGPU() {
+        nFlushGPU(pContext);
+    }
 }

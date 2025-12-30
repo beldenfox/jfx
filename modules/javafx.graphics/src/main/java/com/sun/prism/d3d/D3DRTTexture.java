@@ -187,6 +187,12 @@ class D3DRTTexture extends D3DTexture
     }
 
     @Override
+    public void prepareForUpload() {
+        getContext().flushVertexBuffer();
+        getContext().flushGPU();
+    }
+
+    @Override
     public long getUploadHandle() {
         return uploadHandle;
     }

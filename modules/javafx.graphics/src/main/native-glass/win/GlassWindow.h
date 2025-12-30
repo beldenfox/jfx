@@ -109,8 +109,6 @@ public:
     void EndPaint();
     BOOL WantsTextureUpload();
     BOOL UploadTexture(HANDLE handle, UINT width, UINT height);
-    BOOL HandlesUploadPixels();
-    void UploadPixels(Pixels&);
     void HandleWindowPosChangedEvent();
     void ShowSystemMenu(int x, int y);
 

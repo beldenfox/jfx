@@ -1374,19 +1374,6 @@ BOOL GlassWindow::UploadTexture(HANDLE handle, UINT width, UINT height)
     return FALSE;
 }
 
-BOOL GlassWindow::HandlesUploadPixels()
-{
-    if (m_backdrop != nullptr && m_backdrop->DrawsEverything()) {
-        return TRUE;
-    }
-    return FALSE;
-}
-
-void GlassWindow::UploadPixels(Pixels& pixels)
-{
-    m_backdrop->UploadPixels(pixels);
-}
-
 void GlassWindow::ShowSystemMenu(int x, int y)
 {
     WINDOWPLACEMENT placement;
@@ -1523,7 +1510,7 @@ JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_win_WinWindow__1createWindow
         closeable = (mask & com_sun_glass_ui_Window_CLOSABLE) != 0;
 
         if (mask & com_sun_glass_ui_Window_EXTENDED) {
-            mask |= com_sun_glass_ui_Window_TITLED;
+            dwExStyle = WS_EX_WINDOWEDGE;
         }
 
         if (mask & com_sun_glass_ui_Window_TITLED) {
@@ -1568,6 +1555,10 @@ JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_win_WinWindow__1createWindow
             | com_sun_glass_ui_Window_TRANSIENT_BACKDROP;
         if (((mask & backdropMask) != 0) && GlassBackdrop::DrawsEverything()) {
             dwExStyle |= WS_EX_NOREDIRECTIONBITMAP;
+        }
+
+        if (mask & com_sun_glass_ui_Window_EXTENDED) {
+            mask |= com_sun_glass_ui_Window_TITLED;
         }
 
         GlassWindow *pWindow =

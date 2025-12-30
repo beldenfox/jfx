@@ -58,51 +58,26 @@ using namespace winrt::Windows::UI::Composition::Desktop;
   This code defaults to composition backdrops unless the JFXSYSBACKDROP
   environment variable is set (value doesn't matter).
 
-  One approach would be to use SystemGlassBackdrop whenever possible and treat
-  CompositionGlassBackdrop as a fallback eventually phasing it out entirely.
-  But there are differences in the behavior as outlined in the issues below
-  so that becomes complicated.
-
   Known issues
 
-  Device synchronization (possible showstopper) - CompositionGlassBackdrop
-  uses the existing begin/end/getNativeFrameBuffer protocol to redirect
-  Prism's output to the correct composition layer. It uses D3D11 to create a
-  shared texture which is passed to Prism to draw on. Prism is currently
-  based on D3D9 and so uses a different D3D device than the Glass platform
-  code. It looks like we're encountering problems flushing the D3D9 GPU
-  commands to the texture before the D3D11 device can pull pixels from it.
-  This is particularly noticable if you drag a window corner to rapidly
-  resize it.
-
-  (There's work in progress to add a D3D12 backend to Prism. That won't allow
-  us to share the D3D device since Windows.UI.Composition only works with
-  D3D11. There is the possibility that D3D12 can create a composition swap
-  chain directly and we can bypass the begin/end/getNativeFramebuffer
-  protocol entirely.)
-
   Title bars - SystemGlassBackdrop extends the effect into the title bar area.
-  CompositionGlassBackdrop does not and only produces a satisfying effect for
-  stages like EXTENDED that don't contain platform title bars.
+  CompositionGlassBackdrop does not and so only produces a satisfying effect
+  for stages that don't contain platform title bars like Extended.
 
   Dark mode - SystemGlassBackdrop tracks the per-window DWM immersive dark
-  mode setting (both dark mode and backdrops are DWM features). I have not
-  found a way for CompositionGlassBackdrop to retrieve that color. At the
-  moment CompositionGlassBackdrop tracks the global window background color
-  and SystemGlassBackdrop tracks the local window dark mode setting.
-  Backdrops on macOS always track the local window dark mode setting so
-  CompositionGlassBackdrop is the odd man out.
+  mode setting (and there's no way to change this). This is also the way
+  backdrops on macOS work (and there's no way to change this).
+  CompositionGlassBackdrop tracks the global window background color
+  preference and not the window's local dark mode setting.
 
   Transparent windows - Currently on Windows if a user clicks on a fully
   transparent pixel in a TRANSPARENT stage it doesn't hit test and the click
-  passes through to the window below. SystemGlassBackdrop maintains that
-  behavior but CustomGlassBackdrop does not, TRANSPARENT stages register hits
-  across the entire window. This is how macOS and Linux work so this may not
-  be an issue.
+  passes through to the windows below. SystemGlassBackdrop maintains that
+  behavior but CustomGlassBackdrop does not so hits register across the
+  entire window. Hits register across the entire window on macOS and Linux
+  also so this may not be an issue.
 
   VSync - Not sure how to enforce vsync with CompositionGlassBackdrop.
-
-  MSAA - CompositionGlassBackdrop does not support MSAA yet.
 
   Undecorated window bug - SystemGlassBackdrop draw the wrong backdrop for
   UNDECORATED stages. If you alter the window's dark mode setting after it's
@@ -172,9 +147,6 @@ private:
     CompositionGraphicsDevice m_graphicsDevice = nullptr;
     CompositionDrawingSurface m_contentSurface = nullptr;
     SpriteVisual              m_contentVisual = nullptr;
-
-    // For uploading Pixels
-    com_ptr<ID3D11Texture2D>  m_pixelsTexture = nullptr;
 
     SizeInt32 GetClientSize() {
         RECT rect;
@@ -248,33 +220,8 @@ private:
             s_d3dDeviceContext.put());
     }
 
-    void BuildPixelsTexture() {
-        if (s_d3dDevice == nullptr) return;
-        auto size = GetSurfaceSize();
-        if (m_pixelsTexture != nullptr) {
-            D3D11_TEXTURE2D_DESC desc = { 0 };
-            m_pixelsTexture->GetDesc(&desc);
-            if (desc.Width == size.Width && desc.Height == size.Height) {
-                return;
-            }
-        }
-
-        D3D11_TEXTURE2D_DESC desc = { 0 };
-        desc.Width = size.Width;
-        desc.Height = size.Height;
-        desc.MipLevels = 1;
-        desc.ArraySize = 1;
-        desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-        desc.SampleDesc.Count = 1;
-        desc.SampleDesc.Quality = 0;
-        desc.Usage = D3D11_USAGE_DEFAULT;
-        desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-        desc.CPUAccessFlags = 0;
-        desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
-        s_d3dDevice->CreateTexture2D(&desc, nullptr, m_pixelsTexture.put());
-    }
-
     void RemoveVisuals() {
+        // ToDo
     }
 
     void BuildBackdropVisuals() {
@@ -469,27 +416,6 @@ public:
             return TRUE;
         }
         return FALSE;
-    }
-
-    void UploadPixels(Pixels& p) override {
-        BuildPixelsTexture();
-        auto size = GetSurfaceSize();
-        if (m_pixelsTexture && p.GetWidth() == size.Width && p.GetHeight() == size.Height) {
-            D3D11_BOX destBox;
-            destBox.left = 0;
-            destBox.right = size.Width;
-            destBox.top = 0;
-            destBox.bottom = size.Height;
-            destBox.front = 0;
-            destBox.back = 1;
-            s_d3dDeviceContext->UpdateSubresource(m_pixelsTexture.get(), 0,
-                &destBox, p.GetBits(), size.Width * 4, 0);
-            CopyTextureToSurface(m_pixelsTexture);
-        } else {
-            std::cout << "Upload failed due to size mismatch" << std::endl;
-            std::cout << "Upload size " << p.GetWidth() << ' ' << p.GetHeight() << std::endl;
-            std::cout << "Surface size " << size << std::endl;
-        }
     }
 };
 

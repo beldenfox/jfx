@@ -508,6 +508,44 @@ JNIEXPORT void JNICALL Java_com_sun_prism_d3d_D3DContext_nSetAmbientLight
 
 /*
  * Class:     com_sun_prism_d3d_D3DContext
+ * Method:    nFlushGPU
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_sun_prism_d3d_D3DContext_nFlushGPU
+  (JNIEnv *env, jclass, jlong ctx)
+{
+    TraceLn(NWT_TRACE_INFO, "D3DContext_nFlushGPU");
+    D3DContext *pCtx = (D3DContext*) jlong_to_ptr(ctx);
+    RETURN_IF_NULL(pCtx);
+
+    IDirect3DDevice9Ex *device = pCtx->Get3DDevice();
+    RETURN_IF_NULL(device);
+
+    IDirect3DQuery9* pEventQuery = nullptr;
+    if (FAILED(device->CreateQuery(D3DQUERYTYPE_EVENT, &pEventQuery))) {
+        return;
+    }
+
+    // Flush the GPU pipeline by issuing an event query and waiting for it to
+    // complete. It might also return an error code in which case the present
+    // has failed.
+    pEventQuery->Issue(D3DISSUE_END);
+
+    HRESULT res;
+    do {
+        res = pEventQuery->GetData(NULL, 0, D3DGETDATA_FLUSH);
+        if (res == S_FALSE) {
+            ::SwitchToThread();
+        }
+    } while (res == S_FALSE);
+
+    pEventQuery->Release();
+
+    return;
+}
+
+/*
+ * Class:     com_sun_prism_d3d_D3DContext
  * Method:    nSetLight
  * Signature: (JJIFFFFFFFFFFFFFFFFFF)V
  */

@@ -60,7 +60,6 @@ public:
     virtual void EndPaint() {};
     virtual BOOL WantsTextureUpload() { return FALSE; }
     virtual BOOL UploadTexture(HANDLE handle, UINT width, UINT height) { return TRUE; }
-    virtual void UploadPixels(Pixels&) {}
 
 protected:
     GlassBackdrop() {}
