@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2025 Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -169,14 +169,15 @@ public class BackdropTest extends Application {
     private Parent labeledSection(String text, Parent section) {
         var label = new Label(text);
         label.textFillProperty().bind(Platform.getPreferences().foregroundColorProperty());
-        label.setStyle("-fx-text-fill: red;");
         VBox box = new VBox(label, section);
         box.setSpacing(5);
         return box;
     }
 
-    private Parent labeledSection(String label) {
-        VBox box = new VBox(new Label(label));
+    private Parent labeledSection(String text) {
+        var label = new Label(text);
+        label.textFillProperty().bind(Platform.getPreferences().foregroundColorProperty());
+        VBox box = new VBox(label);
         box.setSpacing(5);
         return box;
     }
@@ -235,7 +236,7 @@ public class BackdropTest extends Application {
 
         // Pull it together
         VBox controls = new VBox(
-            labeledSection("This is an " + stageStyle + " stage with a " + backdrop + " backdrop"),
+            labeledSection("This stage is " + stageStyle + " and the backdrop is " + backdrop),
             labeledSection("New stage", stageCreationControls),
             labeledSection("Fill color for this stage", fillChoice),
             labeledSection("Color scheme for this stage", schemeChoice),
@@ -280,7 +281,11 @@ public class BackdropTest extends Application {
         });
 
         fillChoice.setValue(FillChoice.TRANSPARENT);
-        schemeChoice.setValue(ColorSchemeChoice.LIGHT);
+        if (Platform.getPreferences().getColorScheme() == ColorScheme.LIGHT) {
+            schemeChoice.setValue(ColorSchemeChoice.LIGHT);
+        } else {
+            schemeChoice.setValue(ColorSchemeChoice.DARK);
+        }
         opacityChoice.setValue(OpacityChoice.P100);
 
         stage.setScene(scene);
