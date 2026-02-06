@@ -44,7 +44,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.StageBackdrop;
 import javafx.stage.Window;
-import java.util.List;
 
 public class BackdropTest extends Application {
     public static void main(String[] args) {
@@ -166,17 +165,21 @@ public class BackdropTest extends Application {
         }
     }
 
-    private Parent labeledSection(String text, Parent section) {
+    private Label newLabel(String text) {
         var label = new Label(text);
         label.textFillProperty().bind(Platform.getPreferences().foregroundColorProperty());
+        return label;
+    }
+
+    private Parent labeledSection(String text, Parent section) {
+        var label = newLabel(text);
         VBox box = new VBox(label, section);
         box.setSpacing(5);
         return box;
     }
 
     private Parent labeledSection(String text) {
-        var label = new Label(text);
-        label.textFillProperty().bind(Platform.getPreferences().foregroundColorProperty());
+        var label = newLabel(text);
         VBox box = new VBox(label);
         box.setSpacing(5);
         return box;
@@ -209,20 +212,23 @@ public class BackdropTest extends Application {
         actionButtons.setAlignment(Pos.BASELINE_RIGHT);
 
         // For creating new stages
+        var styleLabel = newLabel("Style");
         ChoiceBox<StageStyleChoice> stageStyleChoice = new ChoiceBox<>();
         stageStyleChoice.getItems().setAll(StageStyleChoice.values());
-        stageStyleChoice.setValue(StageStyleChoice.EXTENDED);
+        stageStyleChoice.setValue(stageStyle);
 
+        var backdropLabel = newLabel("backdrop");
         ChoiceBox<StageBackdropChoice> backdropChoice = new ChoiceBox<>();
         backdropChoice.getItems().setAll(StageBackdropChoice.values());
-        backdropChoice.setValue(StageBackdropChoice.TRANSIENT);
+        backdropChoice.setValue(backdrop);
 
         Button createButton = new Button("Create!");
         createButton.setOnAction(e -> {
             createAndShowStage(stageStyleChoice.getValue(), backdropChoice.getValue());
         });
 
-        HBox stageCreationControls = new HBox(stageStyleChoice, backdropChoice, createButton);
+        HBox stageCreationControls = new HBox(styleLabel, stageStyleChoice, backdropLabel, backdropChoice, createButton);
+        stageCreationControls.setAlignment(Pos.BASELINE_LEFT);
         stageCreationControls.setSpacing(10);
 
         ChoiceBox<FillChoice> fillChoice = new ChoiceBox<>();
@@ -308,7 +314,6 @@ public class BackdropTest extends Application {
 
     @Override
     public void start(Stage stage) {
-        // setUserAgentStylesheet("file:////Users/martin/Java/jfx/teststyles.css");
         showStage(stage, StageStyleChoice.EXTENDED, StageBackdropChoice.WINDOW);
     }
 }
