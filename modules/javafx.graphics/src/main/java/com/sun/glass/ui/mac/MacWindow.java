@@ -247,16 +247,16 @@ final class MacWindow extends Window {
             backdropMaterials.put("Mac.Sidebar", BackdropID.SIDEBAR);
             backdropMaterials.put("Mac.Menu", BackdropID.MENU);
 
-            try {
-                var osVers = System.getProperty("os.version");
-                String major = osVers.replaceFirst("(\\d+)\\.\\d+.*", "$1");
-                int v = Integer.parseInt(major);
-                if (v >= 26) {
-                    backdropMaterials.put("Mac.Glass", BackdropID.GLASS);
-                    backdropMaterials.put("Mac.ClearGlass", BackdropID.CLEARGLASS);
-                }
-            } catch (Exception e) {
-            }
+            // try {
+            //     var osVers = System.getProperty("os.version");
+            //     String major = osVers.replaceFirst("(\\d+)\\.\\d+.*", "$1");
+            //     int v = Integer.parseInt(major);
+            //     if (v >= 26) {
+            //         backdropMaterials.put("Mac.Glass", BackdropID.GLASS);
+            //         backdropMaterials.put("Mac.ClearGlass", BackdropID.CLEARGLASS);
+            //     }
+            // } catch (Exception e) {
+            // }
         }
     }
 
