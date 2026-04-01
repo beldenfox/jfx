@@ -565,6 +565,13 @@ public abstract class Application {
     public abstract Window createWindow(Window owner, Screen screen, int styleMask, int backdropID);
 
     /**
+     * Create a window with no backdrop.
+     */
+    public final Window createWindow(Window owner, Screen screen, int styleMask) {
+        return createWindow(owner, screen, styleMask, Window.DEFAULT_BACKDROP_ID);
+    }
+
+    /**
      * Create a window.
      *
      * The styleMask argument is a bitmask of window styles as defined in the
