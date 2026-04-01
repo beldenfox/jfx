@@ -40,6 +40,7 @@
 #include "com_sun_glass_ui_Window.h"
 #include "com_sun_glass_ui_Window_Level.h"
 #include "com_sun_glass_ui_win_WinWindow.h"
+#include "com_sun_glass_ui_win_WinWindow_BackdropID.h"
 
 #define ABM_GETAUTOHIDEBAREX 0x0000000b // multimon aware autohide bars
 
@@ -1586,10 +1587,10 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_win_WinWindow__1initIDs
 /*
  * Class:     com_sun_glass_ui_win_WinWindow
  * Method:    _createWindow
- * Signature: (JJZI)J
+ * Signature: (JJZII)J
  */
 JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_win_WinWindow__1createWindow
-    (JNIEnv *env, jobject jThis, jlong ownerPtr, jlong screenPtr, jint mask)
+    (JNIEnv *env, jobject jThis, jlong ownerPtr, jlong screenPtr, jint mask, jint backdrop)
 {
     ENTER_MAIN_THREAD_AND_RETURN(jlong)
     {
@@ -1670,14 +1671,14 @@ JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_win_WinWindow__1createWindow
                 pWindow->SetDarkFrame(true);
             }
 
-            switch (mask & com_sun_glass_ui_Window_BACKDROP_MASK) {
-                case com_sun_glass_ui_Window_WINDOW_BACKDROP:
+            switch (backdrop) {
+                case com_sun_glass_ui_win_WinWindow_BackdropID_WINDOW:
                     pWindow->EnableBackdrop(GlassWindow::BackdropStyle::Window);
                     break;
-                case com_sun_glass_ui_Window_TABBED_BACKDROP:
+                case com_sun_glass_ui_win_WinWindow_BackdropID_TABBED:
                     pWindow->EnableBackdrop(GlassWindow::BackdropStyle::Tabbed);
                     break;
-                case com_sun_glass_ui_Window_TRANSIENT_BACKDROP:
+                case com_sun_glass_ui_win_WinWindow_BackdropID_TRANSIENT:
                     pWindow->EnableBackdrop(GlassWindow::BackdropStyle::Transient);
                     break;
             }
@@ -1689,12 +1690,14 @@ JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_win_WinWindow__1createWindow
     HWND owner;
     HMONITOR hMonitor;
     jint mask;
+    jint backdrop;
     LEAVE_MAIN_THREAD;
 
     ARG(jThis) = jThis;
     ARG(owner) = (HWND)ownerPtr;
     ARG(hMonitor) = (HMONITOR)screenPtr;
     ARG(mask) = mask;
+    ARG(backdrop) = backdrop;
 
     return PERFORM_AND_RETURN();
 }

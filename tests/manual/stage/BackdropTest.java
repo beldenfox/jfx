@@ -26,7 +26,6 @@
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.application.ColorScheme;
-import javafx.application.Platform.Preferences;
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -46,6 +45,8 @@ import javafx.stage.StageBackdrop;
 import javafx.stage.Window;
 import java.util.List;
 import java.util.ArrayList;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 public class BackdropTest extends Application {
     public static void main(String[] args) {
@@ -173,21 +174,33 @@ public class BackdropTest extends Application {
         }
     }
 
-    private Label newLabel(String text) {
+    private ObjectProperty<Color> textColor = new SimpleObjectProperty<>(Color.BLACK);
+
+    private void updateTextColor(Stage stage, ObjectProperty<Color> textColor) {
+        if (stage.getBackdrop() == null) {
+            textColor.set(Color.BLACK);
+        } else if (stage.getScene().getPreferences().getColorScheme() == ColorScheme.DARK) {
+            textColor.set(Color.WHITE);
+        } else {
+            textColor.set(Color.BLACK);
+        }
+    }
+
+    private Label newLabel(String text, ObjectProperty<Color> textColor) {
         var label = new Label(text);
-        label.textFillProperty().bind(Platform.getPreferences().foregroundColorProperty());
+        label.textFillProperty().bind(textColor);
         return label;
     }
 
-    private Parent labeledSection(String text, Parent section) {
-        var label = newLabel(text);
+    private Parent labeledSection(String text, ObjectProperty<Color> textColor, Parent section) {
+        var label = newLabel(text, textColor);
         VBox box = new VBox(label, section);
         box.setSpacing(5);
         return box;
     }
 
-    private Parent labeledSection(String text) {
-        var label = newLabel(text);
+    private Parent labeledSection(String text, ObjectProperty<Color> textColor) {
+        var label = newLabel(text, textColor);
         VBox box = new VBox(label);
         box.setSpacing(5);
         return box;
@@ -219,13 +232,15 @@ public class BackdropTest extends Application {
         actionButtons.setSpacing(5);
         actionButtons.setAlignment(Pos.BASELINE_RIGHT);
 
+        ObjectProperty<Color> textColor = new SimpleObjectProperty<>(Color.BLACK);
+
         // For creating new stages
-        var styleLabel = newLabel("Style");
+        var styleLabel = newLabel("Style", textColor);
         ChoiceBox<StageStyleChoice> stageStyleChoice = new ChoiceBox<>();
         stageStyleChoice.getItems().setAll(StageStyleChoice.values());
         stageStyleChoice.setValue(stageStyle);
 
-        var backdropLabel = newLabel("backdrop");
+        var backdropLabel = newLabel("backdrop", textColor);
         ChoiceBox<StageBackdropChoice> backdropChoice = new ChoiceBox<>();
         backdropChoice.getItems().setAll(backdrops);
         backdropChoice.setValue(backdrop);
@@ -250,11 +265,11 @@ public class BackdropTest extends Application {
 
         // Pull it together
         VBox controls = new VBox(
-            labeledSection("This stage is " + stageStyle + " and the backdrop is " + backdrop),
-            labeledSection("New stage", stageCreationControls),
-            labeledSection("Fill color for this stage", fillChoice),
-            labeledSection("Color scheme for this stage", schemeChoice),
-            labeledSection("Opacity of this stage", opacityChoice)
+            labeledSection("This stage is " + stageStyle + " and the backdrop is " + backdrop, textColor),
+            labeledSection("New stage", textColor, stageCreationControls),
+            labeledSection("Fill color for this stage", textColor, fillChoice),
+            labeledSection("Color scheme for this stage", textColor, schemeChoice),
+            labeledSection("Opacity of this stage", textColor, opacityChoice)
         );
 
         controls.setAlignment(Pos.BASELINE_LEFT);
@@ -283,12 +298,15 @@ public class BackdropTest extends Application {
         }
 
         Scene scene = new Scene(root, 640, 480, Color.TRANSPARENT);
+        stage.setScene(scene);
 
         fillChoice.setOnAction(e -> {
             scene.setFill(fillChoice.getValue().getFill());
+            updateTextColor(stage, textColor);
         });
         schemeChoice.setOnAction(e -> {
             scene.getPreferences().setColorScheme(schemeChoice.getValue().getColorScheme());
+            updateTextColor(stage, textColor);
         });
         opacityChoice.setOnAction(e -> {
             stage.setOpacity(opacityChoice.getValue().getOpacity());
@@ -302,7 +320,7 @@ public class BackdropTest extends Application {
         }
         opacityChoice.setValue(OpacityChoice.P100);
 
-        stage.setScene(scene);
+        updateTextColor(stage, textColor);
     }
 
     private void showStage(Stage stage, StageStyleChoice style, StageBackdropChoice backdrop)

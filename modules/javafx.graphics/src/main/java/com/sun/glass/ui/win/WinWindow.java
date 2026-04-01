@@ -32,6 +32,13 @@ import com.sun.glass.ui.Pixels;
 import com.sun.glass.ui.Screen;
 import com.sun.glass.ui.View;
 import com.sun.glass.ui.Window;
+import java.lang.annotation.Native;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import javafx.application.Platform;
+import javafx.application.ConditionalFeature;
 
 /**
  * MS Windows platform implementation class for Window.
@@ -452,5 +459,39 @@ class WinWindow extends Window {
             case CLOSE -> HT.CLOSE.value;
             case null -> HT.CLIENT.value;
         };
+    }
+
+    final static public class BackdropID {
+        @Native public static final int WINDOW     = 50;
+        @Native public static final int TABBED     = 51;
+        @Native public static final int TRANSIENT  = 52;
+    }
+
+    private static Map<String, Integer> backdropMaterials = null;
+
+    private static void initMaterials() {
+        if (backdropMaterials == null) {
+            backdropMaterials = new HashMap<>();
+
+            if (Platform.isSupported(ConditionalFeature.WINDOW_BACKDROP)) {
+                backdropMaterials.put("Window", BackdropID.WINDOW);
+                backdropMaterials.put("Partial", BackdropID.TABBED);
+                backdropMaterials.put("Windows.Transient", BackdropID.TRANSIENT);
+            }
+        }
+    }
+
+    public static List<String> getBackdropMaterials() {
+        initMaterials();
+        return new ArrayList<>(backdropMaterials.keySet());
+    }
+
+    public static int getBackdropIdentifier(String material) {
+        initMaterials();
+        var id = backdropMaterials.get(material);
+        if (id == null) {
+            return Window.DEFAULT_BACKDROP_ID;
+        }
+        return id;
     }
 }

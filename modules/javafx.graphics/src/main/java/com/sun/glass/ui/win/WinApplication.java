@@ -448,4 +448,21 @@ final class WinApplication extends Application implements InvokeLaterDispatcher.
             Map.entry("Windows.NetworkInformation.InternetCostType", String.class)
         );
     }
+
+    /**
+     * Return the list of backdrop materials supported on this platform.
+     * The default is an empty list.
+     */
+    @Override
+    public List<String> getBackdropMaterials() {
+        return WinWindow.getBackdropMaterials();
+    }
+
+    /**
+     * Return the platform identifier for the StageBackdrop
+     */
+    @Override
+    public int getBackdropIdentifier(String material) {
+        return WinWindow.getBackdropIdentifier(material);
+    }
 }
