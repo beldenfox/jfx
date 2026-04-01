@@ -60,6 +60,7 @@ public final class StageBackdrop {
 
     /**
      * Construct a backdrop using the material.
+     * @param material The material to use for the backdrop
      */
     public StageBackdrop(String material) {
         this.material = material;
@@ -67,6 +68,7 @@ public final class StageBackdrop {
 
     /**
      * Gets the backdrop's material
+     * @return The material of the backdrop
      */
     public String getMaterial() {
         return material;
