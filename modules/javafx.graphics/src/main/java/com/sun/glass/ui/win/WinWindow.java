@@ -53,8 +53,8 @@ class WinWindow extends Window {
         _initIDs();
     }
 
-    protected WinWindow(Window owner, Screen screen, int styleMask) {
-        super(owner, screen, styleMask);
+    protected WinWindow(Window owner, Screen screen, int styleMask, int backdropID) {
+        super(owner, screen, styleMask, backdropID);
 
         if (isExtendedWindow()) {
             prefHeaderButtonHeightProperty().subscribe(this::onPrefHeaderButtonHeightChanged);
@@ -290,7 +290,7 @@ class WinWindow extends Window {
     native private long _getInsets(long ptr);
     native private long _getAnchor(long ptr);
     native private void _showSystemMenu(long ptr, int x, int y);
-    @Override native protected long _createWindow(long ownerPtr, long screenPtr, int mask);
+    @Override native protected long _createWindow(long ownerPtr, long screenPtr, int mask, int backdropID);
     @Override native protected boolean _close(long ptr);
     @Override native protected boolean _setView(long ptr, View view);
     @Override native protected void _updateViewSize(long ptr);

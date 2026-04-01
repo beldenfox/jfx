@@ -63,7 +63,7 @@ public class WindowStage extends GlassStage {
     private StageStyle style;
     private GlassStage owner = null;
     private Modality modality = Modality.NONE;
-    private StageBackdrop backdrop = StageBackdrop.DEFAULT;
+    private StageBackdrop backdrop = null;
 
     private OverlayWarning warning = null;
     private boolean rtl = false;
@@ -186,21 +186,12 @@ public class WindowStage extends GlassStage {
                 windowMask |= Window.DARK_FRAME;
             }
 
-            switch (backdrop) {
-                case DEFAULT:
-                    break;
-                case WINDOW:
-                    windowMask |= Window.WINDOW_BACKDROP;
-                    break;
-                case TABBED:
-                    windowMask |= Window.TABBED_BACKDROP;
-                    break;
-                case TRANSIENT:
-                    windowMask |= Window.TRANSIENT_BACKDROP;
-                    break;
+            int backdropID = Window.DEFAULT_BACKDROP_ID;
+            if (backdrop != null) {
+                backdropID = app.getBackdropIdentifier(backdrop.getMaterial());
             }
 
-            platformWindow = app.createWindow(ownerWindow, Screen.getMainScreen(), windowMask);
+            platformWindow = app.createWindow(ownerWindow, Screen.getMainScreen(), windowMask, backdropID);
             platformWindow.setResizable(resizable);
             platformWindow.setFocusable(focusable);
 

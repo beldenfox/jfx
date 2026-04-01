@@ -45,6 +45,16 @@
     [self addSubview: effect];
 }
 
+// Called when the window is first created.
+-(void)setGlassBackdrop:(BOOL)clear
+{
+    if (@available(macOS 26.0, *)) {
+        NSGlassEffectView* effect = [[NSGlassEffectView alloc] initWithFrame: self.bounds];
+        effect.style = (clear ? NSGlassEffectViewStyleClear : NSGlassEffectViewStyleRegular);
+        [self addSubview: effect];
+    }
+}
+
 - (void)resizeSubviewsWithOldSize:(NSSize) oldSize {
     for (NSView* child in self.subviews) {
         child.frame = self.bounds;

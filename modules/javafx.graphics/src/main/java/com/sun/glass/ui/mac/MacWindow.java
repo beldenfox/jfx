@@ -34,6 +34,11 @@ import com.sun.glass.ui.Window;
 import javafx.geometry.Dimension2D;
 import javafx.scene.layout.HeaderBar;
 import java.nio.ByteBuffer;
+import java.lang.annotation.Native;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * MacOSX platform implementation class for Window.
@@ -45,15 +50,15 @@ final class MacWindow extends Window {
         _initIDs();
     }
 
-    protected MacWindow(Window owner, Screen screen, int styleMask) {
-        super(owner, screen, styleMask);
+    protected MacWindow(Window owner, Screen screen, int styleMask, int backdropID) {
+        super(owner, screen, styleMask, backdropID);
 
         if (isExtendedWindow()) {
             prefHeaderButtonHeightProperty().subscribe(this::onPrefHeaderButtonHeightChanged);
         }
     }
 
-    @Override native protected long _createWindow(long ownerPtr, long screenPtr, int mask);
+    @Override native protected long _createWindow(long ownerPtr, long screenPtr, int mask, int backdropID);
     @Override native protected boolean _close(long ptr);
     @Override native protected boolean _setView(long ptr, View view);
     @Override native protected boolean _setMenubar(long ptr, long menubarPtr);
@@ -219,6 +224,54 @@ final class MacWindow extends Window {
             if (height >= MEDIUM.size.getHeight()) return MEDIUM;
             return SMALL;
         }
+    }
+
+    final static public class BackdropID {
+        @Native public static final int WINDOW     = 42;
+        @Native public static final int SIDEBAR    = 43;
+        @Native public static final int MENU       = 44;
+        @Native public static final int GLASS      = 100;
+        @Native public static final int CLEARGLASS = 101;
+    }
+
+    private static Map<String, Integer> backdropMaterials = null;
+
+    private static void initMaterials() {
+        if (backdropMaterials == null) {
+            backdropMaterials = new HashMap<>();
+
+            backdropMaterials.put("Window", BackdropID.WINDOW);
+            backdropMaterials.put("Partial", BackdropID.SIDEBAR);
+
+            backdropMaterials.put("Mac.Window", BackdropID.WINDOW);
+            backdropMaterials.put("Mac.Sidebar", BackdropID.SIDEBAR);
+            backdropMaterials.put("Mac.Menu", BackdropID.MENU);
+
+            try {
+                var osVers = System.getProperty("os.version");
+                String major = osVers.replaceFirst("(\\d+)\\.\\d+.*", "$1");
+                int v = Integer.parseInt(major);
+                if (v >= 26) {
+                    backdropMaterials.put("Mac.Glass", BackdropID.GLASS);
+                    backdropMaterials.put("Mac.ClearGlass", BackdropID.CLEARGLASS);
+                }
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    public static List<String> getBackdropMaterials() {
+        initMaterials();
+        return new ArrayList<>(backdropMaterials.keySet());
+    }
+
+    public static int getBackdropIdentifier(String material) {
+        initMaterials();
+        var id = backdropMaterials.get(material);
+        if (id == null) {
+            return Window.DEFAULT_BACKDROP_ID;
+        }
+        return id;
     }
 }
 

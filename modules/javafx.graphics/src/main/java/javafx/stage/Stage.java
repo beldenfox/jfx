@@ -567,7 +567,7 @@ public class Stage extends Window {
         return owner;
     }
 
-    private StageBackdrop backdrop = StageBackdrop.DEFAULT;
+    private StageBackdrop backdrop = null;
 
     /**
      * Specifies the backdrop for this stage. This must be done prior to
@@ -578,7 +578,7 @@ public class Stage extends Window {
      * @throws IllegalStateException if this property is set after the stage
      * has ever been made visible.
      *
-     * @defaultValue StageBackdrop.DEFAULT
+     * @defaultValue null
      */
     @SuppressWarnings("deprecation")
     public final void initBackdrop(StageBackdrop backdrop) {

@@ -562,7 +562,7 @@ public abstract class Application {
      * allowed to be of exactly one visual kind, and exactly one functional
      * type.
      */
-    public abstract Window createWindow(Window owner, Screen screen, int styleMask);
+    public abstract Window createWindow(Window owner, Screen screen, int styleMask, int backdropID);
 
     /**
      * Create a window.
@@ -575,7 +575,7 @@ public abstract class Application {
      * type.
      */
     public final Window createWindow(Screen screen, int styleMask) {
-        return createWindow(null, screen, styleMask);
+        return createWindow(null, screen, styleMask, Window.DEFAULT_BACKDROP_ID);
     }
 
     public abstract View createView();
@@ -841,5 +841,20 @@ public abstract class Application {
 
     public void showDocument(String uri) {
         _showDocument(uri);
+    }
+
+    /**
+     * Return the list of backdrop materials supported on this platform.
+     * The default is an empty list.
+     */
+    public List<String> getBackdropMaterials() {
+        return List.of();
+    }
+
+    /**
+     * Return the platform identifier for the StageBackdrop
+     */
+    public int getBackdropIdentifier(String material) {
+        return Window.DEFAULT_BACKDROP_ID;
     }
 }

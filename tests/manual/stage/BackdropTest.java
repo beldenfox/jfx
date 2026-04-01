@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2026 Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -44,6 +44,8 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.StageBackdrop;
 import javafx.stage.Window;
+import java.util.List;
+import java.util.ArrayList;
 
 public class BackdropTest extends Application {
     public static void main(String[] args) {
@@ -75,19 +77,14 @@ public class BackdropTest extends Application {
         }
     }
 
-    private enum StageBackdropChoice {
-        DEFAULT("Default", StageBackdrop.DEFAULT),
-        WINDOW("Window", StageBackdrop.WINDOW),
-        TABBED("Tabbed", StageBackdrop.TABBED),
-        TRANSIENT("Transient", StageBackdrop.TRANSIENT);
-
-        private String label;
-        private StageBackdrop backdrop;
-
+    private class StageBackdropChoice {
         StageBackdropChoice(String label, StageBackdrop backdrop) {
             this.label = label;
             this.backdrop = backdrop;
         }
+
+        private String label;
+        private StageBackdrop backdrop;
 
         public StageBackdrop getBackdrop() {
             return backdrop;
@@ -96,6 +93,17 @@ public class BackdropTest extends Application {
         public String toString() {
             return label;
         }
+    }
+
+    private List<StageBackdropChoice> backdrops = new ArrayList<>();
+
+    void initBackdropList() {
+        backdrops.add(new StageBackdropChoice("Default", null));
+        var materials = StageBackdrop.getMaterials();
+        materials.sort(null);
+        materials.forEach(m -> {
+            backdrops.add(new StageBackdropChoice(m, new StageBackdrop(m)));
+        });
     }
 
     private enum FillChoice {
@@ -219,7 +227,7 @@ public class BackdropTest extends Application {
 
         var backdropLabel = newLabel("backdrop");
         ChoiceBox<StageBackdropChoice> backdropChoice = new ChoiceBox<>();
-        backdropChoice.getItems().setAll(StageBackdropChoice.values());
+        backdropChoice.getItems().setAll(backdrops);
         backdropChoice.setValue(backdrop);
 
         Button createButton = new Button("Create!");
@@ -314,6 +322,9 @@ public class BackdropTest extends Application {
 
     @Override
     public void start(Stage stage) {
-        showStage(stage, StageStyleChoice.EXTENDED, StageBackdropChoice.WINDOW);
+        System.out.println("Initializing list");
+        initBackdropList();
+        System.out.println("First backdrop is " + backdrops.get(0));
+        showStage(stage, StageStyleChoice.EXTENDED, backdrops.get(0));
     }
 }

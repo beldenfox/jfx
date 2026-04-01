@@ -803,7 +803,7 @@ JNIEXPORT void JNICALL Java_javafx_scene_control_skin_TextAreaSkinIos_hideSoftwa
 
 
 
-jlong _1createWindow(JNIEnv *env, jobject jWindow, jlong jOwnerPtr, jlong jScreenPtr, jint jStyleMask)
+jlong _1createWindow(JNIEnv *env, jobject jWindow, jlong jOwnerPtr, jlong jScreenPtr, jint jStyleMask, jint backdropID)
 {
     [[NSThread currentThread] isMainThread];
     if ([[NSThread currentThread] isMainThread] == NO) NSLog(@"[1] must be on main thread");

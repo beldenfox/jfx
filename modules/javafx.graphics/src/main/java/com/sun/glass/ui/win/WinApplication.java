@@ -214,8 +214,8 @@ final class WinApplication extends Application implements InvokeLaterDispatcher.
 
     // FACTORY METHODS
 
-    @Override public Window createWindow(Window owner, Screen screen, int styleMask) {
-        return new WinWindow(owner, screen, styleMask);
+    @Override public Window createWindow(Window owner, Screen screen, int styleMask, int backdropID) {
+        return new WinWindow(owner, screen, styleMask, backdropID);
     }
 
     @Override public View createView() {

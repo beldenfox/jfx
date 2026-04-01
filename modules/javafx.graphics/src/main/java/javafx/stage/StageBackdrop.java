@@ -28,44 +28,48 @@ package javafx.stage;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 
+import java.util.List;
+
+import com.sun.javafx.tk.Toolkit;
+
 /**
- * This enum defines the possible backdrops for a {@code Stage}. Backdrops are
- * typically drawn by the operating system and appear behind the Scene's fill
- * and background. The specific effects vary but in general the backdrop will
+ * The backdrop of a {@code Stage}. Backdrops are drawn across the entire
+ * stage behind the Scene's fill and background and are typically drawn
+ * by the OS. The specific effects vary but in general the backdrop will
  * track the window's color scheme.
  *
- * Backdrops are a conditional feature. Currently they are only supported
- * on Windows 11 and macOS.
+ * Platforms which support backdrops will always provide two default
+ * materials. The "Window" material is appropriate for stages where
+ * the backdrop effect will be visible across the window. The "Partial"
+ * material is appropriate for stages where the backdrop will only
+ * be partially visible.
  *
  * @since 27
  */
 @Deprecated(since = "27")
-public enum StageBackdrop {
+public final class StageBackdrop {
+    /**
+     * Gets all the backdrop materials supported on this system.
+     * @return The list of all the supported materials.
+     */
+    public static List<String> getMaterials() {
+        return Toolkit.getToolkit().getBackdropMaterials();
+    }
+
+    private String material;
 
     /**
-     * The default backdrop consistent with earlier versions of JavaFX.
+     * Construct a backdrop using the material.
      */
-    DEFAULT,
+    public StageBackdrop(String material) {
+        this.material = material;
+    }
 
     /**
-     * A backdrop to be used when the backdrop is visible across most of the
-     * window. This is opaque enough that you can draw text on it using the
-     * platform's foreground color.
+     * Gets the backdrop's material
      */
-    WINDOW,
-
-    /**
-     * A backdrop to be used when the backdrop is visible along one edge of
-     * the window, like behind a sidebar or tab bar. This is opaque enough
-     * that you can draw text on it using the platform's foreground color.
-     */
-    TABBED,
-
-    /**
-     * A backdrop useful for transient windows or heads-up displays. On some
-     * platform this backdrop is so translucent that you cannot reliably draw
-     * text on it. It's recommended that you set the Scene's fill to a
-     * non-opaque color to overlay on this backdrop.
-     */
-    TRANSIENT
+    public String getMaterial() {
+        return material;
+    }
 }
+

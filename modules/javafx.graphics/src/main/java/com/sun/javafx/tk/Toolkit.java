@@ -910,4 +910,8 @@ public abstract class Toolkit {
     }
 
     public abstract GlassRobot createRobot();
+
+    public List<String> getBackdropMaterials() {
+        return List.of();
+    }
 }
