@@ -48,21 +48,9 @@ import com.sun.javafx.tk.Toolkit;
  */
 @Deprecated(since = "27")
 public final class StageBackdrop {
-    /**
-     * Gets all the backdrop materials supported on this system.
-     * @return The list of all the supported materials.
-     */
-    public static List<String> getMaterials() {
-        return Toolkit.getToolkit().getBackdropMaterials();
-    }
-
     private String material;
 
-    /**
-     * Construct a backdrop using the material.
-     * @param material The material to use for the backdrop
-     */
-    public StageBackdrop(String material) {
+    private StageBackdrop(String material) {
         this.material = material;
     }
 
@@ -72,6 +60,26 @@ public final class StageBackdrop {
      */
     public String getMaterial() {
         return material;
+    }
+
+    /**
+     * Gets all the backdrop materials supported on this system.
+     * @return The list of all the supported materials.
+     */
+    public static List<String> getMaterials() {
+        return Toolkit.getToolkit().getBackdropMaterials();
+    }
+
+    /**
+     * Constructs a backdrop using the specified material.
+     * @param material The material to use for the backdrop.
+     * @return The create backdrop if supported. Otherwise null.
+     */
+    public static StageBackdrop backdrop(String material) {
+        if (getMaterials().contains(material)) {
+            return new StageBackdrop(material);
+        }
+        return null;
     }
 }
 

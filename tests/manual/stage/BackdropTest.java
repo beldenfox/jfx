@@ -103,7 +103,7 @@ public class BackdropTest extends Application {
         var materials = StageBackdrop.getMaterials();
         materials.sort(null);
         materials.forEach(m -> {
-            backdrops.add(new StageBackdropChoice(m, new StageBackdrop(m)));
+            backdrops.add(new StageBackdropChoice(m, StageBackdrop.backdrop(m)));
         });
     }
 

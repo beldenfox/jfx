@@ -243,17 +243,18 @@ final class MacWindow extends Window {
             backdropMaterials.put("Window", BackdropID.WINDOW);
             backdropMaterials.put("Partial", BackdropID.SIDEBAR);
 
-            backdropMaterials.put("Mac.Window", BackdropID.WINDOW);
-            backdropMaterials.put("Mac.Sidebar", BackdropID.SIDEBAR);
-            backdropMaterials.put("Mac.Menu", BackdropID.MENU);
+            backdropMaterials.put("macOS.Window", BackdropID.WINDOW);
+            backdropMaterials.put("macOS.Sidebar", BackdropID.SIDEBAR);
+            backdropMaterials.put("macOS.Menu", BackdropID.MENU);
 
+            // Support for NSGlassEffectView must wait for the macOS 26 SDK
             // try {
             //     var osVers = System.getProperty("os.version");
             //     String major = osVers.replaceFirst("(\\d+)\\.\\d+.*", "$1");
             //     int v = Integer.parseInt(major);
             //     if (v >= 26) {
-            //         backdropMaterials.put("Mac.Glass", BackdropID.GLASS);
-            //         backdropMaterials.put("Mac.ClearGlass", BackdropID.CLEARGLASS);
+            //         backdropMaterials.put("macOS.Glass", BackdropID.GLASS);
+            //         backdropMaterials.put("macOS.ClearGlass", BackdropID.CLEARGLASS);
             //     }
             // } catch (Exception e) {
             // }
