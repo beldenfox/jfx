@@ -701,7 +701,7 @@ public final class QuantumToolkit extends Toolkit {
 
     @Override public TKStage createTKPopupStage(Window peerWindow, StageStyle popupStyle, TKStage owner) {
         assertToolkitRunning();
-        WindowStage stage = new WindowStage(peerWindow, popupStyle, null, owner, false, StageBackdrop.DEFAULT);
+        WindowStage stage = new WindowStage(peerWindow, popupStyle, null, owner, false, null);
         stage.setIsPopup();
         stage.init(systemMenu);
         return stage;
@@ -1847,5 +1847,10 @@ public final class QuantumToolkit extends Toolkit {
     @Override
     public GlassRobot createRobot() {
         return com.sun.glass.ui.Application.GetApplication().createRobot();
+    }
+
+    @Override
+    public List<String> getBackdropMaterials() {
+        return Application.GetApplication().getBackdropMaterials();
     }
 }

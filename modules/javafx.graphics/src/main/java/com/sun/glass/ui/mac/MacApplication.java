@@ -36,6 +36,7 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -279,8 +280,8 @@ final class MacApplication extends Application implements InvokeLaterDispatcher.
 
     // FACTORY METHODS
 
-    @Override public Window createWindow(Window owner, Screen screen, int styleMask) {
-        return new MacWindow(owner, screen, styleMask);
+    @Override public Window createWindow(Window owner, Screen screen, int styleMask, int backdropID) {
+        return new MacWindow(owner, screen, styleMask, backdropID);
     }
 
     @Override public View createView() {
@@ -546,5 +547,22 @@ final class MacApplication extends Application implements InvokeLaterDispatcher.
     @Override
     protected void _showDocument(String uri) {
         _openURI(uri);
+    }
+
+    /**
+     * Return the list of backdrop materials supported on this platform.
+     * The default is an empty list.
+     */
+    @Override
+    public List<String> getBackdropMaterials() {
+        return MacWindow.getBackdropMaterials();
+    }
+
+    /**
+     * Return the platform identifier for the StageBackdrop
+     */
+    @Override
+    public int getBackdropIdentifier(String material) {
+        return MacWindow.getBackdropIdentifier(material);
     }
 }

@@ -29,6 +29,7 @@
 #import "com_sun_glass_ui_Window.h"
 #import "com_sun_glass_ui_Window_Level.h"
 #import "com_sun_glass_ui_mac_MacWindow.h"
+#import "com_sun_glass_ui_mac_MacWindow_BackdropID.h"
 
 #import "GlassMacros.h"
 #import "GlassWindow.h"
@@ -455,7 +456,7 @@ GLASS_NS_WINDOW_IMPLEMENTATION
 #pragma mark --- Dispatcher
 
 // TODO: re-implement using Obj-C blocks ?
-static jlong _createWindowCommonDo(JNIEnv *env, jobject jWindow, jlong jOwnerPtr, jlong jScreenPtr, jint jStyleMask)
+static jlong _createWindowCommonDo(JNIEnv *env, jobject jWindow, jlong jOwnerPtr, jlong jScreenPtr, jint jStyleMask, jint backdropID)
 {
     GlassWindow *window = nil;
 
@@ -598,15 +599,24 @@ static jlong _createWindowCommonDo(JNIEnv *env, jobject jWindow, jlong jOwnerPtr
         window->hostView = [[GlassHostView alloc] initWithFrame: NSMakeRect(0, 0, 0, 0)];
         window->nsWindow.contentView = window->hostView;
 
-        switch (jStyleMask & com_sun_glass_ui_Window_BACKDROP_MASK) {
-            case com_sun_glass_ui_Window_WINDOW_BACKDROP:
+        switch (backdropID) {
+            case com_sun_glass_ui_mac_MacWindow_BackdropID_WINDOW:
                 [window->hostView setBackdrop: NSVisualEffectMaterialUnderWindowBackground];
                 break;
-            case com_sun_glass_ui_Window_TABBED_BACKDROP:
+            case com_sun_glass_ui_mac_MacWindow_BackdropID_SIDEBAR:
                 [window->hostView setBackdrop: NSVisualEffectMaterialSidebar];
                 break;
-            case com_sun_glass_ui_Window_TRANSIENT_BACKDROP:
-                [window->hostView setBackdrop: NSVisualEffectMaterialHUDWindow];
+            case com_sun_glass_ui_mac_MacWindow_BackdropID_MENU:
+                [window->hostView setBackdrop: NSVisualEffectMaterialMenu];
+                break;
+            case com_sun_glass_ui_mac_MacWindow_BackdropID_GLASS:
+            case com_sun_glass_ui_mac_MacWindow_BackdropID_CLEARGLASS:
+                [window->hostView setGlassBackdrop: (backdropID == com_sun_glass_ui_mac_MacWindow_BackdropID_CLEARGLASS)];
+                [window->nsWindow setBackgroundColor:[NSColor clearColor]];
+                [window->nsWindow setHasShadow:NO];
+                [window->nsWindow setOpaque: NO];
+                // Prevent changes to the background color.
+                isTransparent = true;
                 break;
         }
 
@@ -629,7 +639,7 @@ static jlong _createWindowCommonDo(JNIEnv *env, jobject jWindow, jlong jOwnerPtr
 }
 
 static jlong _createWindowCommon
-(JNIEnv *env, jobject jWindow, jlong jOwnerPtr, jlong jScreenPtr, jint jStyleMask)
+(JNIEnv *env, jobject jWindow, jlong jOwnerPtr, jlong jScreenPtr, jint jStyleMask, jint backdropID)
 {
     LOG("_createWindowCommon");
 
@@ -639,7 +649,7 @@ static jlong _createWindowCommon
     GLASS_POOL_ENTER;
     {
         jobject jWindowRef = (*env)->NewGlobalRef(env, jWindow);
-        value = _createWindowCommonDo(env, jWindowRef, jOwnerPtr, jScreenPtr, jStyleMask);
+        value = _createWindowCommonDo(env, jWindowRef, jOwnerPtr, jScreenPtr, jStyleMask, backdropID);
     }
     GLASS_POOL_EXIT;
     GLASS_CHECK_EXCEPTION(env);
@@ -755,14 +765,14 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_mac_MacWindow__1initIDs
 /*
  * Class:     com_sun_glass_ui_mac_MacWindow
  * Method:    _createWindow
- * Signature: (JJI)J
+ * Signature: (JJII)J
  */
 JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_mac_MacWindow__1createWindow
-(JNIEnv *env, jobject jWindow, jlong jOwnerPtr, jlong jScreenPtr, jint jStyleMask)
+(JNIEnv *env, jobject jWindow, jlong jOwnerPtr, jlong jScreenPtr, jint jStyleMask, jint backdropID)
 {
     LOG("Java_com_sun_glass_ui_mac_MacWindow__1createWindow");
 
-    return _createWindowCommon(env, jWindow, jOwnerPtr, jScreenPtr, jStyleMask);
+    return _createWindowCommon(env, jWindow, jOwnerPtr, jScreenPtr, jStyleMask, backdropID);
 }
 
 /*

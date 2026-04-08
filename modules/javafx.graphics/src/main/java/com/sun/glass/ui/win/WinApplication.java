@@ -214,8 +214,8 @@ final class WinApplication extends Application implements InvokeLaterDispatcher.
 
     // FACTORY METHODS
 
-    @Override public Window createWindow(Window owner, Screen screen, int styleMask) {
-        return new WinWindow(owner, screen, styleMask);
+    @Override public Window createWindow(Window owner, Screen screen, int styleMask, int backdropID) {
+        return new WinWindow(owner, screen, styleMask, backdropID);
     }
 
     @Override public View createView() {
@@ -447,5 +447,22 @@ final class WinApplication extends Application implements InvokeLaterDispatcher.
             Map.entry("Windows.UISettings.AutoHideScrollBars", Boolean.class),
             Map.entry("Windows.NetworkInformation.InternetCostType", String.class)
         );
+    }
+
+    /**
+     * Return the list of backdrop materials supported on this platform.
+     * The default is an empty list.
+     */
+    @Override
+    public List<String> getBackdropMaterials() {
+        return WinWindow.getBackdropMaterials();
+    }
+
+    /**
+     * Return the platform identifier for the StageBackdrop
+     */
+    @Override
+    public int getBackdropIdentifier(String material) {
+        return WinWindow.getBackdropIdentifier(material);
     }
 }

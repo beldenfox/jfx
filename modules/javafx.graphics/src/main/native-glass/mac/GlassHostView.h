@@ -34,4 +34,5 @@
 }
 -(void)setJFXView:(NSView*)view;
 -(void)setBackdrop:(NSVisualEffectMaterial)material;
+-(void)setGlassBackdrop:(BOOL)clear;
 @end
