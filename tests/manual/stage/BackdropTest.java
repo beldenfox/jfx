@@ -340,9 +340,7 @@ public class BackdropTest extends Application {
 
     @Override
     public void start(Stage stage) {
-        System.out.println("Initializing list");
         initBackdropList();
-        System.out.println("First backdrop is " + backdrops.get(0));
         showStage(stage, StageStyleChoice.EXTENDED, backdrops.get(0));
     }
 }

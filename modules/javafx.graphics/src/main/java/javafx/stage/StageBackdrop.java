@@ -33,16 +33,16 @@ import java.util.List;
 import com.sun.javafx.tk.Toolkit;
 
 /**
- * The backdrop of a {@code Stage}. Backdrops are drawn across the entire
- * stage behind the Scene's fill and background and are typically drawn
- * by the OS. The specific effects vary but in general the backdrop will
- * track the window's color scheme.
+ * The backdrop of a {@code Stage}. Backdrops are visual effects drawn across
+ * the entire stage behind the Scene's fill and background. The specific
+ * effects vary but in general the backdrop will track the window's color
+ * scheme.
  *
  * Platforms which support backdrops will always provide two default
- * materials. The "Window" material is appropriate for stages where
- * the backdrop effect will be visible across the window. The "Partial"
- * material is appropriate for stages where the backdrop will only
- * be partially visible.
+ * materials. The "Window" material is appropriate for stages where the
+ * backdrop effect will be visible across the window. The "Partial" material
+ * is appropriate for stages where the backdrop will only be partially
+ * visible.
  *
  * @since 27
  */
@@ -64,6 +64,8 @@ public final class StageBackdrop {
 
     /**
      * Gets all the backdrop materials supported on this system.
+     * For systems where backdrops are not supported this will
+     * be an empty list.
      * @return The list of all the supported materials.
      */
     public static List<String> getMaterials() {
@@ -73,7 +75,7 @@ public final class StageBackdrop {
     /**
      * Constructs a backdrop using the specified material.
      * @param material The material to use for the backdrop.
-     * @return The create backdrop if supported. Otherwise null.
+     * @return The backdrop if supported. Otherwise null.
      */
     public static StageBackdrop backdrop(String material) {
         if (getMaterials().contains(material)) {

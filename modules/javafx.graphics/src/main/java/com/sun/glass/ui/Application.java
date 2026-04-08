@@ -859,7 +859,8 @@ public abstract class Application {
     }
 
     /**
-     * Return the platform identifier for the StageBackdrop
+     * Return the platform identifier for the backdrop as
+     * indicated by the material.
      */
     public int getBackdropIdentifier(String material) {
         return Window.DEFAULT_BACKDROP_ID;
