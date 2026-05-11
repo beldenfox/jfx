@@ -27,6 +27,7 @@ package com.sun.javafx.scene.control.behavior;
 
 import com.sun.javafx.scene.control.inputmap.InputMap;
 
+import java.util.Objects;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.event.EventHandler;
@@ -78,7 +79,7 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
         };
 
         // comboBox-specific mappings for key and mouse input
-        KeyMapping enterPressed, enterReleased;
+        KeyMapping enterPressed, enterReleased, escapePressed;
         addDefaultMapping(inputMap,
             new KeyMapping(F4, KEY_RELEASED, togglePopup),
             new KeyMapping(new KeyBinding(UP).alt(), togglePopup),
@@ -89,9 +90,9 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
 
             enterPressed = new KeyMapping(ENTER, KEY_PRESSED, this::keyPressed),
             enterReleased = new KeyMapping(ENTER, KEY_RELEASED, this::keyReleased),
+            escapePressed = new KeyMapping(ESCAPE, KEY_PRESSED, this::cancelEdit),
 
             // The following keys are forwarded to the parent container
-            new KeyMapping(ESCAPE, KEY_PRESSED, this::cancelEdit),
             new KeyMapping(F10,    KEY_PRESSED, this::forwardToParent),
 
             new MouseMapping(MouseEvent.MOUSE_PRESSED, this::mousePressed),
@@ -103,6 +104,8 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
         // we don't want to consume events on enter press - let them carry on through
         enterPressed.setAutoConsume(false);
         enterReleased.setAutoConsume(false);
+        // escape press only consumes if the text changes
+        escapePressed.setAutoConsume(false);
 
         // ComboBoxBase also cares about focus
         comboBox.focusedProperty().addListener(focusListener);
@@ -214,9 +217,11 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
         }
 
         if (textField != null && textField.getTextFormatter() != null) {
+            String oldText = textField.getText();
             textField.cancelEdit();
-        } else {
-            forwardToParent(event);
+            if (!Objects.equals(oldText, textField.getText())) {
+                event.consume();
+            }
         }
     }
 

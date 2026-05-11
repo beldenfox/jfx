@@ -50,6 +50,8 @@ import javafx.scene.text.HitInfo;
 import javafx.stage.Screen;
 import javafx.stage.Window;
 
+import java.util.Objects;
+
 /**
  * Text field behavior.
  */
@@ -173,8 +175,11 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
     protected void cancelEdit(KeyEvent event) {
         TextField textField = getNode();
         if (textField.getTextFormatter() != null) {
+            String oldText = textField.getText();
             textField.cancelEdit();
-            event.consume();
+            if (!Objects.equals(oldText, textField.getText())) {
+                event.consume();
+            }
         } else {
             super.cancelEdit(event);
         }
