@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.HashMap;
 import javafx.application.Platform;
 import javafx.application.ConditionalFeature;
+import javafx.stage.StageBackdrop;
 
 /**
  * MS Windows platform implementation class for Window.
@@ -467,30 +468,38 @@ class WinWindow extends Window {
         @Native public static final int TRANSIENT  = 52;
     }
 
-    private static Map<String, Integer> backdropMaterials = null;
+    private static Map<String, Integer> backdrops = null;
 
-    private static void initMaterials() {
-        if (backdropMaterials == null) {
-            backdropMaterials = new HashMap<>();
+    private static void initBackdrops() {
+        if (backdrops == null) {
+            backdrops = new HashMap<>();
 
             if (Platform.isSupported(ConditionalFeature.WINDOW_BACKDROP)) {
-                backdropMaterials.put("Window", BackdropID.WINDOW);
-                backdropMaterials.put("Partial", BackdropID.TABBED);
-                backdropMaterials.put("Windows.Transient", BackdropID.TRANSIENT);
+                backdrops.put("Windows.Transient", BackdropID.TRANSIENT);
             }
         }
     }
 
-    public static List<String> getBackdropMaterials() {
-        initMaterials();
-        return new ArrayList<>(backdropMaterials.keySet());
+    public static List<String> getPlatformBackdropNames() {
+        initBackdrops();
+        return new ArrayList<>(backdrops.keySet());
     }
 
-    public static int getBackdropIdentifier(String material) {
-        initMaterials();
-        var id = backdropMaterials.get(material);
+    public static int getBackdropIdentifier(String name) {
+        if (!Platform.isSupported(ConditionalFeature.WINDOW_BACKDROP)) {
+            return Window.NO_BACKDROP_ID;
+        }
+
+        if (name == StageBackdrop.WINDOW.getName()) {
+            return BackdropID.WINDOW;
+        } else if (name == StageBackdrop.PARTIAL.getName()) {
+            return BackdropID.TABBED;
+        }
+
+        initBackdrops();
+        var id = backdrops.get(name);
         if (id == null) {
-            return Window.DEFAULT_BACKDROP_ID;
+            return Window.NO_BACKDROP_ID;
         }
         return id;
     }

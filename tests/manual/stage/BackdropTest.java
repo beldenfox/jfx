@@ -44,6 +44,8 @@ import javafx.stage.StageStyle;
 import javafx.stage.StageBackdrop;
 import javafx.stage.Window;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.ArrayList;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -100,10 +102,21 @@ public class BackdropTest extends Application {
 
     void initBackdropList() {
         backdrops.add(new StageBackdropChoice("Default", null));
-        var materials = StageBackdrop.getMaterials();
-        materials.sort(null);
-        materials.forEach(m -> {
+        backdrops.add(new StageBackdropChoice("Window", StageBackdrop.WINDOW));
+        backdrops.add(new StageBackdropChoice("Partial", StageBackdrop.PARTIAL));
+        var names = StageBackdrop.getPlatformBackdropNames();
+        names.sort(null);
+        names.forEach(m -> {
             backdrops.add(new StageBackdropChoice(m, StageBackdrop.backdrop(m)));
+            if (m == "macOS.ClearGlass") {
+                Map<String, Object> options = new HashMap<>();
+                options.put("TintColor", Color.RED);
+                options.put("CornerRadius", 15);
+                var backdrop = StageBackdrop.backdrop(m, options);
+                if (backdrop != null) {
+                    backdrops.add(new StageBackdropChoice(m + " with options", backdrop));
+                }
+            }
         });
     }
 

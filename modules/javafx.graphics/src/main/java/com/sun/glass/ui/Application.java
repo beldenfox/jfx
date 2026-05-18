@@ -28,6 +28,9 @@ import com.sun.glass.events.KeyEvent;
 import com.sun.glass.ui.CommonDialogs.ExtensionFilter;
 import com.sun.glass.ui.CommonDialogs.FileChooserResult;
 import com.sun.javafx.application.preferences.PreferenceMapping;
+import com.sun.javafx.stage.PlatformStageBackdrop;
+
+import javafx.stage.StageBackdrop;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -568,7 +571,7 @@ public abstract class Application {
      * Create a window with no backdrop.
      */
     public final Window createWindow(Window owner, Screen screen, int styleMask) {
-        return createWindow(owner, screen, styleMask, Window.DEFAULT_BACKDROP_ID);
+        return createWindow(owner, screen, styleMask, Window.NO_BACKDROP_ID);
     }
 
     /**
@@ -582,7 +585,7 @@ public abstract class Application {
      * type.
      */
     public final Window createWindow(Screen screen, int styleMask) {
-        return createWindow(null, screen, styleMask, Window.DEFAULT_BACKDROP_ID);
+        return createWindow(null, screen, styleMask, Window.NO_BACKDROP_ID);
     }
 
     public abstract View createView();
@@ -851,18 +854,24 @@ public abstract class Application {
     }
 
     /**
-     * Return the list of backdrop materials supported on this platform.
+     * Return the list of backdrops supported on this platform.
      * The default is an empty list.
      */
-    public List<String> getBackdropMaterials() {
+    public List<String> getPlatformBackdropNames() {
         return List.of();
     }
 
     /**
-     * Return the platform identifier for the backdrop as
-     * indicated by the material.
+     * Create a Platform backdrop for the specified name and options
      */
-    public int getBackdropIdentifier(String material) {
-        return Window.DEFAULT_BACKDROP_ID;
+    public PlatformStageBackdrop createPlatformBackdrop(String name, Map<String, Object> options) {
+        return null;
+    }
+
+    /**
+     * Return the platform identifier for the backdrop
+     */
+    public int getBackdropIdentifier(StageBackdrop backdrop) {
+        return Window.NO_BACKDROP_ID;
     }
 }
