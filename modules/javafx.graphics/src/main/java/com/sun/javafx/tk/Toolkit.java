@@ -59,6 +59,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -913,6 +914,10 @@ public abstract class Toolkit {
 
     public List<String> getPlatformBackdropNames() {
         return List.of();
+    }
+
+    public Map<String, Class<?>> getAvailableOptionsForPlatformBackdrop(String name) {
+        return new HashMap<>();
     }
 
     public StageBackdrop createPlatformBackdrop(String name, Map<String, Object> options) {

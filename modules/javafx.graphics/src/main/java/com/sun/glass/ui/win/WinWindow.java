@@ -468,21 +468,14 @@ class WinWindow extends Window {
         @Native public static final int TRANSIENT  = 52;
     }
 
-    private static Map<String, Integer> backdrops = null;
-
-    private static void initBackdrops() {
-        if (backdrops == null) {
-            backdrops = new HashMap<>();
-
-            if (Platform.isSupported(ConditionalFeature.WINDOW_BACKDROP)) {
-                backdrops.put("Windows.Transient", BackdropID.TRANSIENT);
-            }
-        }
-    }
+    private static final String TRANSIENT_NAME = "Windows.Transient";
 
     public static List<String> getPlatformBackdropNames() {
-        initBackdrops();
-        return new ArrayList<>(backdrops.keySet());
+        List<String> names = new ArrayList<>();
+        if (Platform.isSupported(ConditionalFeature.WINDOW_BACKDROP)) {
+            names.add(TRANSIENT_NAME);
+        }
+        return names;
     }
 
     public static int getBackdropIdentifier(String name) {
@@ -494,13 +487,10 @@ class WinWindow extends Window {
             return BackdropID.WINDOW;
         } else if (name == StageBackdrop.PARTIAL.getName()) {
             return BackdropID.TABBED;
+        } else if (name == TRANSIENT_NAME) {
+            return BackdropID.TRANSIENT;
         }
 
-        initBackdrops();
-        var id = backdrops.get(name);
-        if (id == null) {
-            return Window.NO_BACKDROP_ID;
-        }
-        return id;
+        return Window.NO_BACKDROP_ID;
     }
 }

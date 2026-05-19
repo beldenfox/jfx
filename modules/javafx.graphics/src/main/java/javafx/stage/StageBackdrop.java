@@ -113,6 +113,18 @@ public sealed interface StageBackdrop permits StandardStageBackdrop, PlatformSta
     }
 
     /**
+     * Returns a map containing where each key is the name of a supported
+     * backdrop option and the value is the class of object that can be used
+     * as a value for that option.
+     *
+     * @param name The name of the backdrop.
+     * @return The map of the options names and their classes. May be empty.
+     */
+    public static Map<String, Class<?>> getAvailableOptionsForPlatformBackdrop(String name) {
+        return Toolkit.getToolkit().getAvailableOptionsForPlatformBackdrop(name);
+    }
+
+    /**
      * Creates a platform backdrop for the specified name and options.
      * Unrecognized options will be ignored.
      *

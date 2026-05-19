@@ -41,6 +41,7 @@ import java.nio.ByteBuffer;
 import java.lang.annotation.Native;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -265,6 +266,18 @@ final class MacWindow extends Window {
         return new ArrayList<>(backdrops.keySet());
     }
 
+    public static Map<String, Class<?>> getAvailableOptionsForPlatformBackdrop(String name) {
+        Map<String, Class<?>> map = new HashMap<>();
+        initBackdrops();
+        if (backdrops.get(name) != null) {
+            if (name == "macOS.ClearGlass") {
+                map.put("TintColor", Color.class);
+                map.put("CornerRadius", Number.class);
+            }
+        }
+        return map;
+    }
+
     public static PlatformStageBackdrop createPlatformBackdrop(String name, Map<String, Object> options) {
         initBackdrops();
         var id = backdrops.get(name);
@@ -294,6 +307,7 @@ final class MacWindow extends Window {
 
             if (tint != null || cornerRadius > 0) {
                 double[] optValues = new double[4];
+                Arrays.fill(optValues, -1);
                 if (tint != null) {
                     optValues[0] = tint.getRed();
                     optValues[1] = tint.getGreen();

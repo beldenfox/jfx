@@ -1855,6 +1855,11 @@ public final class QuantumToolkit extends Toolkit {
     }
 
     @Override
+    public Map<String, Class<?>> getAvailableOptionsForPlatformBackdrop(String name) {
+        return Application.GetApplication().getAvailableOptionsForPlatformBackdrop(name);
+    }
+
+    @Override
     public StageBackdrop createPlatformBackdrop(String name, Map<String, Object> options) {
         return Application.GetApplication().createPlatformBackdrop(name, options);
     }

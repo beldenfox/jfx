@@ -557,6 +557,11 @@ final class MacApplication extends Application implements InvokeLaterDispatcher.
     }
 
     @Override
+    public Map<String, Class<?>> getAvailableOptionsForPlatformBackdrop(String name) {
+        return MacWindow.getAvailableOptionsForPlatformBackdrop(name);
+    }
+
+    @Override
     public PlatformStageBackdrop createPlatformBackdrop(String name, Map<String, Object> options) {
         return MacWindow.createPlatformBackdrop(name, options);
     }

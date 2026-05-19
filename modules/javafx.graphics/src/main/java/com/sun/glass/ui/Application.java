@@ -35,6 +35,7 @@ import javafx.stage.StageBackdrop;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.LinkedList;
@@ -859,6 +860,13 @@ public abstract class Application {
      */
     public List<String> getPlatformBackdropNames() {
         return List.of();
+    }
+
+    /**
+     * Return a map of available options
+     */
+    public Map<String, Class<?>> getAvailableOptionsForPlatformBackdrop(String name) {
+        return new HashMap<>();
     }
 
     /**
