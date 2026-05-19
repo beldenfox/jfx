@@ -48,7 +48,7 @@
 // Called when the window is first created.
 -(void)setGlassBackdrop:(BOOL)clear
 {
-#if 1
+#if 0
     // Support for the NSGlassEffectView must wait for the macOS 26 SDK
     if (@available(macOS 26.0, *)) {
         NSGlassEffectView* effect = [[NSGlassEffectView alloc] initWithFrame: self.bounds];

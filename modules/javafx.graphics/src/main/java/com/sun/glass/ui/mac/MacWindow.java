@@ -250,15 +250,15 @@ final class MacWindow extends Window {
             backdrops.put("macOS.Menu", BackdropID.MENU);
 
             // Support for NSGlassEffectView must wait for the macOS 26 SDK
-            try {
-                var osVers = System.getProperty("os.version");
-                String major = osVers.replaceFirst("(\\d+)\\.\\d+.*", "$1");
-                int v = Integer.parseInt(major);
-                if (v >= 26) {
-                    backdrops.put("macOS.ClearGlass", BackdropID.CLEARGLASS);
-                }
-            } catch (Exception e) {
-            }
+            // try {
+            //     var osVers = System.getProperty("os.version");
+            //     String major = osVers.replaceFirst("(\\d+)\\.\\d+.*", "$1");
+            //     int v = Integer.parseInt(major);
+            //     if (v >= 26) {
+            //         backdrops.put("macOS.ClearGlass", BackdropID.CLEARGLASS);
+            //     }
+            // } catch (Exception e) {
+            // }
         }
     }
 
