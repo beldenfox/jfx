@@ -101,22 +101,14 @@ public class BackdropTest extends Application {
     private List<StageBackdropChoice> backdrops = new ArrayList<>();
 
     void initBackdropList() {
-        backdrops.add(new StageBackdropChoice("Default", null));
+        backdrops.add(new StageBackdropChoice("None", null));
         backdrops.add(new StageBackdropChoice("Window", StageBackdrop.WINDOW));
         backdrops.add(new StageBackdropChoice("Partial", StageBackdrop.PARTIAL));
-        var names = StageBackdrop.getPlatformBackdropNames();
+        var names = new ArrayList<>(StageBackdrop.getPlatformBackdropNames());
         names.sort(null);
         names.forEach(m -> {
-            backdrops.add(new StageBackdropChoice(m, StageBackdrop.backdrop(m)));
-            if (m == "macOS.ClearGlass") {
-                Map<String, Object> options = new HashMap<>();
-                options.put("TintColor", Color.RED);
-                options.put("CornerRadius", 15);
-                var backdrop = StageBackdrop.backdrop(m, options);
-                if (backdrop != null) {
-                    backdrops.add(new StageBackdropChoice(m + " with options", backdrop));
-                }
-            }
+            var backdrop = StageBackdrop.backdrop(m);
+            backdrops.add(new StageBackdropChoice(m, backdrop));
         });
     }
 

@@ -916,11 +916,7 @@ public abstract class Toolkit {
         return List.of();
     }
 
-    public Map<String, Class<?>> getAvailableOptionsForPlatformBackdrop(String name) {
-        return new HashMap<>();
-    }
-
-    public StageBackdrop createPlatformBackdrop(String name, Map<String, Object> options) {
+    public StageBackdrop createPlatformBackdrop(String name) {
         return null;
     }
 }

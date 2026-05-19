@@ -457,7 +457,7 @@ final class WinApplication extends Application implements InvokeLaterDispatcher.
     }
 
     @Override
-    public PlatformStageBackdrop createPlatformBackdrop(String name, Map<String, Object> options) {
+    public PlatformStageBackdrop createPlatformBackdrop(String name) {
         if (getPlatformBackdropNames().contains(name)) {
             return new PlatformStageBackdrop(name);
         }

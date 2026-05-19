@@ -33,6 +33,7 @@ import com.sun.glass.ui.Screen;
 import com.sun.glass.ui.View;
 import com.sun.glass.ui.Window;
 import java.lang.annotation.Native;
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -471,11 +472,10 @@ class WinWindow extends Window {
     private static final String TRANSIENT_NAME = "Windows.Transient";
 
     public static List<String> getPlatformBackdropNames() {
-        List<String> names = new ArrayList<>();
         if (Platform.isSupported(ConditionalFeature.WINDOW_BACKDROP)) {
-            names.add(TRANSIENT_NAME);
+            return List.of(TRANSIENT_NAME);
         }
-        return names;
+        return List.of();
     }
 
     public static int getBackdropIdentifier(String name) {

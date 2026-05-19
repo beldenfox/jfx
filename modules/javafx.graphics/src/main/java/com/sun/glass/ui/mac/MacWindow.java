@@ -40,6 +40,7 @@ import javafx.stage.StageBackdrop;
 import java.nio.ByteBuffer;
 import java.lang.annotation.Native;
 import java.util.List;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -249,73 +250,32 @@ final class MacWindow extends Window {
             backdrops.put("macOS.Menu", BackdropID.MENU);
 
             // Support for NSGlassEffectView must wait for the macOS 26 SDK
-            // try {
-            //     var osVers = System.getProperty("os.version");
-            //     String major = osVers.replaceFirst("(\\d+)\\.\\d+.*", "$1");
-            //     int v = Integer.parseInt(major);
-            //     if (v >= 26) {
-            //         backdrops.put("macOS.ClearGlass", BackdropID.CLEARGLASS);
-            //     }
-            // } catch (Exception e) {
-            // }
+            try {
+                var osVers = System.getProperty("os.version");
+                String major = osVers.replaceFirst("(\\d+)\\.\\d+.*", "$1");
+                int v = Integer.parseInt(major);
+                if (v >= 26) {
+                    backdrops.put("macOS.ClearGlass", BackdropID.CLEARGLASS);
+                }
+            } catch (Exception e) {
+            }
         }
     }
 
     public static List<String> getPlatformBackdropNames() {
         initBackdrops();
-        return new ArrayList<>(backdrops.keySet());
+        return Collections.unmodifiableList(new ArrayList<>(backdrops.keySet()));
     }
 
-    public static Map<String, Class<?>> getAvailableOptionsForPlatformBackdrop(String name) {
-        Map<String, Class<?>> map = new HashMap<>();
-        initBackdrops();
-        if (backdrops.get(name) != null) {
-            if (name == "macOS.ClearGlass") {
-                map.put("TintColor", Color.class);
-                map.put("CornerRadius", Number.class);
-            }
-        }
-        return map;
-    }
-
-    public static PlatformStageBackdrop createPlatformBackdrop(String name, Map<String, Object> options) {
+    public static PlatformStageBackdrop createPlatformBackdrop(String name) {
         initBackdrops();
         var id = backdrops.get(name);
         if (id == null) {
             return null;
         }
         var backdrop = new PlatformStageBackdrop(name);
-        if (name == "macOS.ClearGlass" && options != null) {
-            Color tint = null;
-            double cornerRadius = -1;
-
-            var tintObject = options.get("TintColor");
-            if (tintObject != null && tintObject instanceof Color) {
-                tint = (Color) tintObject;
-                if (!tint.isOpaque()) {
-                    tint = null;
-                }
-            }
-
-            var cornerRadiusObject = options.get("CornerRadius");
-            if (cornerRadiusObject != null && cornerRadiusObject instanceof Number) {
-                cornerRadius = ((Number)cornerRadiusObject).doubleValue();
-                if (cornerRadius <= 0) {
-                    cornerRadius = -1;
-                }
-            }
-
-            if (tint != null || cornerRadius > 0) {
-                double[] optValues = new double[4];
-                Arrays.fill(optValues, -1);
-                if (tint != null) {
-                    optValues[0] = tint.getRed();
-                    optValues[1] = tint.getGreen();
-                    optValues[2] = tint.getBlue();
-                }
-                optValues[3] = cornerRadius;
-                backdrop.setOptions(optValues);
-            }
+        if (name == "macOS.ClearGlass") {
+            backdrop.setAvailableOptions(Map.of("TintColor", Color.class, "CornerRadius", Number.class));
         }
 
         return backdrop;

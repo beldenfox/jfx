@@ -30,6 +30,7 @@ import javafx.application.Platform;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import com.sun.javafx.tk.Toolkit;
 import com.sun.javafx.stage.StandardStageBackdrop;
@@ -70,15 +71,26 @@ public sealed interface StageBackdrop permits StandardStageBackdrop, PlatformSta
     public String getName();
 
     /**
+     * Returns a map where each key is the name of a supported backdrop option
+     * and the associated value is the class of object used to specify the
+     * value of the option.
+     *
+     * @return A map of the available option names and classes.
+     */
+    default public Map<String, Class<?>> getAvailableOptions() {
+        return new HashMap<>();
+    }
+
+    /**
      * Defines a {@code StageBackdrop} appropriate when the backdrop will be
      * visible across the entire stage.
      */
     StageBackdrop WINDOW = StandardStageBackdrop.WINDOW;
 
     /**
-     * Defines a {@code StageBackdrop} appropriate when the when the backdrop
-     * will be visible only along one edge of the stage, perhaps in a tab bar
-     * or side panel.
+     * Defines a {@code StageBackdrop} appropriate when the backdrop will be
+     * visible only along one edge of the stage, perhaps in a tab bar or side
+     * panel.
      */
     StageBackdrop PARTIAL = StandardStageBackdrop.PARTIAL;
 
@@ -95,45 +107,20 @@ public sealed interface StageBackdrop permits StandardStageBackdrop, PlatformSta
      * Gets the names of platform backdrops supported on this system. The list
      * may be empty.
      *
-     * @return The list of names of the supported platform backdrops.
+     * @return An unmodifiable list of names of the supported platform backdrops.
      */
     public static List<String> getPlatformBackdropNames() {
         return Toolkit.getToolkit().getPlatformBackdropNames();
     }
 
     /**
-     * Creates a platform backdrop for the specified name with default
-     * options.
+     * Creates a platform backdrop for the specified name.
      *
      * @param name The name of the backdrop.
      * @return The backdrop if supported. Otherwise null.
      */
     public static StageBackdrop backdrop(String name) {
-        return Toolkit.getToolkit().createPlatformBackdrop(name, null);
-    }
-
-    /**
-     * Returns a map containing where each key is the name of a supported
-     * backdrop option and the value is the class of object that can be used
-     * as a value for that option.
-     *
-     * @param name The name of the backdrop.
-     * @return The map of the options names and their classes. May be empty.
-     */
-    public static Map<String, Class<?>> getAvailableOptionsForPlatformBackdrop(String name) {
-        return Toolkit.getToolkit().getAvailableOptionsForPlatformBackdrop(name);
-    }
-
-    /**
-     * Creates a platform backdrop for the specified name and options.
-     * Unrecognized options will be ignored.
-     *
-     * @param name The name of the backdrop.
-     * @param options The options for the backdrop.
-     * @return The backdrop if supported. Otherwise null.
-     */
-    public static StageBackdrop backdrop(String name, Map<String, Object> options) {
-        return Toolkit.getToolkit().createPlatformBackdrop(name, options);
+        return Toolkit.getToolkit().createPlatformBackdrop(name);
     }
 }
 

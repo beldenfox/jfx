@@ -863,16 +863,9 @@ public abstract class Application {
     }
 
     /**
-     * Return a map of available options
+     * Create a Platform backdrop for the specified name
      */
-    public Map<String, Class<?>> getAvailableOptionsForPlatformBackdrop(String name) {
-        return new HashMap<>();
-    }
-
-    /**
-     * Create a Platform backdrop for the specified name and options
-     */
-    public PlatformStageBackdrop createPlatformBackdrop(String name, Map<String, Object> options) {
+    public PlatformStageBackdrop createPlatformBackdrop(String name) {
         return null;
     }
 
