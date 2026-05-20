@@ -29,8 +29,8 @@ import javafx.stage.StageBackdrop;
 import java.util.Map;
 
 /**
- * A PlatformStageBackdrop tracks the name and an optional object containing
- * options to pass to the platform code.
+ * A PlatformStageBackdrop tracks the name and an optional map detailing
+ * the options available for this backdrop.
  */
 public final class PlatformStageBackdrop implements StageBackdrop {
     public String name;

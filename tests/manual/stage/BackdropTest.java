@@ -81,9 +81,9 @@ public class BackdropTest extends Application {
     }
 
     private class StageBackdropChoice {
-        StageBackdropChoice(String label, StageBackdrop backdrop) {
-            this.label = label;
+        StageBackdropChoice(StageBackdrop backdrop) {
             this.backdrop = backdrop;
+            this.label = (backdrop == null ? "None" : backdrop.getName());
         }
 
         private String label;
@@ -101,14 +101,14 @@ public class BackdropTest extends Application {
     private List<StageBackdropChoice> backdrops = new ArrayList<>();
 
     void initBackdropList() {
-        backdrops.add(new StageBackdropChoice("None", null));
-        backdrops.add(new StageBackdropChoice("Window", StageBackdrop.WINDOW));
-        backdrops.add(new StageBackdropChoice("Partial", StageBackdrop.PARTIAL));
+        backdrops.add(new StageBackdropChoice(null));
+        backdrops.add(new StageBackdropChoice(StageBackdrop.WINDOW));
+        backdrops.add(new StageBackdropChoice(StageBackdrop.PARTIAL));
         var names = new ArrayList<>(StageBackdrop.getPlatformBackdropNames());
         names.sort(null);
         names.forEach(m -> {
             var backdrop = StageBackdrop.backdrop(m);
-            backdrops.add(new StageBackdropChoice(m, backdrop));
+            backdrops.add(new StageBackdropChoice(backdrop));
         });
     }
 

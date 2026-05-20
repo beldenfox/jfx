@@ -30,7 +30,6 @@ import javafx.application.Platform;
 
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import com.sun.javafx.tk.Toolkit;
 import com.sun.javafx.stage.StandardStageBackdrop;
@@ -72,13 +71,12 @@ public sealed interface StageBackdrop permits StandardStageBackdrop, PlatformSta
 
     /**
      * Returns a map where each key is the name of a supported backdrop option
-     * and the associated value is the class of object used to specify the
-     * value of the option.
+     * and each value is the class of object allowed when setting the option.
      *
      * @return A map of the available option names and classes.
      */
     default public Map<String, Class<?>> getAvailableOptions() {
-        return new HashMap<>();
+        return Map.of();
     }
 
     /**
