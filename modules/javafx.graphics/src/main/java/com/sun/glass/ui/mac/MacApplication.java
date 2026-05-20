@@ -563,6 +563,6 @@ final class MacApplication extends Application implements InvokeLaterDispatcher.
 
     @Override
     public int getBackdropIdentifier(StageBackdrop backdrop) {
-        return MacWindow.getBackdropIdentifier(backdrop.getName());
+        return MacWindow.getBackdropIdentifier(backdrop);
     }
 }

@@ -466,6 +466,6 @@ final class WinApplication extends Application implements InvokeLaterDispatcher.
 
     @Override
     public int getBackdropIdentifier(StageBackdrop backdrop) {
-        return WinWindow.getBackdropIdentifier(backdrop.getName());
+        return WinWindow.getBackdropIdentifier(backdrop);
     }
 }

@@ -478,16 +478,16 @@ class WinWindow extends Window {
         return List.of();
     }
 
-    public static int getBackdropIdentifier(String name) {
+    public static int getBackdropIdentifier(StageBackdrop backdrop) {
         if (!Platform.isSupported(ConditionalFeature.WINDOW_BACKDROP)) {
             return Window.NO_BACKDROP_ID;
         }
 
-        if (name == StageBackdrop.WINDOW.getName()) {
+        if (backdrop == StageBackdrop.WINDOW) {
             return BackdropID.WINDOW;
-        } else if (name == StageBackdrop.PARTIAL.getName()) {
+        } else if (backdrop == StageBackdrop.PARTIAL) {
             return BackdropID.TABBED;
-        } else if (name == TRANSIENT_NAME) {
+        } else if (backdrop.getName() == TRANSIENT_NAME) {
             return BackdropID.TRANSIENT;
         }
 

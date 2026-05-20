@@ -281,15 +281,15 @@ final class MacWindow extends Window {
         return backdrop;
     }
 
-    public static int getBackdropIdentifier(String name) {
-        if (name == StageBackdrop.WINDOW.getName()) {
+    public static int getBackdropIdentifier(StageBackdrop backdrop) {
+        if (backdrop == StageBackdrop.WINDOW) {
             return BackdropID.WINDOW;
-        } else if (name == StageBackdrop.PARTIAL.getName()) {
+        } else if (backdrop == StageBackdrop.PARTIAL) {
             return BackdropID.SIDEBAR;
         }
 
         initBackdrops();
-        var id = backdrops.get(name);
+        var id = backdrops.get(backdrop.getName());
         if (id == null) {
             return Window.NO_BACKDROP_ID;
         }
