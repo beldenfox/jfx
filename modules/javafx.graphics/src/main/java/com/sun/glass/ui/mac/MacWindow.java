@@ -31,12 +31,12 @@ import com.sun.glass.ui.Pixels;
 import com.sun.glass.ui.Screen;
 import com.sun.glass.ui.View;
 import com.sun.glass.ui.Window;
-import com.sun.javafx.stage.PlatformStageBackdrop;
+import com.sun.javafx.stage.PlatformStageBackdropStyle;
 
 import javafx.geometry.Dimension2D;
 import javafx.scene.layout.HeaderBar;
 import javafx.scene.paint.Color;
-import javafx.stage.StageBackdrop;
+import javafx.stage.StageBackdropStyle;
 import java.nio.ByteBuffer;
 import java.lang.annotation.Native;
 import java.util.List;
@@ -239,57 +239,57 @@ final class MacWindow extends Window {
         @Native public static final int CLEARGLASS = 100;
     }
 
-    private static Map<String, Integer> backdrops = null;
+    private static Map<String, Integer> backdropStyles = null;
 
-    private static void initBackdrops() {
-        if (backdrops == null) {
-            backdrops = new HashMap<>();
+    private static void initBackdropStyles() {
+        if (backdropStyles == null) {
+            backdropStyles = new HashMap<>();
 
-            backdrops.put("macOS.Window", BackdropID.WINDOW);
-            backdrops.put("macOS.Sidebar", BackdropID.SIDEBAR);
-            backdrops.put("macOS.Menu", BackdropID.MENU);
+            backdropStyles.put("macOS.Window", BackdropID.WINDOW);
+            backdropStyles.put("macOS.Sidebar", BackdropID.SIDEBAR);
+            backdropStyles.put("macOS.Menu", BackdropID.MENU);
 
             // Support for NSGlassEffectView must wait for the macOS 26 SDK
-            // try {
-            //     var osVers = System.getProperty("os.version");
-            //     String major = osVers.replaceFirst("(\\d+)\\.\\d+.*", "$1");
-            //     int v = Integer.parseInt(major);
-            //     if (v >= 26) {
-            //         backdrops.put("macOS.ClearGlass", BackdropID.CLEARGLASS);
-            //     }
-            // } catch (Exception e) {
-            // }
+            try {
+                var osVers = System.getProperty("os.version");
+                String major = osVers.replaceFirst("(\\d+)\\.\\d+.*", "$1");
+                int v = Integer.parseInt(major);
+                if (v >= 26) {
+                    backdropStyles.put("macOS.ClearGlass", BackdropID.CLEARGLASS);
+                }
+            } catch (Exception e) {
+            }
         }
     }
 
-    public static List<String> getPlatformBackdropNames() {
-        initBackdrops();
-        return Collections.unmodifiableList(new ArrayList<>(backdrops.keySet()));
+    public static List<String> getPlatformBackdropStyleNames() {
+        initBackdropStyles();
+        return Collections.unmodifiableList(new ArrayList<>(backdropStyles.keySet()));
     }
 
-    public static PlatformStageBackdrop createPlatformBackdrop(String name) {
-        initBackdrops();
-        var id = backdrops.get(name);
+    public static PlatformStageBackdropStyle createPlatformBackdropStyle(String name) {
+        initBackdropStyles();
+        var id = backdropStyles.get(name);
         if (id == null) {
             return null;
         }
-        var backdrop = new PlatformStageBackdrop(name);
+        var style = new PlatformStageBackdropStyle(name);
         if (name == "macOS.ClearGlass") {
-            backdrop.setAvailableOptions(Map.of("TintColor", Color.class, "CornerRadius", Number.class));
+            style.setAvailableOptions(Map.of("TintColor", Color.class, "CornerRadius", Number.class));
         }
 
-        return backdrop;
+        return style;
     }
 
-    public static int getBackdropIdentifier(StageBackdrop backdrop) {
-        if (backdrop == StageBackdrop.WINDOW) {
+    public static int getBackdropStyleIdentifier(StageBackdropStyle style) {
+        if (style == StageBackdropStyle.WINDOW) {
             return BackdropID.WINDOW;
-        } else if (backdrop == StageBackdrop.PARTIAL) {
+        } else if (style == StageBackdropStyle.PARTIAL) {
             return BackdropID.SIDEBAR;
         }
 
-        initBackdrops();
-        var id = backdrops.get(backdrop.getName());
+        initBackdropStyles();
+        var id = backdropStyles.get(style.getName());
         if (id == null) {
             return Window.NO_BACKDROP_ID;
         }
