@@ -250,15 +250,15 @@ final class MacWindow extends Window {
             backdropStyles.put("macOS.Menu", BackdropID.MENU);
 
             // Support for NSGlassEffectView must wait for the macOS 26 SDK
-            try {
-                var osVers = System.getProperty("os.version");
-                String major = osVers.replaceFirst("(\\d+)\\.\\d+.*", "$1");
-                int v = Integer.parseInt(major);
-                if (v >= 26) {
-                    backdropStyles.put("macOS.ClearGlass", BackdropID.CLEARGLASS);
-                }
-            } catch (Exception e) {
-            }
+            // try {
+            //     var osVers = System.getProperty("os.version");
+            //     String major = osVers.replaceFirst("(\\d+)\\.\\d+.*", "$1");
+            //     int v = Integer.parseInt(major);
+            //     if (v >= 26) {
+            //         backdropStyles.put("macOS.ClearGlass", BackdropID.CLEARGLASS);
+            //     }
+            // } catch (Exception e) {
+            // }
         }
     }
 
@@ -294,6 +294,24 @@ final class MacWindow extends Window {
             return Window.NO_BACKDROP_ID;
         }
         return id;
+    }
+
+    final static public class BackdropOptionID {
+        @Native public static final int CORNER_RADIUS = 80;
+        @Native public static final int TINT_COLOR    = 93;
+    }
+
+    private native void _setBackdropOption(long ptr, int optionID, double r, double g, double b, double a);
+
+    @Override
+    public void setBackdropOption(String name, Object option) {
+        if (name == "TintColor" && option instanceof Color) {
+            Color c = (Color)option;
+            _setBackdropOption(getRawHandle(), BackdropOptionID.TINT_COLOR, c.getRed(), c.getGreen(), c.getBlue(), c.getOpacity());
+        } else if (name == "CornerRadius" && option instanceof Number) {
+            Number n = (Number)option;
+            _setBackdropOption(getRawHandle(), BackdropOptionID.CORNER_RADIUS, n.doubleValue(), 0.0, 0.0, 0.0);
+        }
     }
 }
 

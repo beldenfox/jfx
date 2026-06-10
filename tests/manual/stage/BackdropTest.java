@@ -296,7 +296,9 @@ public class BackdropTest extends Application {
         Parent root = borderPane;
         if (stage.getStyle() == StageStyle.EXTENDED) {
             var headerBar = new HeaderBar();
-            headerBar.setCenter(new Label(stage.getTitle()));
+            var label = new Label(stage.getTitle());
+            label.textFillProperty().bind(textColor);
+            headerBar.setCenter(label);
             var box = new VBox(headerBar, borderPane);
             box.setBackground(null);
             root = box;

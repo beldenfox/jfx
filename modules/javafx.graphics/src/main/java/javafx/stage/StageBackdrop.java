@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.lang.ref.WeakReference;
 
+import com.sun.javafx.stage.WindowHelper;
+
 /**
  * The backdrop of a {@code Stage}. Each {@code Stage} has at most one
  * backdrop and each backdrop is associated with a single stage.
@@ -78,7 +80,10 @@ public final class StageBackdrop {
                 options = new HashMap<>();
             }
             options.put(name, option);
-            System.out.println("Setting option " + name + " to " + option);
+            var peerWindow = WindowHelper.getPeer(stage.get());
+            if (peerWindow != null) {
+                peerWindow.setBackdropOption(name, option);
+            }
         }
     }
 

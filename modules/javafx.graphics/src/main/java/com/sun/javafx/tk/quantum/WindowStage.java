@@ -220,6 +220,15 @@ public class WindowStage extends GlassStage {
                 }
             }
 
+            if (fxStage != null && fxStage.getBackdrop() != null) {
+                var backdrop = fxStage.getBackdrop();
+                backdrop.getStyle().getAvailableOptions().forEach((name, optionClass) -> {
+                    var option = backdrop.getOption(name);
+                    if (option != null) {
+                        platformWindow.setBackdropOption(name, option);
+                    }
+                });
+            }
         }
         platformWindows.put(platformWindow, this);
     }
@@ -925,6 +934,13 @@ public class WindowStage extends GlassStage {
 
         if (platformWindow != null) {
             platformWindow.setDarkFrame(value);
+        }
+    }
+
+    @Override
+    public void setBackdropOption(String name, Object option) {
+        if (platformWindow != null) {
+            platformWindow.setBackdropOption(name, option);
         }
     }
 
