@@ -183,7 +183,7 @@ public class MenuBar extends Control {
      * modified at runtime the system menu bar will update as expected.
      *
      * @return the common system menus list property
-     * @since 26
+     * @since 28
      */
     public static final ObjectProperty<ObservableList<Menu>> commonSystemMenusProperty() {
         if (commonSystemMenus == null) {
