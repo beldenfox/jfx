@@ -275,7 +275,7 @@ public class DWGlyph implements Glyph {
             if (pt.y == 0 && Math.abs(pt.x) > 0) {
                 double scale = Math.abs(pt.x);
                 double ppem = (run.fontEmSize * 96 * scale) / 72.0;
-                if (ppem <= 16) {
+                if (ppem < 16) {
                     renderingMode = OS.DWRITE_RENDERING_MODE_NATURAL;
                 }
             }
