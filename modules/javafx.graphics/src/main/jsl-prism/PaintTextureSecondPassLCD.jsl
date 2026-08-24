@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,7 +26,7 @@
 param sampler dstColor;
 param sampler glyphColor;
 
-param float3 gamma; // gamma.x := gamma and gamma.y := 1/gamma
+param float3 gamma; // gamma.x := gamma and gamma.y := gamma
 // gamma.z := unitXCoord
 
 //This is the beef of the LCD Algorithm
@@ -45,12 +45,21 @@ float4 paint(float2 texCoord, float2 texCoord2, float4 jslVertexColor)
     dTexCoord.x = texCoord.x + unitXCoord; // Right sub-pixel of center
     glyphClr.b = sample(glyphColor, dTexCoord).a;
 
-    // glyphClr.a defined as average texel coverage of glyph
-    const float third = 1.0/3.0;
-    glyphClr.a = dot(glyphClr.rgb, float3(third, third, third));
-    if (glyphClr.a == 0.0) {
+    float3 one = float3(1.0);
+    if (dot(glyphClr.rgb, one) == 0.0) {
         discard;
     }
+
+    // Apply contrast. The allowed values are from 0.0 to 1.0. On Windows a
+    // user can tweak this setting using the ClearType tuner but most don't
+    // so we just hard-code a default. P.S. Can't name this contrast since
+    // that identifier is reserved on macOS.
+    float3 cntrst = float3(0.6);
+    glyphClr.rgb = glyphClr.rgb + ((one - glyphClr.rgb) * cntrst * glyphClr.rgb);
+
+    // glyphClr.a defined as average texel coverage of glyph
+    float3 third = float3(1.0 / 3.0);
+    glyphClr.a = dot(glyphClr.rgb, third);
 
     float4 dstClr = sample(dstColor, texCoord2);
 
@@ -100,9 +109,17 @@ float4 paint(float2 texCoord, float2 texCoord2, float4 jslVertexColor)
     * f(d.a) = d*(1-g*s) + s * mix(avg(g), g, d.a)
     */
 
-    dstClr = pow(dstClr, float4(gamma.y, gamma.y, gamma.y, gamma.y));
+    // Linearize the destination
+    float3 sRGBToLinear = float3(gamma.x);
+    if (dstClr.a > 0.0) {
+        dstClr.rgb /= dstClr.a;
+        dstClr.rgb = pow(dstClr.rgb, sRGBToLinear);
+        dstClr.rgb *= dstClr.a;
+    }
 
+    // The source color was linearized when setting up the shader
     float4 c = jslVertexColor;
+
     // Source over LCD blend equation, which handles transparency.
     // REMIND this does not work with default alpha blending:
     // D3DRS_SRCBLEND, D3DBLEND_ONE  no change to source color
@@ -113,7 +130,12 @@ float4 paint(float2 texCoord, float2 texCoord2, float4 jslVertexColor)
     glyphMix.rgb = mix(float3(glyphClr.a, glyphClr.a, glyphClr.a), glyphClr.rgb, dstClr.a);
     c = dstClr * (1.0 - glyphClr * c.a) + c * glyphMix;
 
-    c = pow(c, float4(gamma.x, gamma.x, gamma.x, gamma.x));
+    // Convert back to sRGB
+    if (c.a > 0.0) {
+        c.rgb /= c.a;
+        c.rgb = pow(c.rgb, 1.0 / sRGBToLinear);
+        c.rgb *= c.a;
+    }
 
     return c;
 }

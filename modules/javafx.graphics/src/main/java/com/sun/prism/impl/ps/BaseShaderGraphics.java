@@ -2098,18 +2098,20 @@ public abstract class BaseShaderGraphics
             } else {
                 initLCDSampleRT();
             }
-            float invgamma = PrismFontFactory.getLCDContrast();
-            float gamma = 1.0f/invgamma;
-            textColor = new Color((float)Math.pow(textColor.getRed(),   invgamma),
-                                  (float)Math.pow(textColor.getGreen(), invgamma),
-                                  (float)Math.pow(textColor.getBlue(),  invgamma),
-                                  (float)Math.pow(textColor.getAlpha(), invgamma));
+            // To convert sRGB to (approximately) linear the gamma we use is
+            // 2.233333 which more closely approximates the real sRGB
+            // function compared to the usual value of 2.2.
+            float gamma = 2.233333f;
+            textColor = new Color((float)Math.pow(textColor.getRed(),   gamma),
+                                  (float)Math.pow(textColor.getGreen(), gamma),
+                                  (float)Math.pow(textColor.getBlue(),  gamma),
+                                  (float)textColor.getAlpha());
             if (selectColor != null) {
                 selectColor = new Color(
-                        (float)Math.pow(selectColor.getRed(),   invgamma),
-                        (float)Math.pow(selectColor.getGreen(), invgamma),
-                        (float)Math.pow(selectColor.getBlue(),  invgamma),
-                        (float)Math.pow(selectColor.getAlpha(), invgamma));
+                        (float)Math.pow(selectColor.getRed(),   gamma),
+                        (float)Math.pow(selectColor.getGreen(), gamma),
+                        (float)Math.pow(selectColor.getBlue(),  gamma),
+                        (float)selectColor.getAlpha());
             }
 
             // In order to handle transparency, the LCD shader need to manually
@@ -2123,7 +2125,7 @@ public abstract class BaseShaderGraphics
                                                 cacheTex, false, textColor);
 
             float unitXCoord = 1.0f / cacheTex.getPhysicalWidth();
-            shader.setConstant("gamma", gamma, invgamma, unitXCoord);
+            shader.setConstant("gamma", gamma, gamma, unitXCoord);
             setCompositeMode(blendMode); // Restore composite mode
         } else {
             context.validatePaintOp(this, IDENT, cacheTex, bx, by, bw, bh);
