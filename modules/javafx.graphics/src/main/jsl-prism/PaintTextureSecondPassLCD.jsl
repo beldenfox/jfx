@@ -46,22 +46,35 @@ float4 paint(float2 texCoord, float2 texCoord2, float4 jslVertexColor)
     glyphClr.b = sample(glyphColor, dTexCoord).a;
 
     float3 one = float3(1.0);
+    float3 third = float3(1.0 / 3.0);
+
     if (dot(glyphClr.rgb, one) == 0.0) {
         discard;
     }
 
+    // The source color was linearized when setting up the shader
+    float4 c = jslVertexColor;
+    float4 dstClr = sample(dstColor, texCoord2);
+
     // Apply contrast. The allowed values are from 0.0 to 1.0. On Windows a
     // user can tweak this setting using the ClearType tuner but most don't
-    // so we just hard-code a default. P.S. Can't name this contrast since
-    // that identifier is reserved on macOS.
-    float3 cntrst = float3(0.6);
+    // so we just hard-code a default. Brighter colors tend to bloom outward
+    // and make the stems look wider so we tone it down the brighter the
+    // source is. P.S. Can't name this contrast since that identifier is
+    // reserved on macOS.
+    float3 cntrst = float3(0.75);
+
+    // When drawing white text on a black background the glyph will appear
+    // heavier even with no contrast applied.
+    float3 w = float3(0.21, 0.72, 0.07);
+    float srcLightness = dot(c.rgb, w);
+    float dstLightness = dot(dstClr.rgb, w);
+    cntrst = cntrst * (1.0 - clamp(srcLightness - dstLightness, 0.0, 1.0));
+
     glyphClr.rgb = glyphClr.rgb + ((one - glyphClr.rgb) * cntrst * glyphClr.rgb);
 
     // glyphClr.a defined as average texel coverage of glyph
-    float3 third = float3(1.0 / 3.0);
     glyphClr.a = dot(glyphClr.rgb, third);
-
-    float4 dstClr = sample(dstColor, texCoord2);
 
     /*
     * Sub-pixel blending with non-opaque destination
@@ -116,9 +129,6 @@ float4 paint(float2 texCoord, float2 texCoord2, float4 jslVertexColor)
         dstClr.rgb = pow(dstClr.rgb, sRGBToLinear);
         dstClr.rgb *= dstClr.a;
     }
-
-    // The source color was linearized when setting up the shader
-    float4 c = jslVertexColor;
 
     // Source over LCD blend equation, which handles transparency.
     // REMIND this does not work with default alpha blending:
