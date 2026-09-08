@@ -28,8 +28,11 @@ package javafx.stage;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.sun.javafx.tk.Toolkit;
 import com.sun.javafx.stage.StandardStageBackdropStyle;
@@ -118,12 +121,23 @@ public sealed interface StageBackdropStyle permits StandardStageBackdropStyle, P
     }
 
     /**
-     * Creates a platform backdrop style for the specified name.
+     * Gets the platform backdrop styles supported on this system.
+     * The list may be empty.
+     *
+     * @return an unmodifiable list of the supported platform
+     *  backdrop styles
+     */
+    public static List<StageBackdropStyle> getPlatformStyles() {
+        return Toolkit.getToolkit().getPlatformBackdropStyles();
+    }
+
+    /**
+     * Creates an optional platform backdrop style for the specified name.
      *
      * @param name the name of the backdrop style
-     * @return the backdrop style if supported, otherwise null.
+     * @return the optional backdrop style
      */
-    public static StageBackdropStyle style(String name) {
-        return Toolkit.getToolkit().createPlatformBackdropStyle(name);
+    public static Optional<StageBackdropStyle> style(String name) {
+        return Optional.ofNullable(Toolkit.getToolkit().createPlatformBackdropStyle(name));
     }
 }

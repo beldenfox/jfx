@@ -47,6 +47,7 @@ import javafx.stage.StageStyle;
 import javafx.stage.StageBackdrop;
 import javafx.stage.StageBackdropStyle;
 import javafx.stage.Window;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -108,10 +109,9 @@ public class BackdropTest extends Application {
         backdropStyles.add(new StageBackdropStyleChoice(null));
         backdropStyles.add(new StageBackdropStyleChoice(StageBackdropStyle.WINDOW));
         backdropStyles.add(new StageBackdropStyleChoice(StageBackdropStyle.PARTIAL));
-        var names = new ArrayList<>(StageBackdropStyle.getPlatformStyleNames());
-        names.sort(null);
-        names.forEach(m -> {
-            var style = StageBackdropStyle.style(m);
+        var platformStyles = new ArrayList<>(StageBackdropStyle.getPlatformStyles());
+        platformStyles.sort(Comparator.comparing(StageBackdropStyle::getName));
+        platformStyles.forEach(style -> {
             backdropStyles.add(new StageBackdropStyleChoice(style));
         });
     }
