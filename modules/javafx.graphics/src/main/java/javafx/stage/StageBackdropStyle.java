@@ -122,13 +122,18 @@ public sealed interface StageBackdropStyle permits StandardStageBackdropStyle, P
 
     /**
      * Gets the platform backdrop styles supported on this system.
-     * The list may be empty.
+     * The list may be empty. Each style will have default options.
      *
      * @return an unmodifiable list of the supported platform
      *  backdrop styles
      */
     public static List<StageBackdropStyle> getPlatformStyles() {
-        return Toolkit.getToolkit().getPlatformBackdropStyles();
+        ArrayList<StageBackdropStyle> styleList = new ArrayList<>();
+        Toolkit.getToolkit().getPlatformBackdropStyleNames().forEach(styleName -> {
+            var backdropStyle = style(styleName);
+            backdropStyle.ifPresent(s -> styleList.add(s));
+        });
+        return Collections.unmodifiableList(styleList);
     }
 
     /**

@@ -917,25 +917,4 @@ public abstract class Toolkit {
     public StageBackdropStyle createPlatformBackdropStyle(String name) {
         return null;
     }
-
-    private static class PlatformStyleList {
-        private static final List<StageBackdropStyle> PLATFORMBACKDROPSTYLES;
-
-        private PlatformStyleList() {
-        }
-
-        static {
-            ArrayList<StageBackdropStyle> styleList = new ArrayList<>();
-            getToolkit().getPlatformBackdropStyleNames().forEach(styleName -> {
-                var backdropStyle = StageBackdropStyle.style(styleName);
-                backdropStyle.ifPresent(s -> styleList.add(s));
-            });
-            PLATFORMBACKDROPSTYLES = Collections.unmodifiableList(styleList);
-        }
-    }
-
-    public List<StageBackdropStyle> getPlatformBackdropStyles() {
-        return PlatformStyleList.PLATFORMBACKDROPSTYLES;
-    }
 }
-
