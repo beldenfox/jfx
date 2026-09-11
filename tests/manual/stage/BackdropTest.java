@@ -26,6 +26,7 @@
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.application.ColorScheme;
+import javafx.application.ConditionalFeature;
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -107,13 +108,15 @@ public class BackdropTest extends Application {
 
     void initBackdropStyleList() {
         backdropStyles.add(new StageBackdropStyleChoice(null));
-        backdropStyles.add(new StageBackdropStyleChoice(StageBackdropStyle.WINDOW));
-        backdropStyles.add(new StageBackdropStyleChoice(StageBackdropStyle.PARTIAL));
-        var platformStyles = new ArrayList<>(StageBackdropStyle.getPlatformStyles());
-        platformStyles.sort(Comparator.comparing(StageBackdropStyle::getName));
-        platformStyles.forEach(style -> {
-            backdropStyles.add(new StageBackdropStyleChoice(style));
-        });
+        if (Platform.isSupported(ConditionalFeature.WINDOW_BACKDROP)) {
+            backdropStyles.add(new StageBackdropStyleChoice(StageBackdropStyle.WINDOW));
+            backdropStyles.add(new StageBackdropStyleChoice(StageBackdropStyle.PARTIAL));
+            var platformStyles = new ArrayList<>(StageBackdropStyle.getPlatformStyles());
+            platformStyles.sort(Comparator.comparing(StageBackdropStyle::getName));
+            platformStyles.forEach(style -> {
+                backdropStyles.add(new StageBackdropStyleChoice(style));
+            });
+        }
     }
 
     static private ImagePattern createSolidImageFill(Color color) {
@@ -381,6 +384,10 @@ public class BackdropTest extends Application {
     @Override
     public void start(Stage stage) {
         initBackdropStyleList();
-        showStage(stage, StageStyleChoice.EXTENDED, backdropStyles.get(1));
+        var initialStyle = backdropStyles.get(0);
+        if (backdropStyles.size() > 1) {
+            initialStyle = backdropStyles.get(1);
+        }
+        showStage(stage, StageStyleChoice.EXTENDED, initialStyle);
     }
 }
