@@ -84,6 +84,7 @@ public final class PrismSettings {
     public static final boolean forceUploadingPainter;
     public static final boolean forceAlphaTestShader;
     public static final boolean forceNonAntialiasedShape;
+    public static final boolean newLCDRendering;
 
     public static enum RasterizerType {
         DoubleMarlin("Double Precision Marlin Rasterizer");
@@ -356,6 +357,7 @@ public final class PrismSettings {
         // Force non anti-aliasing (not smooth) shape rendering
         forceNonAntialiasedShape = getBoolean(systemProperties, "prism.forceNonAntialiasedShape", false);
 
+        newLCDRendering = getBoolean(systemProperties, "prism.newLCDRendering", false);
     }
 
     private static int parseInt(String s, int dflt, int trueDflt,
