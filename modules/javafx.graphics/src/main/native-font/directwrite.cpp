@@ -31,6 +31,7 @@
 #include <wincodec.h>
 #include <vector>
 #include <new>
+#include <iostream>
 
 #include <com_sun_javafx_font_directwrite_OS.h>
 
@@ -2476,13 +2477,43 @@ JNIEXPORT void JNICALL OS_NATIVE(DrawGlyphRun)
 {
     D2D1_POINT_2F _arg1, *lparg1=NULL;
     DWRITE_GLYPH_RUN _arg2, *lparg2=NULL;
+
     _arg2.glyphCount = 1;
     _arg2.glyphIndices = new (std::nothrow) UINT16 [1];
     _arg2.glyphAdvances = new (std::nothrow) FLOAT [1];
     _arg2.glyphOffsets = new (std::nothrow) DWRITE_GLYPH_OFFSET [1];
     if (arg1) if ((lparg1 = getD2D1_POINT_2FFields(env, arg1, &_arg1)) == NULL) goto fail;
     if (arg2) if ((lparg2 = getDWRITE_GLYPH_RUNFields(env, arg2, &_arg2)) == NULL) goto fail;
-    ((ID2D1RenderTarget *)arg0)->DrawGlyphRun(_arg1, lparg2, (ID2D1Brush *)arg3, (DWRITE_MEASURING_MODE)arg4);
+    ID2D1RenderTarget* target = (ID2D1RenderTarget*)arg0;
+
+    IDWriteFactory* factory = nullptr;
+    DWriteCreateFactory(DWRITE_FACTORY_TYPE_ISOLATED,
+        __uuidof(IDWriteFactory),
+        reinterpret_cast<IUnknown**>(&factory));
+    if (factory != nullptr) {
+        IDWriteRenderingParams* params = nullptr;
+        IDWriteRenderingParams* defaultParams = nullptr;
+        factory->CreateRenderingParams(&defaultParams);
+        if (defaultParams != nullptr) {
+            std::cout << "Default gamma " << defaultParams->GetGamma() << std::endl;
+            defaultParams->Release();
+        }
+        HRESULT hr = factory->CreateCustomRenderingParams(
+            1.0f,
+            0.0f,
+            0.0f,
+            DWRITE_PIXEL_GEOMETRY_FLAT,
+            DWRITE_RENDERING_MODE_NATURAL,
+            &params);
+        if (params != nullptr) {
+            // std::cout << "Setting params" << std::endl;
+            target->SetTextRenderingParams(params);
+            params->Release();
+        }
+        factory->Release();
+    }
+    target->DrawGlyphRun(_arg1, lparg2, (ID2D1Brush *)arg3, (DWRITE_MEASURING_MODE)arg4);
+
 fail:
     delete [] _arg2.glyphIndices;
     delete [] _arg2.glyphAdvances;

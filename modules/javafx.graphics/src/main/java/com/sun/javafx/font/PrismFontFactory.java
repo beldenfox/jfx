@@ -131,10 +131,10 @@ public abstract class PrismFontFactory implements FontFactory {
         String defLCDProp = lcdTextOff ? "false" : "true";
         String lcdProp = System.getProperty("prism.lcdtext", defLCDProp);
         lcdEnabled = lcdProp.equals("true");
-        String newLCDProp = System.getProperty("prism.newLCDRendering", "false");
-        newLCDRendering = lcdEnabled && newLCDProp.equals("true");
+        String lcdRenderProp = System.getProperty("prism.lcdrendering", "default");
+        newLCDRendering = lcdEnabled && lcdRenderProp.equals("new");
 
-        String glyphShapingProp = System.getProperty("prism.glyphshaping", "");
+        String glyphShapingProp = System.getProperty("prism.glyphshaping", "default");
         symmetricGlyphs = glyphShapingProp.equals("symmetric");
 
         s = System.getProperty("prism.cacheLayoutSize");
