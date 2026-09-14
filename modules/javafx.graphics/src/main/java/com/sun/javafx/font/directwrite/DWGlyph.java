@@ -175,6 +175,11 @@ public class DWGlyph implements Glyph {
             return new byte[0];
         }
 
+        if (DWFontStrike.SYMMETRIC_GLYPHS) {
+            IDWriteFactory factory = DWFactory.getDWriteFactory();
+            target.SetTextRenderingMode(factory, OS.DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC);
+        }
+
         DWRITE_MATRIX matrix = strike.matrix;
         D2D1_MATRIX_3X2_F transform;
         if (matrix != null) {
@@ -260,13 +265,9 @@ public class DWGlyph implements Glyph {
     IDWriteGlyphRunAnalysis createAnalysis(float x, float y) {
         if (run.fontFace == 0) return null;
         IDWriteFactory factory = DWFactory.getDWriteFactory();
-        int renderingMode = 0;
-        if (DWFontStrike.SUBPIXEL_Y) {
+        int renderingMode = OS.DWRITE_RENDERING_MODE_NATURAL;
+        if (DWFontStrike.SUBPIXEL_Y || DWFontStrike.SYMMETRIC_GLYPHS) {
             renderingMode = OS.DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC;
-        } else if (DWFontStrike.SYMMETRIC_GLYPHS) {
-            renderingMode = OS.DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC;
-        } else {
-            renderingMode = OS.DWRITE_RENDERING_MODE_NATURAL;
         }
         int measuringMode = OS.DWRITE_MEASURING_MODE_NATURAL;
         DWRITE_MATRIX matrix = strike.matrix; /* can be null */

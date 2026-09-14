@@ -2464,6 +2464,31 @@ JNIEXPORT void JNICALL OS_NATIVE(SetTextAntialiasMode)
     ((ID2D1RenderTarget *)arg0)->SetTextAntialiasMode((D2D1_TEXT_ANTIALIAS_MODE)arg1);
 }
 
+JNIEXPORT void JNICALL OS_NATIVE(SetTextRenderingMode)
+    (JNIEnv *env, jclass that, jlong arg0, jlong arg1, jint arg2)
+{
+    ID2D1RenderTarget* target = (ID2D1RenderTarget*)arg0;
+    IDWriteFactory* factory = (IDWriteFactory*)arg1;
+
+    IDWriteRenderingParams* defaultParams = nullptr;
+    HRESULT hr = factory->CreateRenderingParams(&defaultParams);
+    if (SUCCEEDED(hr)) {
+        IDWriteRenderingParams* params = nullptr;
+        hr = factory->CreateCustomRenderingParams(
+                defaultParams->GetGamma(),
+                defaultParams->GetEnhancedContrast(),
+                defaultParams->GetClearTypeLevel(),
+                DWRITE_PIXEL_GEOMETRY_FLAT,
+                DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC,
+                &params);
+        if (SUCCEEDED(hr)) {
+            target->SetTextRenderingParams(params);
+            params->Release();
+        }
+        defaultParams->Release();
+    }
+}
+
 JNIEXPORT void JNICALL OS_NATIVE(SetTransform)
     (JNIEnv *env, jclass that, jlong arg0, jobject arg1)
 {
@@ -2485,33 +2510,6 @@ JNIEXPORT void JNICALL OS_NATIVE(DrawGlyphRun)
     if (arg1) if ((lparg1 = getD2D1_POINT_2FFields(env, arg1, &_arg1)) == NULL) goto fail;
     if (arg2) if ((lparg2 = getDWRITE_GLYPH_RUNFields(env, arg2, &_arg2)) == NULL) goto fail;
     ID2D1RenderTarget* target = (ID2D1RenderTarget*)arg0;
-
-    IDWriteFactory* factory = nullptr;
-    DWriteCreateFactory(DWRITE_FACTORY_TYPE_ISOLATED,
-        __uuidof(IDWriteFactory),
-        reinterpret_cast<IUnknown**>(&factory));
-    if (factory != nullptr) {
-        IDWriteRenderingParams* params = nullptr;
-        IDWriteRenderingParams* defaultParams = nullptr;
-        factory->CreateRenderingParams(&defaultParams);
-        if (defaultParams != nullptr) {
-            std::cout << "Default gamma " << defaultParams->GetGamma() << std::endl;
-            defaultParams->Release();
-        }
-        HRESULT hr = factory->CreateCustomRenderingParams(
-            1.0f,
-            0.0f,
-            0.0f,
-            DWRITE_PIXEL_GEOMETRY_FLAT,
-            DWRITE_RENDERING_MODE_NATURAL,
-            &params);
-        if (params != nullptr) {
-            // std::cout << "Setting params" << std::endl;
-            target->SetTextRenderingParams(params);
-            params->Release();
-        }
-        factory->Release();
-    }
     target->DrawGlyphRun(_arg1, lparg2, (ID2D1Brush *)arg3, (DWRITE_MEASURING_MODE)arg4);
 
 fail:
