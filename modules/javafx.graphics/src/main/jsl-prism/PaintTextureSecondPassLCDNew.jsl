@@ -122,7 +122,7 @@ float4 paint(float2 texCoord, float2 texCoord2, float4 jslVertexColor)
     */
 
     // Linearize the destination
-    float3 sRGBToLinear = float3(gamma.x);
+    float3 sRGBToLinear = float3(2.2333333);
     if (dstClr.a > 0.0) {
         dstClr.rgb /= dstClr.a;
         dstClr.rgb = pow(dstClr.rgb, sRGBToLinear);
