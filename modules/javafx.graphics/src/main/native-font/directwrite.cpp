@@ -31,7 +31,6 @@
 #include <wincodec.h>
 #include <vector>
 #include <new>
-#include <iostream>
 
 #include <com_sun_javafx_font_directwrite_OS.h>
 
@@ -2509,8 +2508,7 @@ JNIEXPORT void JNICALL OS_NATIVE(DrawGlyphRun)
     _arg2.glyphOffsets = new (std::nothrow) DWRITE_GLYPH_OFFSET [1];
     if (arg1) if ((lparg1 = getD2D1_POINT_2FFields(env, arg1, &_arg1)) == NULL) goto fail;
     if (arg2) if ((lparg2 = getDWRITE_GLYPH_RUNFields(env, arg2, &_arg2)) == NULL) goto fail;
-    ID2D1RenderTarget* target = (ID2D1RenderTarget*)arg0;
-    target->DrawGlyphRun(_arg1, lparg2, (ID2D1Brush *)arg3, (DWRITE_MEASURING_MODE)arg4);
+    ((ID2D1RenderTarget *)arg0)->DrawGlyphRun(_arg1, lparg2, (ID2D1Brush *)arg3, (DWRITE_MEASURING_MODE)arg4);
 
 fail:
     delete [] _arg2.glyphIndices;
