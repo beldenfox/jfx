@@ -2501,7 +2501,6 @@ JNIEXPORT void JNICALL OS_NATIVE(DrawGlyphRun)
 {
     D2D1_POINT_2F _arg1, *lparg1=NULL;
     DWRITE_GLYPH_RUN _arg2, *lparg2=NULL;
-
     _arg2.glyphCount = 1;
     _arg2.glyphIndices = new (std::nothrow) UINT16 [1];
     _arg2.glyphAdvances = new (std::nothrow) FLOAT [1];
@@ -2509,7 +2508,6 @@ JNIEXPORT void JNICALL OS_NATIVE(DrawGlyphRun)
     if (arg1) if ((lparg1 = getD2D1_POINT_2FFields(env, arg1, &_arg1)) == NULL) goto fail;
     if (arg2) if ((lparg2 = getDWRITE_GLYPH_RUNFields(env, arg2, &_arg2)) == NULL) goto fail;
     ((ID2D1RenderTarget *)arg0)->DrawGlyphRun(_arg1, lparg2, (ID2D1Brush *)arg3, (DWRITE_MEASURING_MODE)arg4);
-
 fail:
     delete [] _arg2.glyphIndices;
     delete [] _arg2.glyphAdvances;
